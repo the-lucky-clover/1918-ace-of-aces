@@ -13,6 +13,7 @@ var debrief_title: Label
 var debrief_next_btn: Button
 var blink_label: Label
 var blink_t := 0.0
+var pause_obj_box: VBoxContainer
 
 
 func _ready() -> void:
@@ -98,6 +99,9 @@ func _build_title() -> void:
 func _build_pause() -> void:
 	var vb := _centered_vbox(pause_root)
 	vb.add_child(_label("PAUSED", 72))
+	pause_obj_box = VBoxContainer.new()
+	pause_obj_box.add_theme_constant_override("separation", 6)
+	vb.add_child(pause_obj_box)
 	vb.add_child(_label("ESC — resume", 26))
 	var b := _button("RESUME")
 	b.pressed.connect(func() -> void: resume_requested.emit())
@@ -138,7 +142,17 @@ func show_title() -> void:
 	title_root.visible = true
 
 
-func show_pause() -> void:
+func show_pause(objectives: Dictionary) -> void:
+	for c in pause_obj_box.get_children():
+		c.queue_free()
+	pause_obj_box.add_child(_label("— OBJECTIVES —", 22, Color(0.9, 0.8, 0.5)))
+	pause_obj_box.add_child(_label("! Defeat the enemy ace (MANDATORY)", 20, Color(1.0, 0.6, 0.55)))
+	for sid in objectives.keys():
+		var o: Dictionary = objectives[sid]
+		var txt := "o %s  (%d/%d)" % [String(o["text"]), int(o["progress"]), int(o["target"])]
+		if bool(o["done"]):
+			txt = "v %s" % String(o["text"])
+		pause_obj_box.add_child(_label(txt, 20, Color(0.8, 0.8, 0.85)))
 	pause_root.visible = true
 
 

@@ -20,6 +20,7 @@ var burst_cd := 3.0
 var spawn_interval := 4.5
 var duel_cd := 14.0
 var duel_interval := 22.0
+var push_cd := 50.0  # "big push": synchronized barrage across the front
 
 
 func _ready() -> void:
@@ -52,6 +53,7 @@ func setup(theme: String) -> void:
 	tracer_cd = 0.5
 	burst_cd = 2.0
 	duel_cd = 10.0
+	push_cd = randf_range(35.0, 55.0)
 	clock = 0.0
 
 
@@ -120,6 +122,17 @@ func _flash_nest(seg: Node2D, world_pos: Vector2) -> void:
 			n["flash"] = 0.14
 
 
+## The big push: a synchronized barrage — rapid volleys, shell bursts
+## walking the lines, and a cry from the front. Pure theater.
+func _big_push() -> void:
+	for i in 3:
+		_fire_volley()
+	for i in 5:
+		_shell_burst()
+	FX.popup(get_parent(), Vector2(360.0, 640.0), "BIG PUSH!", Color(1.0, 0.6, 0.2))
+	FX.add_trauma(0.35)
+
+
 ## Ambient shell burst thumping into a trench line — visual only.
 func _shell_burst() -> void:
 	var live: Array = []
@@ -145,6 +158,10 @@ func _process(delta: float) -> void:
 	if duel_cd <= 0.0:
 		duel_cd = duel_interval * randf_range(0.85, 1.25)
 		_spawn_duel()
+	push_cd -= delta
+	if push_cd <= 0.0:
+		push_cd = randf_range(45.0, 75.0)
+		_big_push()
 	var dy := Global.scroll_speed * delta
 	for i in range(segments.size() - 1, -1, -1):
 		var s: Node2D = segments[i]

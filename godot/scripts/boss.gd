@@ -24,6 +24,7 @@ var charge_telegraph := 0.0
 var spiral_a := 0.0
 var entering := true
 var phase_invuln := 0.0
+var enraged := false  # last-stand: faster guns under 15% HP
 var _cur_frame := -1  # cache: avoid reloading the texture every frame
 
 var sprite: Sprite2D
@@ -118,15 +119,16 @@ func _physics_process(delta: float) -> void:
 
 
 func _match_phase_fire(player: Node2D) -> void:
+	var rate := 0.75 if enraged else 1.0  # last stand: faster guns
 	match phase:
 		1:
-			fire_cd = 1.5
+			fire_cd = 1.5 * rate
 			_aimed_burst(player, 3, 0.0)
 		2:
-			fire_cd = 1.25
+			fire_cd = 1.25 * rate
 			_aimed_burst(player, 3, 0.28)
 		3:
-			fire_cd = 0.9
+			fire_cd = 0.9 * rate
 			_spiral_volley()
 
 
@@ -176,6 +178,13 @@ func take_damage(amount: float) -> void:
 		FX.popup(get_parent(), global_position + Vector2(0, -80),
 			"%s — PHASE %d" % [boss_name, phase], Color.ORANGE)
 		FX.add_trauma(0.4)
+		FX.hitstop(0.35, 0.3)  # duel drama: the world holds its breath
+	# last stand: under 15% HP the ace fights desperate and fast
+	if not enraged and hp > 0.0 and hp <= MAX_HP * 0.15:
+		enraged = true
+		FX.popup(get_parent(), global_position + Vector2(0, -80),
+			"%s ENRAGED" % boss_name, Color.RED)
+		FX.add_trauma(0.3)
 	if hp <= 0.0:
 		dead = true
 		_die_spectacular()
@@ -187,6 +196,7 @@ func _die_spectacular() -> void:
 		var off := Vector2(randf_range(-50, 50), randf_range(-40, 40))
 		FX.explosion(get_parent(), global_position + off, i == 4)
 	FX.add_trauma(1.0)
+	FX.hitstop(0.25, 0.25)  # the duel's final beat
 	get_tree().call_group("hud", "hide_boss")
 	killed.emit(self)
 	queue_free()

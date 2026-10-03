@@ -57,6 +57,21 @@ func play_pause() -> void:
 	_xfade("pause")
 
 
+## Boss duel: dip the game track so the fight breathes, restore after.
+func duck_game() -> void:
+	if current == "game" and players.has("game"):
+		var p: AudioStreamPlayer = players["game"]
+		var tw := create_tween()
+		tw.tween_property(p, "volume_db", -9.0, 0.8)
+
+
+func unduck_game() -> void:
+	if current == "game" and players.has("game"):
+		var p: AudioStreamPlayer = players["game"]
+		var tw := create_tween()
+		tw.tween_property(p, "volume_db", float(VOLUMES["game"]), 0.8)
+
+
 ## Short beep, replayed by the player while fuel is critically low.
 func fuel_warning() -> void:
 	if not warn_p.playing:

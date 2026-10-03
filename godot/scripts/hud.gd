@@ -22,6 +22,8 @@ var brief_label: Label
 var _brief_tween: Tween = null
 var _fuel_frac := 1.0
 var _blink := 0.0
+var _last_hp := 100.0
+var _last_score := 0
 
 
 func _ready() -> void:
@@ -146,6 +148,12 @@ func _build() -> void:
 
 
 func update_score(s: int) -> void:
+	if s > _last_score:
+		# arcade punch: the score label flashes on every gain
+		score_label.modulate = Color(1.6, 1.5, 1.2)
+		var tw := create_tween()
+		tw.tween_property(score_label, "modulate", Color.WHITE, 0.25)
+	_last_score = s
 	score_label.text = "SCORE %d" % s
 
 
@@ -156,6 +164,12 @@ func set_sortie_name(n: String) -> void:
 func update_integrity(hp: float, max_hp: float) -> void:
 	var frac := clampf(hp / max_hp, 0.0, 1.0)
 	hull_bar.value = frac * 100.0
+	if hp < _last_hp:
+		# damage flash: the bar bleeds red for a beat
+		hull_bar.modulate = Color(2.2, 0.7, 0.7)
+		var tw := create_tween()
+		tw.tween_property(hull_bar, "modulate", Color.WHITE, 0.3)
+	_last_hp = hp
 	if frac > 0.5:
 		hull_fill.bg_color = Color(0.3, 0.75, 0.35)
 	elif frac > 0.25:

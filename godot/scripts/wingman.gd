@@ -19,6 +19,7 @@ var alive := true
 var fire_cd := 0.0
 var player_ref: Area2D = null
 var history: Array = []  # recent player positions, newest first (trail delay)
+var sm_vel := Vector2.ZERO  # smoothed follow velocity (no jitter)
 var sprite: Sprite2D
 var bullet_scene := preload("res://scenes/bullet.tscn")
 
@@ -69,14 +70,16 @@ func _physics_process(delta: float) -> void:
 		history.push_front(player_ref.global_position)
 		while history.size() > 40:
 			history.pop_back()
-	# --- shadow the player with a trail delay ---
+	# --- shadow the player with a trail delay (velocity-smoothed) ---
 	var target := _slot_target()
-	# delayed trail: aim slightly behind where the slot is heading
 	var want := (target - global_position)
 	var dist := want.length()
 	if dist > 4.0:
-		var sp := clampf(dist * STEER, 120.0, 560.0)
-		global_position += want.normalized() * sp * delta
+		var desired: Vector2 = want.normalized() * clampf(dist * STEER, 120.0, 560.0)
+		sm_vel = sm_vel.lerp(desired, 1.0 - exp(-8.0 * delta))
+	else:
+		sm_vel = sm_vel.lerp(Vector2.ZERO, 1.0 - exp(-8.0 * delta))
+	global_position += sm_vel * delta
 	global_position = Global.clamp_playfield(global_position, 30.0)
 	# banking tilt with lateral motion
 	var lv := (target - global_position)

@@ -51,6 +51,8 @@ var weave_phase := 0.0
 var dive_target := Vector2.ZERO
 var diving := false
 var dead := false
+var spawn_age := 0.0   # fade-in on entry
+var windup := 0.0      # attack telegraph: brief flash before firing
 var _cur_frame := -1  # cache: avoid reloading the texture every frame
 
 var sprite: Sprite2D
@@ -64,7 +66,7 @@ func configure(p_etype: String) -> void:
 	var t: Dictionary = TYPES[etype]
 	hp = t["hp"]
 	max_hp = hp
-	speed = t["speed"]
+	speed = float(t["speed"]) * randf_range(0.92, 1.08)  # per-spawn variance
 	score_value = t["score"]
 	fire_interval = t["fire"]
 	bullet_dmg = t["dmg"]
@@ -83,6 +85,7 @@ func _ready() -> void:
 	Global.make_circle(self, float(t["radius"]))
 	sprite = $Sprite2D
 	_set_sprite(1)  # level frame
+	sprite.modulate.a = 0.0  # fade in on entry
 	var player := get_tree().get_first_node_in_group("player")
 	if player:
 		dive_target = Vector2(player.global_position.x, Global.VIEW_H * 0.6)
@@ -132,12 +135,25 @@ func _physics_process(delta: float) -> void:
 		else:
 			_set_sprite(1)
 
-	# firing
+	# firing with a telegraph wind-up: brief flash warns before the shot
 	if fire_interval > 0.0:
-		fire_cd -= delta
-		if fire_cd <= 0.0:
-			fire_cd = fire_interval * randf_range(0.85, 1.15)
-			_fire(player)
+		if windup > 0.0:
+			windup -= delta
+			sprite.modulate = Color(2.2, 1.4, 1.4, sprite.modulate.a) if int(age * 24.0) % 2 == 0 else Color(1, 1, 1, sprite.modulate.a)
+			if windup <= 0.0:
+				sprite.modulate = Color(1, 1, 1, 1)
+				fire_cd = fire_interval * randf_range(0.85, 1.15)
+				_fire(player)
+		else:
+			fire_cd -= delta
+			if fire_cd <= 0.0:
+				windup = 0.35
+				fire_cd = 0.35  # held: the shot lands when windup ends
+
+	# spawn fade-in
+	if spawn_age < 0.4:
+		spawn_age += delta
+		sprite.modulate.a = minf(1.0, spawn_age / 0.4)
 
 	# despawn off the bottom
 	if position.y > Global.VIEW_H + 120.0:
@@ -196,6 +212,8 @@ func take_damage(amount: float) -> void:
 		var big := etype in ["bomber", "balloon", "railwaygun"]
 		FX.explosion(get_parent(), global_position, big)
 		FX.add_trauma(0.3 if big else 0.12)
+		if big:
+			FX.hitstop(0.09, 0.2)  # punctuation on heavy kills
 		_maybe_drop_pickup()
 		killed.emit(self)
 		queue_free()
@@ -204,14 +222,22 @@ func take_damage(amount: float) -> void:
 func _maybe_drop_pickup() -> void:
 	if etype in ["aagun", "railwaygun", "trench"]:
 		return  # ground targets don't drop pickups
-	if randf() < 0.14:
-		var p := pickup_scene.instantiate()
-		var kinds := ["ammo", "ammo", "ammo", "repair", "repair", "bomb", "bomb",
-			"spread", "rapid", "wingman", "fuel", "fuel"]
-		p.setup(kinds[randi() % kinds.size()])
-		# deferred: kills happen inside physics collision callbacks
-		get_parent().call_deferred("add_child", p)
-		p.set_deferred("global_position", global_position)
+	# pity timer: a dry spell of kills guarantees the next drop
+	if randf() < 0.14 or Global.kills_since_drop >= Global.PITY_KILLS:
+		Global.kills_since_drop = 0
+		_spawn_pickup()
+	else:
+		Global.kills_since_drop += 1
+
+
+func _spawn_pickup() -> void:
+	var p := pickup_scene.instantiate()
+	var kinds := ["ammo", "ammo", "ammo", "repair", "repair", "bomb", "bomb",
+		"spread", "rapid", "wingman", "fuel", "fuel"]
+	p.setup(kinds[randi() % kinds.size()])
+	# deferred: kills happen inside physics collision callbacks
+	get_parent().call_deferred("add_child", p)
+	p.set_deferred("global_position", global_position)
 
 
 func _draw() -> void:

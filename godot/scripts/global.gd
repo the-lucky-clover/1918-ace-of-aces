@@ -19,6 +19,10 @@ const L_PICKUP: int = 16
 # World scroll speed (px/s) — ground targets ride this downward.
 var scroll_speed: float = 90.0
 
+# Pity counter: guarantees a pickup drop after this many dry kills.
+var kills_since_drop := 0
+const PITY_KILLS := 22
+
 
 ## Attach a fresh circle collision shape to an Area2D.
 static func make_circle(parent: Area2D, radius: float) -> CollisionShape2D:

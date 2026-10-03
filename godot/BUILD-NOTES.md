@@ -153,6 +153,50 @@ Both smoke tests pass with **zero script/resource errors**. Boss-rush log:
 - Headless-validated 2026-10-03: clean import + autostart + autoboss
   smoke tests, zero errors.
 
+## Polish pass — 2026-10-03: full modular tune-up ("tally-ho" standard)
+
+Every module improved, nothing regressed. Headless-validated: clean
+import, 30 s smoke test, boss-rush full loop — zero script errors.
+
+- **PLAYER** (`player.gd`): banking tilt now lerps (smooth roll-in/out,
+  no snapping); tiny recoil kick per shot for weapon punch; loop-de-loop
+  punches forward out of the maneuver (classic 194x exit dash); "LOOP
+  READY" callout when the cooldown completes; one-time "LOW FUEL!" popup
+  when crossing 25% fuel.
+- **ENEMIES** (`enemy.gd`): per-spawn speed variance (±8%); 0.35 s
+  telegraph flash before every shot; 0.4 s fade-in on entry; heavy kills
+  (bomber/balloon/railway gun) punctuated with a brief hit-stop.
+- **BOSSES** (`boss.gd`): phase changes now land a slow-mo beat
+  (hit-stop 0.35 s); last-stand ENRAGE under 15% HP (faster guns +
+  callout); boss death gets a final slow-mo beat.
+- **POWER-UPS** (`pickup.gd`, `enemy.gd`, `global.gd`): pickups magnetize
+  toward the player within 130 px; every collect fires a colored sparkle
+  burst; pity timer guarantees a drop after 22 dry kills
+  (`Global.kills_since_drop`).
+- **WINGMAN** (`wingman.gd`, `player.gd`): follow steering is now
+  velocity-smoothed (no jitter); a wingman going down grants the player
+  1 s mercy invulnerability.
+- **FUEL**: one-time LOW FUEL callout at 25% (in addition to the flashing
+  gauge + beep); drain balance unchanged (arcade-fair).
+- **GROUND WAR** (`ground_war.gd`, `tank_duel.gd`): new "BIG PUSH"
+  event every 45–75 s — synchronized volleys, walking shell bursts, and
+  a cry from the front; tanks now flash muzzles when firing.
+- **SUN/LIGHTING** (`sun.gd`, `main.gd`): shadow darkness follows sun
+  elevation (deep at dawn/dusk, faint at noon); new per-sortie time-of-day
+  mood tint overlay (warm dawn, neutral midday, blood-red dusk, low alpha).
+- **MUSIC/AUDIO** (`music.gd`, `main.gd`): game track ducks during boss
+  duels and restores after; SFX still stubbed (noted, not built).
+- **HUD/MENUS** (`hud.gd`, `menus.gd`, `main.gd`): score label flashes on
+  every gain; hull bar bleeds red for a beat on damage; pause menu now
+  lists live mandatory + optional objectives; sorties open with a
+  "TALLY-HO!" cry.
+- **EFFECTS** (`effects.gd`, `fx/shockwave.gd`, `bullet.gd`, `main.gd`):
+  new `FX.hitstop()` (nesting-safe time-scale dip); collect bursts reuse
+  the shockwave ring with per-pickup tint; player tracers can now shoot
+  down incoming enemy fire (both die in a spark); enemy bullets capped at
+  240 live for readability; trench strafe streaks (3+ kills in 4 s) pay
+  escalating bonus points with callouts.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

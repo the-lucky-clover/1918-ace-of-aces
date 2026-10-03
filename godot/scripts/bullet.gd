@@ -12,11 +12,15 @@ func _ready() -> void:
 	if from_player:
 		add_to_group("pbullets")
 		collision_layer = Global.L_PBULLET
-		collision_mask = Global.L_ENEMY
+		collision_mask = Global.L_ENEMY | Global.L_EBULLET  # tracers can shoot down incoming fire
 	else:
 		add_to_group("ebullets")
 		collision_layer = Global.L_EBULLET
-		collision_mask = Global.L_PLAYER
+		collision_mask = Global.L_PLAYER | Global.L_PBULLET
+		# readability cap: too many enemy bullets at once drowns the screen
+		if get_tree().get_nodes_in_group("ebullets").size() > 240:
+			queue_free()
+			return
 	Global.make_circle(self, 5.0)
 	area_entered.connect(_on_area_entered)
 
@@ -53,6 +57,11 @@ func _on_area_entered(area: Area2D) -> void:
 	if from_player and area.is_in_group("enemies"):
 		if area.has_method("take_damage"):
 			area.take_damage(damage)
+		queue_free()
+	elif from_player and area.is_in_group("ebullets"):
+		# shooting down incoming fire: both tracers die in a spark
+		FX.explosion(get_parent(), global_position, false)
+		area.queue_free()
 		queue_free()
 	elif not from_player and area.is_in_group("player"):
 		if area.has_method("take_damage"):

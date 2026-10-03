@@ -25,16 +25,35 @@ static func shadow_for_takeoff(t: String) -> Vector2:
 
 
 ## Soft elliptical shadow shared by all aircraft. Call from _draw().
+## Shadow darkness follows sun elevation: long dawn/dusk shadows are
+## deeper, short noon shadows are faint.
 static func draw_shadow(ci: CanvasItem, radius: float = 20.0) -> void:
 	if shadow_offset.length() < 1.0:
 		return
 	var dir := shadow_offset.normalized()
 	var side := Vector2(-dir.y, dir.x)
 	var stretch := shadow_offset.length() * 0.5
+	var alpha := lerpf(0.38, 0.18, clampf(shadow_offset.length() / 22.0, 0.0, 1.0))
 	var pts := PackedVector2Array()
 	for i in 18:
 		var a := TAU * float(i) / 18.0
 		pts.append(shadow_offset
 			+ dir * cos(a) * (radius + stretch)
 			+ side * sin(a) * radius * 0.62)
-	ci.draw_colored_polygon(pts, Color(0.0, 0.0, 0.0, 0.28))
+	ci.draw_colored_polygon(pts, Color(0.0, 0.0, 0.0, alpha))
+
+
+## Subtle full-screen mood tint for a sortie's takeoff time: warm dawn,
+## neutral midday, blood-red dusk. Alpha stays low — mood, not washout.
+static func mood_tint(t: String) -> Color:
+	var parts := t.split(":")
+	if parts.size() < 2:
+		return Color(1, 1, 1, 0)
+	var mins := float(parts[0]) * 60.0 + float(parts[1])
+	var t01 := clampf((mins - 360.0) / 720.0, 0.0, 1.0)  # 06:00 -> 18:00
+	var dawn := Color(1.0, 0.55, 0.25, 0.10)
+	var noon := Color(1.0, 1.0, 1.0, 0.0)
+	var dusk := Color(0.9, 0.25, 0.15, 0.12)
+	if t01 < 0.5:
+		return dawn.lerp(noon, t01 * 2.0)
+	return noon.lerp(dusk, (t01 - 0.5) * 2.0)

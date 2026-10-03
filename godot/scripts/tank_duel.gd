@@ -8,8 +8,8 @@ const ALLIED_COL := Color(0.55, 0.52, 0.38)
 const GERMAN_COL := Color(0.36, 0.37, 0.34)
 const WRECK_COL := Color(0.12, 0.11, 0.10)
 
-var allied := {"x": 200.0, "hp": 60.0, "alive": true, "cd": 1.5}
-var german := {"x": 500.0, "hp": 60.0, "alive": true, "cd": 2.5}
+var allied := {"x": 200.0, "hp": 60.0, "alive": true, "cd": 1.5, "flash": 0.0}
+var german := {"x": 500.0, "hp": 60.0, "alive": true, "cd": 2.5, "flash": 0.0}
 var shells: Array = []  # {ax, ay, bx, by, t, dur, from}
 var age := 0.0
 var dead := false
@@ -40,8 +40,10 @@ func _process(delta: float) -> void:
 		if not bool(me["alive"]):
 			continue
 		me["cd"] = float(me["cd"]) - delta
+		me["flash"] = maxf(0.0, float(me["flash"]) - delta)
 		if float(me["cd"]) <= 0.0:
 			me["cd"] = randf_range(2.2, 4.2)
+			me["flash"] = 0.18
 			var a := _tank_pos(me)
 			var b := _tank_pos(foe) + Vector2(randf_range(-14, 14), randf_range(-10, 10))
 			shells.append({"ax": a.x, "ay": a.y, "bx": b.x, "by": b.y,
@@ -94,6 +96,11 @@ func _draw_tank(t: Dictionary, allied_side: bool) -> void:
 	var bdir := signf(foe_x - p.x)
 	draw_circle(p, 8.0, body.darkened(0.15))
 	draw_rect(Rect2(p.x + (8.0 if bdir > 0.0 else -26.0), p.y - 2, 18, 4), Color(0.1, 0.1, 0.1))
+	# muzzle flash on firing
+	if float(t["flash"]) > 0.0:
+		var mp := p + Vector2(30.0 * bdir, 0)
+		draw_circle(mp, 10.0, Color(1.0, 0.75, 0.3, 0.9))
+		draw_circle(mp, 5.0, Color(1.0, 0.95, 0.7, 0.95))
 	# faction marking: diamond (Allied) vs square (German), simple geometry
 	if allied_side:
 		var d := PackedVector2Array([p + Vector2(0, -14), p + Vector2(5, -9),

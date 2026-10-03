@@ -10,10 +10,23 @@ const MuzzleScript := preload("res://scripts/fx/muzzle.gd")
 const GoreScript := preload("res://scripts/fx/gore.gd")
 
 var trauma: float = 0.0
+var _hitstop_depth := 0
 
 
 func add_trauma(amount: float) -> void:
 	trauma = minf(1.0, trauma + amount)
+
+
+## Brief hit-stop: dips time_scale for punctuation on big kills, then
+## restores. Overlapping calls nest safely via a depth counter.
+func hitstop(duration: float = 0.06, scale: float = 0.25) -> void:
+	_hitstop_depth += 1
+	Engine.time_scale = scale
+	await get_tree().create_timer(duration, true, false, true).timeout
+	_hitstop_depth -= 1
+	if _hitstop_depth <= 0:
+		_hitstop_depth = 0
+		Engine.time_scale = 1.0
 
 
 func explosion(parent: Node, pos: Vector2, big: bool = false) -> void:
@@ -68,3 +81,11 @@ func gore(parent: Node, pos: Vector2) -> void:
 	var g: Node2D = GoreScript.new()
 	parent.add_child(g)
 	g.global_position = pos
+
+
+## Pickup collect burst: quick sparkle ring in the pickup's color.
+func collect_burst(parent: Node, pos: Vector2, color: Color = Color.WHITE) -> void:
+	var s: Node2D = ShockwaveScript.new()
+	s.col = color
+	parent.add_child(s)
+	s.global_position = pos

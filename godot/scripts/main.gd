@@ -23,6 +23,9 @@ var debrief_win := false
 var debrief_timer := -1.0
 var fuel_cd := 24.0             # steady fuel-pickup pressure valve
 var last_tap_t := -10.0         # double-tap -> loop-de-loop
+var strafe_streak := 0          # consecutive trench strafes
+var strafe_window := 0.0        # streak window (seconds)
+var mood_rect: ColorRect         # time-of-day mood tint overlay
 
 var camera: Camera2D
 var world: Node2D
@@ -39,6 +42,14 @@ func _ready() -> void:
 	fade = $FadeLayer/Fade
 	$Background.setup("farmland")
 	$GroundWar.setup("farmland")
+	# time-of-day mood tint overlay (below HUD, above the world)
+	var mood_layer := CanvasLayer.new()
+	mood_layer.layer = 2
+	add_child(mood_layer)
+	mood_rect = ColorRect.new()
+	mood_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	mood_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mood_layer.add_child(mood_rect)
 	$MenuLayer.show_title()
 	$MenuLayer.start_requested.connect(_on_menu_start)
 	$MenuLayer.resume_requested.connect(_on_menu_resume)
@@ -115,8 +126,10 @@ func start_sortie(i: int) -> void:
 	Global.scroll_speed = 90.0
 	# sun rig: shadows follow the sortie's takeoff time
 	Sun.shadow_offset = Sun.shadow_for_takeoff(String(s.get("takeoff", "12:00")))
+	mood_rect.color = Sun.mood_tint(String(s.get("takeoff", "12:00")))
 	fuel_cd = 24.0
 	Music.play_game()
+	Music.unduck_game()  # in case a previous boss left it ducked
 	var hud := $HUDLayer
 	hud.set_sortie_name(String(s["name"]))
 	hud.update_score(score)
@@ -135,13 +148,18 @@ func start_sortie(i: int) -> void:
 	$MenuLayer.hide_all()
 	state = State.PLAYING
 	_fade_to(0.0, 0.6)
+	# tally-ho: the sortie opens with a cry
+	FX.popup(world, Vector2(Global.VIEW_W * 0.5, Global.VIEW_H * 0.45),
+		"TALLY-HO!", Color(1.0, 0.85, 0.4))
+	strafe_streak = 0
+	strafe_window = 0.0
 
 
 func _pause() -> void:
 	state = State.PAUSED
 	get_tree().paused = true
 	Music.play_pause()
-	$MenuLayer.show_pause()
+	$MenuLayer.show_pause(objectives)
 
 
 func _resume() -> void:
@@ -260,6 +278,11 @@ func _process(delta: float) -> void:
 	if fuel_cd <= 0.0:
 		fuel_cd = 24.0
 		_spawn_fuel_pickup()
+	# strafe streak window decay
+	if strafe_window > 0.0:
+		strafe_window -= delta
+		if strafe_window <= 0.0:
+			strafe_streak = 0
 	if debrief_timer > 0.0:
 		debrief_timer -= delta
 		if debrief_timer <= 0.0:
@@ -285,6 +308,7 @@ func _spawn_boss(idx: int) -> void:
 	FX.popup(world, Vector2(Global.VIEW_W * 0.5, 420.0),
 		String(Sorties.BOSS_NAMES[idx]) + " INBOUND", Color.RED)
 	FX.add_trauma(0.3)
+	Music.duck_game()  # the duel gets sonic room
 	$HUDLayer.show_brief(String(Sorties.BOSS_NAMES[idx]) + " INBOUND")
 
 
@@ -315,6 +339,15 @@ func _on_enemy_killed(e: Area2D) -> void:
 				FX.popup(world, Vector2(Global.VIEW_W * 0.5, Global.VIEW_H * 0.42),
 					"SECONDARY COMPLETE  +%d" % int(o["bonus"]), Color.YELLOW)
 			$HUDLayer.update_objective(sec_id, o)
+	# strafe streaks: consecutive trench kills inside the window pay extra
+	if String(e.etype) == "trench":
+		strafe_streak += 1
+		strafe_window = 4.0
+		if strafe_streak >= 3:
+			var bonus := strafe_streak * 25
+			score += bonus
+			FX.popup(world, e.global_position + Vector2(0, -40),
+				"STRAFE x%d  +%d" % [strafe_streak, bonus], Color(1.0, 0.55, 0.2))
 	$HUDLayer.update_score(score)
 
 
@@ -322,6 +355,7 @@ func _on_boss_killed(_b: Area2D) -> void:
 	if debug_autotest:
 		print("[AUTOTEST] boss killed at t=%.1f, score=%d" % [sortie_time, score + 2000])
 	score += 2000
+	Music.unduck_game()
 	FX.popup(world, Vector2(Global.VIEW_W * 0.5, 520.0), "ACE DOWN  +2000", Color.YELLOW)
 	$HUDLayer.update_score(score)
 	$HUDLayer.mark_primary_done()

@@ -34,6 +34,8 @@ var rapid_t := 0.0
 var loop_t := 0.0
 var loop_cd := 0.0
 var warn_cd := 0.0
+var fuel_warned := false  # one-time LOW FUEL callout per sortie
+var bank_angle := 0.0    # smoothed banking tilt (lerped, not snapped)
 var alive := true
 var debug_godmode := false  # headless smoke test: invincible + autofire
 var debug_dmg_mult := 1.0   # headless boss-rush test: bullet damage multiplier
@@ -72,9 +74,13 @@ func _physics_process(delta: float) -> void:
 			FX.add_trauma(0.3)
 	# --- low-fuel warning: flashing gauge (HUD) + audio cue ---
 	warn_cd -= delta
-	if fuel < 25.0 and fuel > 0.0 and warn_cd <= 0.0:
-		warn_cd = 1.6
-		Music.fuel_warning()
+	if fuel < 25.0 and fuel > 0.0:
+		if not fuel_warned:
+			fuel_warned = true
+			FX.popup(get_parent(), global_position + Vector2(0, -56), "LOW FUEL!", Color(1.0, 0.5, 0.2))
+		if warn_cd <= 0.0:
+			warn_cd = 1.6
+			Music.fuel_warning()
 	# --- inertia-based flight (dead engine: no thrust, heavy drag, sinking glide) ---
 	var wish := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if engine_dead:
@@ -92,15 +98,23 @@ func _physics_process(delta: float) -> void:
 	if engine_dead and position.y >= Global.VIEW_H - 70.0:
 		_crash()
 		return
-	# --- loop-de-loop roll ---
+	# --- loop-de-loop roll (smoothed banking otherwise) ---
 	if loop_t > 0.0:
 		loop_t -= delta
 		sprite.rotation += TAU * delta / LOOP_DUR
 		if loop_t <= 0.0:
 			sprite.rotation = 0.0
+			bank_angle = 0.0
+			# punch out of the maneuver: forward dash, classic 194x
+			velocity += Vector2(0, -150.0)
 	else:
-		sprite.rotation = clampf(velocity.x * 0.0011, -0.45, 0.45)
+		var target_bank := clampf(velocity.x * 0.0011, -0.45, 0.45)
+		bank_angle = lerpf(bank_angle, target_bank, 1.0 - exp(-10.0 * delta))
+		sprite.rotation = bank_angle
+	var loop_was_cd := loop_cd
 	loop_cd = maxf(0.0, loop_cd - delta)
+	if loop_was_cd > 0.0 and loop_cd <= 0.0:
+		FX.popup(get_parent(), global_position + Vector2(0, -56), "LOOP READY", Color(0.7, 0.9, 1.0))
 	# --- fire ---
 	fire_cd -= delta
 	var want_fire := Input.is_action_pressed("fire") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or debug_godmode
@@ -154,6 +168,8 @@ func _spawn_bullet(pos: Vector2, vel: Vector2) -> void:
 	get_parent().add_child(b)
 	b.global_position = pos
 	FX.muzzle(get_parent(), pos)
+	# weapon punch: tiny recoil kick opposite the shot
+	velocity += Vector2(0, 7.0)
 
 
 func _use_bomb() -> void:
@@ -267,6 +283,8 @@ func add_wingman() -> void:
 
 func _on_wingman_died(w: Area2D) -> void:
 	wingmen.erase(w)
+	# mercy: a wingman going down buys the player a breath
+	invuln = maxf(invuln, 1.0)
 
 
 func _on_area_entered(area: Area2D) -> void:
