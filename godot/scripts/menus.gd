@@ -82,6 +82,7 @@ func _build_title() -> void:
 	t.add_theme_constant_override("shadow_offset_y", 4)
 	vb.add_child(t)
 	vb.add_child(_label(Global.GAME_TAGLINE, 30, Color(0.72, 0.68, 0.58)))
+	vb.add_child(_label("v" + Global.VERSION, 20, Color(0.62, 0.56, 0.44)))
 	vb.add_child(_label("OVER THE TRENCHES — 1918", 24, Color(0.75, 0.42, 0.28)))
 	vb.add_child(_label("SIX SORTIES · SIX ACES · NO PARACHUTES", 22, Color(0.55, 0.5, 0.45)))
 	vb.add_child(_label("WASD / ARROWS — fly      SPACE / CLICK — fire", 22))
