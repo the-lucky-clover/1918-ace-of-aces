@@ -2,12 +2,13 @@ extends Node2D
 ## Orchestrator: game states, wave timeline, objectives, scoring,
 ## camera shake (trauma), pause, screen transitions, debrief.
 
-enum State { TITLE, PLAYING, PAUSED, DEBRIEF }
+enum State { TITLE, PLAYING, PAUSED, DEBRIEF, CINEMATIC }
 
 const PlayerScene := preload("res://scenes/player.tscn")
 const EnemyScene := preload("res://scenes/enemy.tscn")
 const BossScene := preload("res://scenes/boss.tscn")
 const PickupScene := preload("res://scenes/pickup.tscn")
+const CinematicScript := preload("res://scripts/cinematic.gd")
 
 var state: int = State.TITLE
 var sortie_index := 0
@@ -31,6 +32,8 @@ var camera: Camera2D
 var world: Node2D
 var fade: ColorRect
 var debug_autotest := false  # set by --autostart; enables test logging
+var _cine: Control = null    # cinematic sequencer (takeoff / landing reels)
+var _cine_mode := ""         # "takeoff" | "landing"
 
 
 func _ready() -> void:
@@ -50,6 +53,14 @@ func _ready() -> void:
 	mood_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	mood_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	mood_layer.add_child(mood_rect)
+	# cinematic sequencer: full-screen overlay, above HUD (5), below fade (20)
+	var cine_layer := CanvasLayer.new()
+	cine_layer.layer = 8
+	add_child(cine_layer)
+	_cine = CinematicScript.new()
+	_cine.set_anchors_preset(Control.PRESET_FULL_RECT)
+	cine_layer.add_child(_cine)
+	_cine.finished.connect(_on_cine_finished)
 	$MenuLayer.show_title()
 	$MenuLayer.start_requested.connect(_on_menu_start)
 	$MenuLayer.resume_requested.connect(_on_menu_resume)
@@ -128,8 +139,6 @@ func start_sortie(i: int) -> void:
 	Sun.shadow_offset = Sun.shadow_for_takeoff(String(s.get("takeoff", "12:00")))
 	mood_rect.color = Sun.mood_tint(String(s.get("takeoff", "12:00")))
 	fuel_cd = 24.0
-	Music.play_game()
-	Music.unduck_game()  # in case a previous boss left it ducked
 	var hud := $HUDLayer
 	hud.set_sortie_name(String(s["name"]))
 	hud.update_score(score)
@@ -137,7 +146,7 @@ func start_sortie(i: int) -> void:
 	hud.update_bombs(2)
 	hud.set_objectives(objectives)
 	hud.hide_boss()
-	hud.show_brief(String(s["name"]) + "\n" + String(s["brief"]))
+	hud.set_minimap_theme(String(s["theme"]))
 	# wave schedule
 	schedule.clear()
 	for w in s["waves"]:
@@ -145,14 +154,36 @@ func start_sortie(i: int) -> void:
 			schedule.append({"at": float(w["t"]) + n * float(w["gap"]), "type": String(w["type"])})
 	schedule.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["at"]) < float(b["at"]))
 	sortie_time = 0.0
+	strafe_streak = 0
+	strafe_window = 0.0
 	$MenuLayer.hide_all()
+	# takeoff cinematic, then gameplay begins (skipped in headless autotest)
+	_cine_mode = "takeoff"
+	if debug_autotest:
+		_begin_play()
+	else:
+		state = State.CINEMATIC
+		_cine.play_takeoff(s)
+
+
+## Gameplay actually begins (after the takeoff reel).
+func _begin_play() -> void:
+	var s: Dictionary = Sorties.SORTIES[sortie_index]
 	state = State.PLAYING
 	_fade_to(0.0, 0.6)
+	Music.play_game()
+	Music.unduck_game()  # in case a previous boss left it ducked
+	$HUDLayer.show_brief(String(s["name"]) + "\n" + String(s["brief"]))
 	# tally-ho: the sortie opens with a cry
 	FX.popup(world, Vector2(Global.VIEW_W * 0.5, Global.VIEW_H * 0.45),
 		"TALLY-HO!", Color(1.0, 0.85, 0.4))
-	strafe_streak = 0
-	strafe_window = 0.0
+
+
+func _on_cine_finished() -> void:
+	if _cine_mode == "landing":
+		_show_debrief()
+	else:
+		_begin_play()
 
 
 func _pause() -> void:
@@ -198,6 +229,8 @@ func _to_title() -> void:
 # ---------------------------------------------------------------- input ---
 
 func _input(event: InputEvent) -> void:
+	if state == State.CINEMATIC:
+		return  # the cinematic sequencer handles its own skip input
 	if event.is_action_pressed("pause_game"):
 		if state == State.PLAYING:
 			_pause()
@@ -286,7 +319,13 @@ func _process(delta: float) -> void:
 	if debrief_timer > 0.0:
 		debrief_timer -= delta
 		if debrief_timer <= 0.0:
-			_show_debrief()
+			# victory earns the landing reel; defeat goes straight to debrief
+			if debrief_win and not debug_autotest:
+				_cine_mode = "landing"
+				state = State.CINEMATIC
+				_cine.play_landing(Sorties.SORTIES[sortie_index])
+			else:
+				_show_debrief()
 
 
 func _spawn_enemy(etype: String) -> void:

@@ -24,6 +24,7 @@ var _fuel_frac := 1.0
 var _blink := 0.0
 var _last_hp := 100.0
 var _last_score := 0
+var minimap: Control
 
 
 func _ready() -> void:
@@ -103,10 +104,10 @@ func _build() -> void:
 	power_label.size = Vector2(560, 26)
 	add_child(power_label)
 	# minimap (top-right)
-	var mm: Control = MinimapScript.new()
-	mm.position = Vector2(Global.VIEW_W - 166.0, 10.0)
-	mm.size = Vector2(156, 156)
-	add_child(mm)
+	minimap = MinimapScript.new()
+	minimap.position = Vector2(Global.VIEW_W - 166.0, 10.0)
+	minimap.size = Vector2(156, 156)
+	add_child(minimap)
 	# objectives under minimap
 	var ot := _mk_label("OBJECTIVES", 18, Color.YELLOW)
 	ot.position = Vector2(Global.VIEW_W - 264.0, 176.0)
@@ -159,6 +160,11 @@ func update_score(s: int) -> void:
 
 func set_sortie_name(n: String) -> void:
 	sortie_label.text = n
+
+
+func set_minimap_theme(theme: String) -> void:
+	if minimap != null and minimap.has_method("set_theme"):
+		minimap.set_map_theme(theme)
 
 
 func update_integrity(hp: float, max_hp: float) -> void:

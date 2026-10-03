@@ -197,6 +197,41 @@ import, 30 s smoke test, boss-rush full loop — zero script errors.
   240 live for readability; trench strafe streaks (3+ kills in 4 s) pay
   escalating bonus points with callouts.
 
+## Cinematic minimap + takeoff/landing pass — 2026-10-03
+
+- **Modular cinematic sequencer** (`scripts/cinematic.gd`): one reusable
+  player runs both reels, parameterized per sortie (theme, takeoff time via
+  `sun.gd` for shadow vectors + mood tint, sortie name). Skippable with tap /
+  ENTER ("TAP TO SKIP" hint). Emits `finished` once per reel.
+- **Takeoff reel** (~6.6 s): Allied aerodrome from directly overhead (runway
+  strip, hangar tents, windsock, parked SPADs, slow push-in) → takeoff roll
+  (acceleration, dust puffs, smooth tracking) → climb-out (ground falls away,
+  shadow separates and fades with altitude, farmland scrolls fast, trench
+  band slides in at the front). Captioned with sortie name + takeoff time.
+- **Landing reel** (~6.4 s, victory only): return cruise over farmland →
+  final approach (aerodrome centered, shadow converges as altitude bleeds
+  off) → touchdown (dust burst, rollout decel, "MISSION COMPLETE" stamp).
+- **IRON RULE honored**: the virtual camera never leaves top-down —
+  perpendicular to the playfield through every shot. Pan + zoom only; never
+  rotation, never tilt. (Aircraft bank in-plane; that is the plane moving.)
+- **Flow** (`main.gd`): new `State.CINEMATIC`. `start_sortie` now plays the
+  takeoff reel, then `_begin_play()` (brief banner, TALLY-HO, game music —
+  moved here so the brief no longer expires behind the reel). Boss kill on
+  victory plays the landing reel, then the debrief; defeat skips straight to
+  debrief. Both reels auto-skip in headless autotest.
+- **Minimap upgrade** (`scripts/minimap.gd`, `hud.gd`): theme-aware terrain
+  backdrop (farmland patchwork / trench lines with cratered band / crater
+  speckle, plus home-aerodrome marker); animated unit icons (triangles
+  oriented by travel direction, pulsing; boss = pulsing diamond with
+  expanding threat ring); pulsing gold markers on live secondary-objective
+  targets (balloons/trench/railgun/bombers); smoothed icon motion plus an
+  eased camera-follow reticle around the player; existing power-up rings
+  kept. Still readable at a glance.
+- Headless-validated 2026-10-03: clean import, 30 s autostart smoke test,
+  boss-rush full loop (`phase 2 → phase 3 → killed (+2000) → debrief
+  win=true`) — zero script errors. Both cinematic reels exercised
+  headless (takeoff skip path + landing natural finish) — zero errors.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render
