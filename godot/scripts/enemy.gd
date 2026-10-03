@@ -158,6 +158,7 @@ func _fire(player: Node2D) -> void:
 	b.setup(dir * 300.0, bullet_dmg, false)
 	get_parent().add_child(b)
 	b.global_position = global_position + dir * 24.0
+	FX.muzzle(get_parent(), global_position + dir * 24.0, true)
 
 
 func _fire_flak(player: Node2D) -> void:
@@ -168,6 +169,7 @@ func _fire_flak(player: Node2D) -> void:
 	var s := flak_scene.instantiate()
 	s.setup(global_position, aim, 14.0, 70.0)
 	get_parent().add_child(s)
+	FX.muzzle(get_parent(), global_position + Vector2(0, -20), true)
 
 
 func _fire_railway_fan(player: Node2D) -> void:

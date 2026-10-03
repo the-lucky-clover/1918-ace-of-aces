@@ -24,7 +24,7 @@ func _ready() -> void:
 	_build()
 
 
-func _mk_label(text: String, size: int, color: Color = Color(0.93, 0.9, 0.8)) -> Label:
+func _mk_label(text: String, size: int, color: Color = Color(0.87, 0.82, 0.68)) -> Label:
 	var l := Label.new()
 	l.text = text
 	l.add_theme_font_size_override("font_size", size)

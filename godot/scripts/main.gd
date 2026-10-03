@@ -35,6 +35,7 @@ func _ready() -> void:
 	world = $World
 	fade = $FadeLayer/Fade
 	$Background.setup("farmland")
+	$GroundWar.setup("farmland")
 	$MenuLayer.show_title()
 	$MenuLayer.start_requested.connect(_on_menu_start)
 	$MenuLayer.resume_requested.connect(_on_menu_resume)
@@ -100,6 +101,7 @@ func start_sortie(i: int) -> void:
 	player.died.connect(_on_player_died)
 	# world + HUD
 	$Background.setup(String(s["theme"]))
+	$GroundWar.setup(String(s["theme"]))
 	Global.scroll_speed = 90.0
 	var hud := $HUDLayer
 	hud.set_sortie_name(String(s["name"]))
@@ -208,9 +210,10 @@ func _on_menu_next() -> void:
 
 func _process(delta: float) -> void:
 	# camera shake from trauma (runs even on menus — feels alive)
+	# extended decay: heavy hits ring out longer now
 	if FX.trauma > 0.0:
-		FX.trauma = maxf(0.0, FX.trauma - delta * 1.6)
-		var sh := FX.trauma * FX.trauma * 26.0
+		FX.trauma = maxf(0.0, FX.trauma - delta * 1.05)
+		var sh := FX.trauma * FX.trauma * 34.0
 		camera.offset = Vector2(randf_range(-sh, sh), randf_range(-sh, sh))
 	else:
 		camera.offset = Vector2.ZERO
@@ -310,5 +313,8 @@ func screen_bomb() -> void:
 			e.take_damage(220.0)
 	if boss_ref != null and is_instance_valid(boss_ref):
 		boss_ref.take_damage(120.0)
+	if player != null and is_instance_valid(player):
+		FX.shockwave(world, player.global_position)
+		FX.explosion(world, player.global_position, true)
 	FX.add_trauma(0.7)
 	_flash_white()

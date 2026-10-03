@@ -32,7 +32,8 @@ func _overlay() -> Control:
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var dim := ColorRect.new()
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.color = Color(0.015, 0.015, 0.025, 0.82)
+	# dried-blood dark, warmed from the old blue-black
+	dim.color = Color(0.02, 0.013, 0.01, 0.84)
 	root.add_child(dim)
 	add_child(root)
 	root.visible = false
@@ -68,10 +69,20 @@ func _centered_vbox(root: Control) -> VBoxContainer:
 
 
 func _build_title() -> void:
+	# embers rise behind the title text — dread-soaked atmosphere
+	var embers := EmberField.new()
+	embers.area = Vector2(720, 1280)
+	embers.count = 55
+	title_root.add_child(embers)
 	var vb := _centered_vbox(title_root)
-	var t := _label(Global.GAME_TITLE, 120, Color(0.95, 0.88, 0.7))
+	var t := _label(Global.GAME_TITLE, 132, Color(0.93, 0.89, 0.78))
+	t.add_theme_color_override("font_shadow_color", Color(0.45, 0.12, 0.03, 0.9))
+	t.add_theme_constant_override("shadow_offset_x", 4)
+	t.add_theme_constant_override("shadow_offset_y", 4)
 	vb.add_child(t)
-	vb.add_child(_label(Global.GAME_TAGLINE, 30, Color(0.75, 0.78, 0.85)))
+	vb.add_child(_label(Global.GAME_TAGLINE, 30, Color(0.72, 0.68, 0.58)))
+	vb.add_child(_label("OVER THE TRENCHES — 1918", 24, Color(0.75, 0.42, 0.28)))
+	vb.add_child(_label("SIX SORTIES · SIX ACES · NO PARACHUTES", 22, Color(0.55, 0.5, 0.45)))
 	vb.add_child(_label("WASD / ARROWS — fly      SPACE / CLICK — fire", 22))
 	vb.add_child(_label("X / SHIFT — bomb      ESC — pause", 22))
 	vb.add_child(_label("Complete the MANDATORY duel. Optionals earn bonus points.", 22, Color(0.9, 0.8, 0.5)))
@@ -136,33 +147,35 @@ func hide_pause() -> void:
 
 
 ## data: {win, sortie_name, primary_text, primary_done, objectives, score, campaign_done}
+## Styled as a typed field report — parchment ink on dried-blood dark.
 func show_debrief(data: Dictionary) -> void:
 	hide_all()
 	for c in debrief_vbox.get_children():
 		c.queue_free()
+	debrief_vbox.add_child(_label("FIELD REPORT", 26, Color(0.72, 0.66, 0.52)))
 	if bool(data["campaign_done"]):
 		debrief_title.text = "CAMPAIGN COMPLETE"
 		debrief_title.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
 	elif bool(data["win"]):
-		debrief_title.text = "SORTIE COMPLETE"
-		debrief_title.add_theme_color_override("font_color", Color(0.5, 1.0, 0.55))
+		debrief_title.text = "MISSION COMPLETE"
+		debrief_title.add_theme_color_override("font_color", Color(0.55, 0.9, 0.5))
 	else:
-		debrief_title.text = "SHOT DOWN"
-		debrief_title.add_theme_color_override("font_color", Color(1.0, 0.4, 0.35))
-	debrief_vbox.add_child(_label(String(data["sortie_name"]), 26, Color(0.8, 0.84, 0.9)))
+		debrief_title.text = "KILLED IN ACTION"
+		debrief_title.add_theme_color_override("font_color", Color(1.0, 0.38, 0.3))
+	debrief_vbox.add_child(_label("> SORTIE: " + String(data["sortie_name"]), 24, Color(0.85, 0.8, 0.66)))
 	var mark := "v" if bool(data["primary_done"]) else "x"
-	var pcol := Color(0.5, 1.0, 0.55) if bool(data["primary_done"]) else Color(1.0, 0.4, 0.35)
-	debrief_vbox.add_child(_label("%s MANDATORY: %s" % [mark, String(data["primary_text"])], 24, pcol))
+	var pcol := Color(0.55, 0.9, 0.5) if bool(data["primary_done"]) else Color(1.0, 0.42, 0.34)
+	debrief_vbox.add_child(_label("> %s MANDATORY: %s" % [mark, String(data["primary_text"])], 23, pcol))
 	var bonus_total := 0
 	var objs: Dictionary = data["objectives"]
 	for sid in objs.keys():
 		var o: Dictionary = objs[sid]
 		if bool(o["done"]):
 			bonus_total += int(o["bonus"])
-			debrief_vbox.add_child(_label("v OPTIONAL: %s  (+%d)" % [String(o["text"]), int(o["bonus"])], 22, Color(0.5, 1.0, 0.55)))
+			debrief_vbox.add_child(_label("> v OPTIONAL: %s  (+%d)" % [String(o["text"]), int(o["bonus"])], 21, Color(0.55, 0.9, 0.5)))
 		else:
-			debrief_vbox.add_child(_label("x OPTIONAL: %s  (%d/%d)" % [String(o["text"]), int(o["progress"]), int(o["target"])], 22, Color(0.65, 0.65, 0.7)))
-	debrief_vbox.add_child(_label("SCORE  %d" % int(data["score"]), 34, Color(1.0, 0.9, 0.5)))
+			debrief_vbox.add_child(_label("> x OPTIONAL: %s  (%d/%d)" % [String(o["text"]), int(o["progress"]), int(o["target"])], 21, Color(0.6, 0.57, 0.5)))
+	debrief_vbox.add_child(_label("> FINAL SCORE  %d" % int(data["score"]), 30, Color(0.95, 0.85, 0.55)))
 	if bool(data["campaign_done"]):
 		debrief_next_btn.text = "RETURN TO TITLE"
 	elif bool(data["win"]):

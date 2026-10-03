@@ -86,6 +86,7 @@ func _spawn_bullet(pos: Vector2, vel: Vector2) -> void:
 	b.setup(vel, 12.0 * debug_dmg_mult, true)  # setup BEFORE add_child so layers are right in _ready
 	get_parent().add_child(b)
 	b.global_position = pos
+	FX.muzzle(get_parent(), pos)
 
 
 func _use_bomb() -> void:

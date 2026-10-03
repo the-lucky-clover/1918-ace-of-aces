@@ -5,6 +5,9 @@ extends Node
 const ExplosionScript := preload("res://scripts/fx/explosion.gd")
 const PopupScript := preload("res://scripts/fx/popup_text.gd")
 const CloudScript := preload("res://scripts/fx/flak_cloud.gd")
+const ShockwaveScript := preload("res://scripts/fx/shockwave.gd")
+const MuzzleScript := preload("res://scripts/fx/muzzle.gd")
+const GoreScript := preload("res://scripts/fx/gore.gd")
 
 var trauma: float = 0.0
 
@@ -42,3 +45,26 @@ func flak_cloud(parent: Node, pos: Vector2) -> void:
 	var c: Node2D = CloudScript.new()
 	parent.add_child(c)
 	c.global_position = pos
+
+
+## Expanding shockwave ring — bomb detonations, boss deaths.
+func shockwave(parent: Node, pos: Vector2) -> void:
+	var s: Node2D = ShockwaveScript.new()
+	parent.add_child(s)
+	s.global_position = pos
+
+
+## Brief muzzle flash. enemy=true tints it red-orange.
+func muzzle(parent: Node, pos: Vector2, enemy: bool = false) -> void:
+	var m: Node2D = MuzzleScript.new()
+	if enemy:
+		m.col = Color(1.0, 0.45, 0.2)
+	parent.add_child(m)
+	m.global_position = pos
+
+
+## Arcade-stylized gore burst — strafed infantry. Exaggerated, not realistic.
+func gore(parent: Node, pos: Vector2) -> void:
+	var g: Node2D = GoreScript.new()
+	parent.add_child(g)
+	g.global_position = pos

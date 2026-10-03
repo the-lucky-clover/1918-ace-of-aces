@@ -63,17 +63,39 @@ Both smoke tests pass with **zero script/resource errors**. Boss-rush log:
 - **Menus** (`scripts/menus.gd`): title, pause, debrief (win/fail/campaign),
   fade screen transitions (`main.gd`).
 - **Backgrounds** (`scripts/background.gd`): scrolling farmland / trenches /
-  cratered no-man's-land with drifting set-piece sprites.
+  cratered no-man's-land with drifting set-piece sprites — now a rich grim
+  war landscape: churned mud blotches, water-filled shell craters with
+  flickering firelight glints, shattered tree stumps, wreckage, field
+  furrows, drifting smoke banks, a burning horizon with distant artillery
+  flashes, and floating embers/ash. Ground stays dark and desaturated so
+  sprites and bullets stay readable.
+- **Ground war** (`scripts/ground_war.gd`, `scripts/trench_segment.gd`,
+  `scripts/trench_target.gd`): Allied and German trench networks scroll with
+  the world — zigzag trenches, sandbag parapets, barbed wire, MG nests,
+  infantry manning the lines. Factions read at a glance (khaki + blue-grey
+  diamonds = Allied; field-grey + dark-red squares = German). An ambient
+  battle rages between the lines independent of the player: MG tracers arc
+  back and forth, muzzles blink, shells thump into the lines. German nests
+  and infantry squads are live strafe targets (etype "trench") feeding the
+  "strafe trenches" secondary — infantry erupt in arcade-stylized gore
+  bursts (`scripts/fx/gore.gd`), nests explode.
 - **Juice** (`scripts/effects.gd` + `scripts/fx/`): drawn explosions, floating
-  score text, hit flashes, trauma-based screen shake, muzzle… (tracers).
+  score text, hit flashes, trauma-based screen shake, muzzle flashes on
+  player and enemy guns, hot tracer streaks, thick black flak clouds with
+  detonation flash, shockwave rings on bombs and big blasts, rising smoke
+  columns, lingering embers.
+- **Menus** (`scripts/menus.gd`): dread-soaked title (rising embers, ember
+  shadow, "SIX SORTIES · SIX ACES · NO PARACHUTES"); debrief styled as a
+  typed field report ("FIELD REPORT", "> " lines, MISSION COMPLETE /
+  KILLED IN ACTION stamps on dried-blood dark).
 - **Art**: all 42 finished Blender-rendered sprites from
   `~/workspace/1918-ace-of-aces-assets/sprites/` are imported and used.
 
 ## What's stubbed / not yet validated
 
-- **Player art is a placeholder**: no Blender SPAD XIII render exists in the
-  sprite set, so `assets/sprites/player-spad.png` is a simple PIL-drawn
-  top-down biplane (roundels included). Swap in a real render when available.
+- **Player art**: `assets/sprites/player-spad.png` is now a real Blender render
+  (French khaki/linen biplane with tricolor roundels, top-down) generated
+  from the existing procedural aircraft builder — no longer a placeholder.
 - **Player-death → debrief-fail path**: code is straightforward and shares the
   validated debrief, but the headless tests used godmode — not yet exercised.
 - **Bosses 2–6 and sorties 2–6**: data-driven on the same validated code

@@ -36,10 +36,17 @@ func _physics_process(delta: float) -> void:
 
 
 func _draw() -> void:
-	var c := Color(1.0, 0.9, 0.4) if from_player else Color(1.0, 0.32, 0.25)
-	var d := vel.normalized() * 9.0 if vel.length() > 1.0 else Vector2(0, -9)
-	draw_line(-d, d, c, 5.0)
-	draw_circle(Vector2.ZERO, 3.0, Color(1, 1, 1, 0.9))
+	# Hot tracer streak: wide translucent glow under a bright core.
+	var dir := vel.normalized() if vel.length() > 1.0 else Vector2(0, -1)
+	var tip := dir * 7.0
+	if from_player:
+		draw_line(-dir * 26.0, tip, Color(1.0, 0.72, 0.22, 0.30), 9.0)
+		draw_line(-dir * 20.0, tip, Color(1.0, 0.88, 0.42), 4.5)
+		draw_circle(tip, 3.8, Color(1, 1, 1, 0.95))
+	else:
+		draw_line(-dir * 24.0, tip, Color(1.0, 0.18, 0.08, 0.32), 9.0)
+		draw_line(-dir * 18.0, tip, Color(1.0, 0.34, 0.16), 4.5)
+		draw_circle(tip, 3.8, Color(1.0, 0.72, 0.55, 0.95))
 
 
 func _on_area_entered(area: Area2D) -> void:
