@@ -36,29 +36,64 @@ const THEMES: Dictionary = {
 		"pieces": ["setpiece-nomansland", "setpiece-trench"],
 		"furrows": false,
 	},
+	"uboat_flotilla": {
+		"c": Color(0.05, 0.10, 0.18),
+		"pieces": [],
+		"furrows": false,
+	},
+	"uboat_base": {
+		"c": Color(0.07, 0.12, 0.17),
+		"pieces": [],
+		"furrows": false,
+	},
+	"zeppelin_sheds": {
+		"c": Color(0.19, 0.18, 0.12),
+		"pieces": [],
+		"furrows": false,
+	},
+	"munitions_depot": {
+		"c": Color(0.17, 0.14, 0.10),
+		"pieces": [],
+		"furrows": false,
+	},
+	"rail_yard": {
+		"c": Color(0.16, 0.14, 0.11),
+		"pieces": [],
+		"furrows": false,
+	},
 }
 
 
 class GroundFeatures extends Node2D:
 	# Scrolling ground detail: mud blotches, water-filled craters with
-	# firelight glints, shattered stumps, wreckage, field furrows.
+	# firelight glints, shattered stumps, wreckage, field furrows — plus
+	# per-locale features: waves, zeppelin sheds, pen blocks, ammo dumps,
+	# rail tracks, cranes. Kinds are chosen from a theme-specific pool.
 	var items: Array = []
 	var flick := 0.0
 	var furrows := false
+	var locale := ""
 
-	func generate(furrow_rows: bool) -> void:
+	# theme -> feature kind pool
+	const POOLS := {
+		"farmland": ["mud", "mud", "stump", "wreck"],
+		"trenches": ["mud", "crater", "crater", "stump", "wreck"],
+		"nomansland": ["crater", "crater", "mud", "stump", "wreck"],
+		"uboat_flotilla": ["wave", "wave", "wake"],
+		"uboat_base": ["wave", "wake", "penblock", "crane"],
+		"zeppelin_sheds": ["shed", "mast", "mud"],
+		"munitions_depot": ["dump", "dump", "sandbag", "mud"],
+		"rail_yard": ["railtrack", "railtrack", "freight", "mud"],
+	}
+
+	func generate(furrow_rows: bool, theme_name: String = "") -> void:
 		furrows = furrow_rows
+		locale = theme_name
 		items.clear()
+		var pool: Array = POOLS.get(theme_name, POOLS["nomansland"])
 		var H := 1280.0
 		for i in 110:
-			var kind := "mud"
-			var roll := randf()
-			if roll < 0.30:
-				kind = "crater"
-			elif roll < 0.48:
-				kind = "stump"
-			elif roll < 0.60:
-				kind = "wreck"
+			var kind: String = pool[randi() % pool.size()]
 			items.append({
 				"kind": kind,
 				"p": Vector2(randf_range(0.0, 720.0), randf_range(-H, H)),
@@ -117,6 +152,77 @@ class GroundFeatures extends Node2D:
 					draw_line(p - Vector2(-sin(a), cos(a)) * 18.0 * s,
 						p + Vector2(-sin(a), cos(a)) * 18.0 * s,
 						Color(0.07, 0.055, 0.04), 5.0 * s)
+				"wave":
+					# wind-driven wave glints on open water
+					for k in 3:
+						var wp := p + Vector2(k * 26.0 - 26.0, k * 10.0 - 10.0) * s
+						draw_arc(wp, 14.0 * s, 0.4, PI - 0.4, 8,
+							Color(0.35, 0.55, 0.70, 0.35), 2.0)
+				"wake":
+					# fading V wake of a recently-dived boat
+					draw_line(p, p + Vector2(-30, 44) * s, Color(0.60, 0.70, 0.75, 0.30), 3.0)
+					draw_line(p, p + Vector2(30, 44) * s, Color(0.60, 0.70, 0.75, 0.30), 3.0)
+				"shed":
+					# zeppelin hangar: giant long shed, dark outline
+					var w := 190.0 * s
+					var h := 52.0 * s
+					draw_rect(Rect2(p - Vector2(w / 2, h / 2), Vector2(w, h)),
+						Color(0.13, 0.12, 0.09, 0.95))
+					draw_rect(Rect2(p - Vector2(w / 2, h / 2), Vector2(w, h)),
+						Color(0.40, 0.38, 0.30, 0.7), false, 3.0)
+					draw_line(p - Vector2(w / 2, 0), p + Vector2(w / 2, 0),
+						Color(0.40, 0.38, 0.30, 0.4), 2.0)
+				"mast":
+					# mooring mast for airships
+					draw_circle(p, 9.0 * s, Color(0.30, 0.28, 0.22, 0.9))
+					draw_line(p + Vector2(-16, 0) * s, p + Vector2(16, 0) * s,
+						Color(0.45, 0.42, 0.33, 0.8), 2.5)
+				"penblock":
+					# concrete U-boat pen block in the harbor
+					var w2 := 120.0 * s
+					var h2 := 60.0 * s
+					draw_rect(Rect2(p - Vector2(w2 / 2, h2 / 2), Vector2(w2, h2)),
+						Color(0.30, 0.30, 0.32, 0.95))
+					draw_rect(Rect2(p - Vector2(w2 / 2, h2 / 2), Vector2(w2, h2)),
+						Color(0.55, 0.55, 0.58, 0.6), false, 2.5)
+					draw_rect(Rect2(p + Vector2(-w2 / 4, -6), Vector2(w2 / 2, 12)),
+						Color(0.05, 0.07, 0.10, 0.95))
+				"crane":
+					# harbor crane silhouette
+					draw_line(p, p + Vector2(0, -52) * s, Color(0.25, 0.22, 0.18), 6.0 * s)
+					draw_line(p + Vector2(0, -52) * s, p + Vector2(38, -30) * s,
+						Color(0.25, 0.22, 0.18), 4.0 * s)
+					draw_line(p + Vector2(38, -30) * s, p + Vector2(38, -8) * s,
+						Color(0.35, 0.30, 0.22), 2.0 * s)
+				"dump":
+					# ammo dump: crate cluster with sandbag ring
+					for cx in [-1.0, 0.0, 1.0]:
+						for cy in [-1.0, 0.0, 1.0]:
+							var cp := p + Vector2(cx * 16, cy * 13) * s
+							draw_rect(Rect2(cp - Vector2(7, 6) * s, Vector2(14, 12) * s),
+								Color(0.42, 0.33, 0.20, 0.9))
+					draw_arc(p, 34.0 * s, 0.0, TAU, 16, Color(0.50, 0.46, 0.33, 0.6), 4.0)
+				"sandbag":
+					draw_arc(p, 22.0 * s, 0.0, TAU, 12, Color(0.48, 0.44, 0.31, 0.7), 5.0)
+				"railtrack":
+					# twin rails running down-screen
+					var a2: float = it["r"]
+					var dir := Vector2(cos(a2), sin(a2))
+					var nrm := Vector2(-dir.y, dir.x)
+					for off in [-7.0, 7.0]:
+						draw_line(p - dir * 90.0 * s + nrm * off * s,
+							p + dir * 90.0 * s + nrm * off * s,
+							Color(0.32, 0.32, 0.34, 0.8), 2.5)
+					for k in 6:
+						var tp := p + dir * (k * 30.0 - 75.0) * s
+						draw_line(tp - nrm * 10.0 * s, tp + nrm * 10.0 * s,
+							Color(0.28, 0.22, 0.15, 0.8), 3.0)
+				"freight":
+					# boxcar sitting on the rails
+					draw_rect(Rect2(p - Vector2(14, 30) * s, Vector2(28, 60) * s),
+						Color(0.30, 0.20, 0.12, 0.92))
+					draw_rect(Rect2(p - Vector2(14, 30) * s, Vector2(28, 60) * s),
+						Color(0.50, 0.40, 0.26, 0.5), false, 2.0)
 		if furrows:
 			# faint plough lines, farmland only
 			for i in 16:
@@ -221,7 +327,7 @@ func setup(theme_name: String) -> void:
 	theme = theme_name
 	var t: Dictionary = THEMES[theme]
 	ground.color = t["c"]
-	features.generate(bool(t["furrows"]))
+	features.generate(bool(t["furrows"]), theme_name)
 	horizon.flashes.clear()
 	for p in pieces:
 		if is_instance_valid(p):

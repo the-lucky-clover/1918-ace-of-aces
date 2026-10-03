@@ -368,6 +368,18 @@ func _on_enemy_killed(e: Area2D) -> void:
 			sec_id = "railgun"
 		"bomber":
 			sec_id = "bombers"
+		"uboat":
+			sec_id = "uboats"
+		"subpen":
+			sec_id = "pens"
+		"zeppelin":
+			sec_id = "zeppelins"
+		"ammodepot":
+			sec_id = "depots"
+		"arty":
+			sec_id = "arty"
+		"parked":
+			sec_id = "parked"
 	if sec_id != "" and objectives.has(sec_id):
 		var o: Dictionary = objectives[sec_id]
 		if not bool(o["done"]):

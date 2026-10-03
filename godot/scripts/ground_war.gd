@@ -21,6 +21,7 @@ var spawn_interval := 4.5
 var duel_cd := 14.0
 var duel_interval := 22.0
 var push_cd := 50.0  # "big push": synchronized barrage across the front
+var naval := false  # water locales: no trench segments, no tank duels at sea
 
 
 func _ready() -> void:
@@ -46,7 +47,18 @@ func setup(theme: String) -> void:
 		"trenches":
 			spawn_interval = 4.0
 			duel_interval = 20.0
+		"uboat_flotilla", "uboat_base":
+			# open water: the ground war stays ashore
+			naval = true
+			spawn_interval = 9999.0
+			duel_interval = 9999.0
+		"zeppelin_sheds", "munitions_depot", "rail_yard":
+			# rear-area targets: light ambient battle, no tank duels
+			naval = false
+			spawn_interval = 10.0
+			duel_interval = 9999.0
 		_:
+			naval = false
 			spawn_interval = 4.5
 			duel_interval = 24.0
 	spawn_cd = 1.0

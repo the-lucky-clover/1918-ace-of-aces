@@ -232,6 +232,40 @@ import, 30 s smoke test, boss-rush full loop — zero script errors.
   win=true`) — zero script errors. Both cinematic reels exercised
   headless (takeoff skip path + landing natural finish) — zero errors.
 
+## Minimap locales pass — 2026-10-03: five new locales, every sortie distinct
+
+Eight themes in the system (`minimap.gd` `_draw_terrain`, `background.gd`
+`THEMES` + theme-pooled `GroundFeatures`, `ground_war.gd` density). Sortie
+roster — no two sorties share a locale:
+
+- **S1 Dawn Patrol — farmland** (unchanged): gentle intro, balloons + trenches.
+- **S2 Wolfpack — uboat_flotilla** (NEW): open coastal water, sandy
+  coastline, wave speckle. U-boats ride surfaced — sink 4 before they
+  crash-dive (proximity dive, 2 s submerge, escapes with no kill). Secondaries:
+  uboats(4), bombers(3). Ground war stands down at sea (`naval` flag: no
+  trench segments, no tank duels).
+- **S3 The Zeppelin Sheds — zeppelin_sheds** (NEW): giant hangar sheds +
+  mooring mast on the ground and minimap. Zeppelins (420 HP drifting
+  gasbags, big score) + parked aircraft to strafe. Secondaries: zeppelins(2),
+  parked(4).
+- **S4 Powder Keg — munitions_depot** (NEW): ammo-dump grid + rail spur.
+  Depots **chain-detonate** — killing one sets off every depot within
+  210 px (`CHAIN DETONATION!`). Secondaries: depots(4), trenches(5).
+- **S5 The Pens — uboat_base** (NEW): harbor with concrete moles, pen
+  blocks, cranes. Concrete sub pens (320 HP, roof AA) under heavy flak.
+  Secondaries: pens(3), uboats(2).
+- **S6 Iron Harvest — rail_yard** (NEW): marshaling yard, rail fan, boxcars.
+  The railway gun's home turf — trains to wreck, artillery batteries
+  defending. Secondaries: railgun(1), arty(4).
+
+New enemy types (`enemy.gd` TYPES): uboat (dive mechanic), subpen,
+zeppelin, ammodepot (chain), train (sways along rails), arty
+(counter-battery), parked (reuses scout sprite). New Blender renders
+(`blender/build_locales.py`, `render_locales.py`): uboat, subpen, zeppelin,
+ammodepot, train, arty — all <400 tris, original. Ground/naval targets don't
+drop pickups; zeppelin/subpen/train get heavy-kill FX. Considered but cut:
+artillery park, enemy forward airfield, balloon park (staged candidates).
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

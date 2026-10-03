@@ -31,6 +31,29 @@ const TYPES: Dictionary = {
 	"trench": {"hp": 45.0, "speed": 0.0, "score": 120, "fire": 0.0, "dmg": 0.0,
 		"behavior": "ground", "aircraft": false, "radius": 30.0,
 		"sprites": ["setpiece-trench"]},
+	# --- locale targets: U-boat flotilla, sub pens, zeppelin sheds,
+	#     munitions depot, rail yard, artillery ---
+	"uboat": {"hp": 90.0, "speed": 0.0, "score": 350, "fire": 0.0, "dmg": 0.0,
+		"behavior": "uboat", "aircraft": false, "radius": 34.0,
+		"sprites": ["uboat"]},
+	"subpen": {"hp": 320.0, "speed": 0.0, "score": 900, "fire": 3.4, "dmg": 12.0,
+		"behavior": "ground", "aircraft": false, "radius": 44.0,
+		"sprites": ["subpen"]},
+	"zeppelin": {"hp": 420.0, "speed": 55.0, "score": 1000, "fire": 2.2, "dmg": 10.0,
+		"behavior": "drift", "aircraft": true, "radius": 60.0,
+		"sprites": ["zeppelin"]},
+	"ammodepot": {"hp": 60.0, "speed": 0.0, "score": 400, "fire": 0.0, "dmg": 0.0,
+		"behavior": "ground", "aircraft": false, "radius": 30.0,
+		"sprites": ["ammodepot"]},
+	"train": {"hp": 150.0, "speed": 0.0, "score": 500, "fire": 0.0, "dmg": 0.0,
+		"behavior": "train", "aircraft": false, "radius": 40.0,
+		"sprites": ["train"]},
+	"arty": {"hp": 80.0, "speed": 0.0, "score": 300, "fire": 3.0, "dmg": 16.0,
+		"behavior": "ground", "aircraft": false, "radius": 26.0,
+		"sprites": ["arty"]},
+	"parked": {"hp": 40.0, "speed": 0.0, "score": 150, "fire": 0.0, "dmg": 0.0,
+		"behavior": "ground", "aircraft": false, "radius": 22.0,
+		"sprites": ["enemy-scout-level"]},
 }
 
 var etype: String = "scout"
@@ -53,6 +76,8 @@ var diving := false
 var dead := false
 var spawn_age := 0.0   # fade-in on entry
 var windup := 0.0      # attack telegraph: brief flash before firing
+var submerging := false  # U-boat crash-dive in progress
+var submerge_t := 0.0
 var _cur_frame := -1  # cache: avoid reloading the texture every frame
 
 var sprite: Sprite2D
@@ -123,6 +148,26 @@ func _physics_process(delta: float) -> void:
 			vel = Vector2(sin(age * 0.6 + weave_phase) * 24.0, speed)
 		"ground":
 			vel = Vector2(0, Global.scroll_speed)
+		"train":
+			# rides the world scroll, swaying gently along its rails
+			vel = Vector2(sin(age * 0.5 + weave_phase) * 25.0, Global.scroll_speed)
+		"uboat":
+			# surfaced boat rides the scroll — until the player closes in,
+			# then it crash-dives and escapes (no kill, no score)
+			vel = Vector2(0, Global.scroll_speed)
+			if not submerging and player and is_instance_valid(player):
+				if global_position.distance_to(player.global_position) < 260.0:
+					submerging = true
+					submerge_t = 0.0
+					FX.popup(get_parent(), global_position + Vector2(0, -48),
+						"DIVING!", Color(0.6, 0.8, 1.0))
+			if submerging:
+				submerge_t += delta
+				var k: float = clampf(submerge_t / 2.0, 0.0, 1.0)
+				sprite.modulate.a = 1.0 - k
+				sprite.scale = Vector2.ONE * (1.0 - 0.35 * k)
+				if submerge_t >= 2.0:
+					queue_free()  # escaped beneath the waves
 
 	position += vel * delta
 
@@ -205,23 +250,39 @@ func _fire_railway_fan(player: Node2D) -> void:
 func take_damage(amount: float) -> void:
 	if dead:
 		return
+	if etype == "uboat" and submerging and submerge_t > 0.4:
+		return  # already under — can't be hit
 	hp -= amount
 	FX.hit_flash(sprite)
 	if hp <= 0.0:
 		dead = true
-		var big := etype in ["bomber", "balloon", "railwaygun"]
+		var big := etype in ["bomber", "balloon", "railwaygun", "zeppelin", "subpen", "train"]
 		FX.explosion(get_parent(), global_position, big)
 		FX.add_trauma(0.3 if big else 0.12)
 		if big:
 			FX.hitstop(0.09, 0.2)  # punctuation on heavy kills
+		if etype == "ammodepot":
+			_chain_detonate()
 		_maybe_drop_pickup()
 		killed.emit(self)
 		queue_free()
 
 
+## Munitions depot going up sets off every nearby depot — the chain.
+func _chain_detonate() -> void:
+	FX.popup(get_parent(), global_position + Vector2(0, -56),
+		"CHAIN DETONATION!", Color(1.0, 0.6, 0.15))
+	for o in get_tree().get_nodes_in_group("enemies"):
+		if o != self and is_instance_valid(o) and String(o.get("etype")) == "ammodepot" \
+				and not bool(o.get("dead")):
+			if o.global_position.distance_to(global_position) < 210.0:
+				o.call_deferred("take_damage", 9999.0)
+
+
 func _maybe_drop_pickup() -> void:
-	if etype in ["aagun", "railwaygun", "trench"]:
-		return  # ground targets don't drop pickups
+	if etype in ["aagun", "railwaygun", "trench", "subpen", "ammodepot", "train",
+			"arty", "parked", "uboat"]:
+		return  # ground / naval targets don't drop pickups
 	# pity timer: a dry spell of kills guarantees the next drop
 	if randf() < 0.14 or Global.kills_since_drop >= Global.PITY_KILLS:
 		Global.kills_since_drop = 0

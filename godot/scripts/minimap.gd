@@ -27,6 +27,12 @@ const SEC_ETYPE := {
 	"trenches": "trench",
 	"railgun": "railwaygun",
 	"bombers": "bomber",
+	"uboats": "uboat",
+	"pens": "subpen",
+	"zeppelins": "zeppelin",
+	"depots": "ammodepot",
+	"arty": "arty",
+	"parked": "parked",
 }
 
 
@@ -190,6 +196,16 @@ func _draw_terrain() -> void:
 			_draw_farmland()
 		"trenches":
 			_draw_trenches()
+		"uboat_flotilla":
+			_draw_flotilla()
+		"uboat_base":
+			_draw_uboat_base()
+		"zeppelin_sheds":
+			_draw_zeppelin_sheds()
+		"munitions_depot":
+			_draw_munitions_depot()
+		"rail_yard":
+			_draw_rail_yard()
 		_:
 			_draw_nomansland()
 	# home aerodrome marker, all themes
@@ -230,3 +246,80 @@ func _draw_nomansland() -> void:
 		var py := fmod(float(i) * 91.0, size.y)
 		var pr := 1.5 + fmod(float(i) * 7.0, 3.0)
 		draw_circle(Vector2(px, py), pr, Color(0.05, 0.045, 0.035, 0.9))
+
+
+func _draw_flotilla() -> void:
+	# open coastal water: deep blue, sandy coastline along the left edge,
+	# shallow shelf, drifting wave speckle
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.05, 0.10, 0.18, 0.92))
+	draw_rect(Rect2(0, 0, size.x * 0.16, size.y), Color(0.30, 0.26, 0.17, 0.95))
+	draw_rect(Rect2(size.x * 0.16, 0, size.x * 0.06, size.y), Color(0.10, 0.16, 0.24, 0.9))
+	for i in 22:
+		var px := size.x * 0.22 + fmod(float(i) * 67.0, size.x * 0.76)
+		var py := fmod(float(i) * 113.0, size.y)
+		var pr := 1.0 + fmod(float(i) * 5.0, 2.0)
+		draw_arc(Vector2(px, py), pr * 2.2, 0.3, PI - 0.3, 6,
+			Color(0.35, 0.55, 0.70, 0.5), 1.0)
+
+
+func _draw_uboat_base() -> void:
+	# harbor: water with two concrete moles forming a bay, pen blocks, cranes
+	_draw_flotilla()
+	var cx := size.x * 0.55
+	# moles
+	draw_line(Vector2(cx - 34, size.y * 0.30), Vector2(cx + 6, size.y * 0.30),
+		Color(0.42, 0.42, 0.44), 5.0)
+	draw_line(Vector2(cx + 40, size.y * 0.52), Vector2(cx + 4, size.y * 0.52),
+		Color(0.42, 0.42, 0.44), 5.0)
+	# submarine pen blocks
+	for i in 3:
+		var pr := Rect2(cx - 26 + i * 20.0, size.y * 0.36, 16, 10)
+		draw_rect(pr, Color(0.30, 0.30, 0.32, 0.95))
+		draw_rect(pr, Color(0.55, 0.55, 0.58, 0.8), false, 1.0)
+	# crane ticks along the quay
+	for i in 4:
+		var px := cx - 30 + i * 22.0
+		draw_line(Vector2(px, size.y * 0.60), Vector2(px + 6, size.y * 0.60 - 8),
+			Color(0.60, 0.50, 0.30, 0.9), 2.0)
+
+
+func _draw_zeppelin_sheds() -> void:
+	# airfield grass with three giant hangar sheds + mooring mast circle
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.11, 0.12, 0.07, 0.9))
+	for i in 3:
+		var r := Rect2(size.x * 0.5 - 52, size.y * (0.18 + i * 0.22), 104, 40)
+		draw_rect(r, Color(0.20, 0.19, 0.15, 0.95))
+		draw_rect(r, Color(0.45, 0.43, 0.34, 0.8), false, 2.0)
+		draw_line(r.position + Vector2(0, 20), r.position + Vector2(104, 20),
+			Color(0.45, 0.43, 0.34, 0.5), 1.0)
+	# mooring mast
+	var mp := Vector2(size.x * 0.5, size.y * 0.86)
+	draw_arc(mp, 10.0, 0.0, TAU, 14, Color(0.55, 0.50, 0.38, 0.8), 1.5)
+	draw_circle(mp, 2.5, Color(0.55, 0.50, 0.38))
+
+
+func _draw_munitions_depot() -> void:
+	# depot compound: grid of ammo-dump squares, sandbag tint, rail spur
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.10, 0.09, 0.06, 0.9))
+	for ix in 4:
+		for iy in 5:
+			var pr := Rect2(size.x * 0.5 - 44 + ix * 24.0, size.y * 0.16 + iy * 22.0, 18, 16)
+			var c := Color(0.45, 0.34, 0.20, 0.9) if (ix + iy) % 2 == 0 else Color(0.38, 0.28, 0.16, 0.9)
+			draw_rect(pr, c)
+			draw_rect(pr, Color(0.60, 0.52, 0.36, 0.6), false, 1.0)
+	# rail spur through the compound
+	draw_line(Vector2(size.x * 0.5 - 60, size.y * 0.90), Vector2(size.x * 0.5 + 60, size.y * 0.10),
+		Color(0.35, 0.35, 0.37, 0.8), 2.0)
+
+
+func _draw_rail_yard() -> void:
+	# marshaling yard: fan of converging rail lines + yard ladder
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.10, 0.09, 0.07, 0.9))
+	for i in 5:
+		var x0 := size.x * (0.30 + i * 0.10)
+		draw_line(Vector2(x0, 0), Vector2(size.x * 0.5 + (i - 2) * 8.0, size.y),
+			Color(0.38, 0.38, 0.40, 0.75), 1.5)
+	# yard throat rectangle
+	var yr := Rect2(size.x * 0.5 - 40, size.y * 0.42, 80, 60)
+	draw_rect(yr, Color(0.16, 0.14, 0.10, 0.9))
+	draw_rect(yr, Color(0.50, 0.46, 0.36, 0.7), false, 1.5)
