@@ -1,0 +1,122 @@
+[
+  {
+    "id": "enemy-triplane",
+    "tris": 512,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-triplane.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-triplane.glb"
+  },
+  {
+    "id": "enemy-scout",
+    "tris": 500,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-scout.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-scout.glb"
+  },
+  {
+    "id": "enemy-fighter",
+    "tris": 500,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-fighter.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-fighter.glb"
+  },
+  {
+    "id": "enemy-bomber",
+    "tris": 632,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-bomber.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-bomber.glb"
+  },
+  {
+    "id": "enemy-balloon",
+    "tris": 448,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-balloon.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-balloon.glb"
+  },
+  {
+    "id": "enemy-aagun",
+    "tris": 916,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-aagun.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-aagun.glb"
+  },
+  {
+    "id": "enemy-railwaygun",
+    "tris": 592,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-railwaygun.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/enemy-railwaygun.glb"
+  },
+  {
+    "id": "item-ammo",
+    "tris": 168,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/item-ammo.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/item-ammo.glb"
+  },
+  {
+    "id": "item-repair",
+    "tris": 60,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/item-repair.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/item-repair.glb"
+  },
+  {
+    "id": "item-bomb",
+    "tris": 180,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/item-bomb.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/item-bomb.glb"
+  },
+  {
+    "id": "boss-1-red",
+    "tris": 512,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/boss-1-red.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/boss-1-red.glb"
+  },
+  {
+    "id": "boss-2-checker",
+    "tris": 592,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/boss-2-checker.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/boss-2-checker.glb"
+  },
+  {
+    "id": "boss-3-stripes",
+    "tris": 608,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/boss-3-stripes.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/boss-3-stripes.glb"
+  },
+  {
+    "id": "boss-4-tiger",
+    "tris": 472,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/boss-4-tiger.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/boss-4-tiger.glb"
+  },
+  {
+    "id": "boss-5-jester",
+    "tris": 688,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/boss-5-jester.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/boss-5-jester.glb"
+  },
+  {
+    "id": "boss-6-ghost",
+    "tris": 544,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/boss-6-ghost.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/boss-6-ghost.glb"
+  },
+  {
+    "id": "setpiece-trench",
+    "tris": 2740,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/setpiece-trench.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/setpiece-trench.glb"
+  },
+  {
+    "id": "setpiece-aerodrome",
+    "tris": 336,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/setpiece-aerodrome.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/setpiece-aerodrome.glb"
+  },
+  {
+    "id": "setpiece-farm",
+    "tris": 120,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/setpiece-farm.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/setpiece-farm.glb"
+  },
+  {
+    "id": "setpiece-nomansland",
+    "tris": 748,
+    "blend": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/setpiece-nomansland.blend",
+    "glb": "/home/hatch/workspace/1918-ace-of-aces-assets/blender/models/setpiece-nomansland.glb"
+  }
+]

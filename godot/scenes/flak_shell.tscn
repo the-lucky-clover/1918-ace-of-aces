@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/flak_shell.gd" id="1"]
+
+[node name="FlakShell" type="Area2D"]
+script = ExtResource("1")
