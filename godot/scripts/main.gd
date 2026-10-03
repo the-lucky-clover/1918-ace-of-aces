@@ -7,6 +7,7 @@ enum State { TITLE, PLAYING, PAUSED, DEBRIEF }
 const PlayerScene := preload("res://scenes/player.tscn")
 const EnemyScene := preload("res://scenes/enemy.tscn")
 const BossScene := preload("res://scenes/boss.tscn")
+const PickupScene := preload("res://scenes/pickup.tscn")
 
 var state: int = State.TITLE
 var sortie_index := 0
@@ -20,6 +21,8 @@ var objectives := {}            # sec_id -> {text, target, progress, done, bonus
 var primary_done := false
 var debrief_win := false
 var debrief_timer := -1.0
+var fuel_cd := 24.0             # steady fuel-pickup pressure valve
+var last_tap_t := -10.0         # double-tap -> loop-de-loop
 
 var camera: Camera2D
 var world: Node2D
@@ -44,6 +47,7 @@ func _ready() -> void:
 	_fade_to(0.0, 0.8)
 	# Headless smoke test: `-- --autostart` jumps straight into sortie 1
 	# with an invincible auto-firing player.
+	Music.play_splash()
 	if "--autostart" in OS.get_cmdline_user_args():
 		call_deferred("_debug_autostart")
 
@@ -54,6 +58,12 @@ func _debug_autostart() -> void:
 	start_sortie(0)
 	if player:
 		player.debug_godmode = true
+		# exercise the new feature paths every validation run
+		player.add_wingman()
+		player.power_spread()
+		player.power_rapid()
+		player.fuel = 20.0  # low-fuel warning: beep + flashing gauge
+		player.try_loop()
 		if "--autoboss" in OS.get_cmdline_user_args():
 			print("[AUTOTEST] boss-rush: waves cleared, boss 0 inbound, 8x damage")
 			schedule.clear()
@@ -103,6 +113,10 @@ func start_sortie(i: int) -> void:
 	$Background.setup(String(s["theme"]))
 	$GroundWar.setup(String(s["theme"]))
 	Global.scroll_speed = 90.0
+	# sun rig: shadows follow the sortie's takeoff time
+	Sun.shadow_offset = Sun.shadow_for_takeoff(String(s.get("takeoff", "12:00")))
+	fuel_cd = 24.0
+	Music.play_game()
 	var hud := $HUDLayer
 	hud.set_sortie_name(String(s["name"]))
 	hud.update_score(score)
@@ -126,12 +140,14 @@ func start_sortie(i: int) -> void:
 func _pause() -> void:
 	state = State.PAUSED
 	get_tree().paused = true
+	Music.play_pause()
 	$MenuLayer.show_pause()
 
 
 func _resume() -> void:
 	state = State.PLAYING
 	get_tree().paused = false
+	Music.play_game()
 	$MenuLayer.hide_pause()
 
 
@@ -157,6 +173,7 @@ func _to_title() -> void:
 	for c in world.get_children():
 		c.queue_free()
 	$HUDLayer.hide_boss()
+	Music.play_splash()
 	$MenuLayer.show_title()
 
 
@@ -173,6 +190,12 @@ func _input(event: InputEvent) -> void:
 		_on_menu_start()
 	elif state == State.DEBRIEF and event.is_action_pressed("start_game"):
 		_on_menu_next()
+	elif state == State.PLAYING and _is_tap(event):
+		# double-tap (touch or mouse) triggers the loop-de-loop
+		var now := Time.get_ticks_msec() / 1000.0
+		if now - last_tap_t < 0.35 and player != null and is_instance_valid(player):
+			player.try_loop()
+		last_tap_t = now
 
 
 func _is_tap(event: InputEvent) -> bool:
@@ -181,6 +204,11 @@ func _is_tap(event: InputEvent) -> bool:
 	if event is InputEventScreenTouch:
 		return event.pressed
 	return false
+
+
+func add_score(amount: int) -> void:
+	score += amount
+	$HUDLayer.update_score(score)
 
 
 func _on_menu_start() -> void:
@@ -227,6 +255,11 @@ func _process(delta: float) -> void:
 	if not boss_spawned and sortie_time >= float(s["boss_at"]):
 		boss_spawned = true
 		_spawn_boss(int(s["boss"]))
+	# steady fuel pressure: a fuel pickup drifts in every ~24s
+	fuel_cd -= delta
+	if fuel_cd <= 0.0:
+		fuel_cd = 24.0
+		_spawn_fuel_pickup()
 	if debrief_timer > 0.0:
 		debrief_timer -= delta
 		if debrief_timer <= 0.0:
@@ -304,6 +337,13 @@ func _on_player_died() -> void:
 
 ## Player bomb: heavy damage to all non-boss enemies, chip damage to the
 ## boss, and every enemy bullet wiped — the classic 194x panic button.
+func _spawn_fuel_pickup() -> void:
+	var p := PickupScene.instantiate()
+	p.setup("fuel")
+	world.add_child(p)
+	p.global_position = Vector2(randf_range(80.0, Global.VIEW_W - 80.0), -60.0)
+
+
 func screen_bomb() -> void:
 	for b in get_tree().get_nodes_in_group("ebullets"):
 		if is_instance_valid(b):

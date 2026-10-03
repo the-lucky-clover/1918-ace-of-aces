@@ -9,6 +9,10 @@ var sortie_label: Label
 var hull_bar: ProgressBar
 var hull_fill: StyleBoxFlat
 var bomb_label: Label
+var fuel_label: Label
+var fuel_bar: ProgressBar
+var fuel_fill: StyleBoxFlat
+var power_label: Label
 var obj_box: VBoxContainer
 var obj_labels: Dictionary = {}
 var boss_container: VBoxContainer
@@ -16,6 +20,8 @@ var boss_label: Label
 var boss_bar: ProgressBar
 var brief_label: Label
 var _brief_tween: Tween = null
+var _fuel_frac := 1.0
+var _blink := 0.0
 
 
 func _ready() -> void:
@@ -73,6 +79,27 @@ func _build() -> void:
 	bomb_label = _mk_label("BOMBS x2  [X]", 20, Color(0.6, 0.85, 1.0))
 	bomb_label.position = Vector2(16, 74)
 	add_child(bomb_label)
+	# fuel gauge (atrophies with throttle; empty tank = dead engine)
+	fuel_label = _mk_label("FUEL", 18)
+	fuel_label.position = Vector2(16, 104)
+	add_child(fuel_label)
+	fuel_bar = ProgressBar.new()
+	fuel_bar.min_value = 0.0
+	fuel_bar.max_value = 100.0
+	fuel_bar.value = 100.0
+	fuel_bar.show_percentage = false
+	fuel_bar.position = Vector2(76, 104)
+	fuel_bar.custom_minimum_size = Vector2(220, 18)
+	fuel_bar.size = Vector2(220, 18)
+	fuel_bar.add_theme_stylebox_override("background", _bar_style(Color(0.05, 0.05, 0.06, 0.75)))
+	fuel_fill = _bar_style(Color(0.95, 0.7, 0.2))
+	fuel_bar.add_theme_stylebox_override("fill", fuel_fill)
+	add_child(fuel_bar)
+	# active power-ups / loop cooldown / wingmen
+	power_label = _mk_label("", 18, Color(0.85, 0.85, 0.9))
+	power_label.position = Vector2(16, 128)
+	power_label.size = Vector2(560, 26)
+	add_child(power_label)
 	# minimap (top-right)
 	var mm: Control = MinimapScript.new()
 	mm.position = Vector2(Global.VIEW_W - 166.0, 10.0)
@@ -139,6 +166,46 @@ func update_integrity(hp: float, max_hp: float) -> void:
 
 func update_bombs(n: int) -> void:
 	bomb_label.text = "BOMBS x%d  [X]" % n
+
+
+func update_fuel(f: float, max_f: float) -> void:
+	_fuel_frac = clampf(f / max_f, 0.0, 1.0)
+	fuel_bar.value = _fuel_frac * 100.0
+	if _fuel_frac > 0.5:
+		fuel_fill.bg_color = Color(0.95, 0.7, 0.2)
+	elif _fuel_frac > 0.25:
+		fuel_fill.bg_color = Color(0.95, 0.5, 0.15)
+	else:
+		fuel_fill.bg_color = Color(0.9, 0.2, 0.15)
+
+
+## spread_t, rapid_t: seconds remaining; loop_cd/loop_max: loop cooldown;
+## wingmen: active escort count.
+func update_powerups(spread_t: float, rapid_t: float, loop_cd: float, loop_max: float, wingmen: int) -> void:
+	var bits: Array = []
+	if spread_t > 0.0:
+		bits.append("SPREAD %ds" % int(ceil(spread_t)))
+	if rapid_t > 0.0:
+		bits.append("RAPID %ds" % int(ceil(rapid_t)))
+	if loop_cd <= 0.0:
+		bits.append("LOOP [Q] READY")
+	else:
+		bits.append("LOOP %ds" % int(ceil(loop_cd)))
+	if wingmen > 0:
+		bits.append("WINGMEN x%d" % wingmen)
+	power_label.text = "   ".join(bits)
+
+
+func _process(delta: float) -> void:
+	# low-fuel warning: flashing gauge
+	if _fuel_frac < 0.25 and _fuel_frac > 0.0:
+		_blink += delta
+		var on := int(_blink * 5.0) % 2 == 0
+		fuel_bar.modulate.a = 1.0 if on else 0.35
+	elif _fuel_frac <= 0.0:
+		fuel_bar.modulate.a = 0.35
+	else:
+		fuel_bar.modulate.a = 1.0
 
 
 func set_objectives(objs: Dictionary) -> void:

@@ -190,3 +190,8 @@ func _die_spectacular() -> void:
 	get_tree().call_group("hud", "hide_boss")
 	killed.emit(self)
 	queue_free()
+
+
+func _draw() -> void:
+	# soft top-down shadow from the sortie sun rig
+	Sun.draw_shadow(self, 26.0)

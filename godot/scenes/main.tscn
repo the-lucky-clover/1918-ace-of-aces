@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="Script" path="res://scripts/background.gd" id="2_bg"]
@@ -6,8 +6,18 @@
 [ext_resource type="Script" path="res://scripts/menus.gd" id="4_menus"]
 [ext_resource type="Script" path="res://scripts/ground_war.gd" id="5_gw"]
 
+[sub_resource type="Environment" id="Environment_glow"]
+background_mode = 3
+glow_enabled = true
+glow_intensity = 0.35
+glow_strength = 1.1
+glow_bloom = 0.05
+
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_glow")
 
 [node name="Background" type="Node2D" parent="."]
 script = ExtResource("2_bg")

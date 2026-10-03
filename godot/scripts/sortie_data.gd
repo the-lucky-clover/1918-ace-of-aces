@@ -37,6 +37,7 @@ const SORTIES: Array = [
 			{"t": 30.0, "type": "trench", "count": 5, "gap": 2.0},
 			{"t": 44.0, "type": "fighter", "count": 5, "gap": 1.2},
 		],
+		"takeoff": "05:40",
 		"boss_at": 58.0,
 	},
 	{
@@ -55,6 +56,7 @@ const SORTIES: Array = [
 			{"t": 34.0, "type": "fighter", "count": 5, "gap": 1.1},
 			{"t": 46.0, "type": "railwaygun", "count": 1, "gap": 1.0},
 		],
+		"takeoff": "11:20",
 		"boss_at": 62.0,
 	},
 	{
@@ -73,6 +75,7 @@ const SORTIES: Array = [
 			{"t": 36.0, "type": "trench", "count": 6, "gap": 1.8},
 			{"t": 48.0, "type": "aagun", "count": 3, "gap": 4.0},
 		],
+		"takeoff": "15:45",
 		"boss_at": 64.0,
 	},
 	{
@@ -91,6 +94,7 @@ const SORTIES: Array = [
 			{"t": 38.0, "type": "railwaygun", "count": 1, "gap": 1.0},
 			{"t": 50.0, "type": "fighter", "count": 6, "gap": 1.0},
 		],
+		"takeoff": "09:10",
 		"boss_at": 66.0,
 	},
 	{
@@ -109,6 +113,7 @@ const SORTIES: Array = [
 			{"t": 38.0, "type": "balloon", "count": 3, "gap": 2.5},
 			{"t": 50.0, "type": "triplane", "count": 6, "gap": 1.0},
 		],
+		"takeoff": "13:05",
 		"boss_at": 66.0,
 	},
 	{
@@ -129,6 +134,7 @@ const SORTIES: Array = [
 			{"t": 52.0, "type": "balloon", "count": 3, "gap": 2.5},
 			{"t": 62.0, "type": "scout", "count": 6, "gap": 0.8},
 		],
+		"takeoff": "18:20",
 		"boss_at": 76.0,
 	},
 ]

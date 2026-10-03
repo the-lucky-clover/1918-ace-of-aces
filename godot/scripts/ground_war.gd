@@ -6,14 +6,20 @@ extends Node2D
 ## German lines carry destructible nests/squads for strafing runs.
 
 const SegmentScript := preload("res://scripts/trench_segment.gd")
+const DuelScript := preload("res://scripts/tank_duel.gd")
 
 var segments: Array = []
 var tracers: Array = []   # {a, b, t, dur, col}
 var bursts: Array = []    # {p, age, life}
+var duels: Array = []     # TankDuel nodes
+var fires: Array = []     # {p, seed} burning buildings, to scale at altitude
+var clock := 0.0
 var spawn_cd := 2.0
 var tracer_cd := 0.0
 var burst_cd := 3.0
 var spawn_interval := 4.5
+var duel_cd := 14.0
+var duel_interval := 22.0
 
 
 func _ready() -> void:
@@ -25,18 +31,28 @@ func setup(theme: String) -> void:
 		if is_instance_valid(s):
 			s.queue_free()
 	segments.clear()
+	for d in duels:
+		if is_instance_valid(d):
+			d.queue_free()
+	duels.clear()
+	fires.clear()
 	tracers.clear()
 	bursts.clear()
 	match theme:
 		"farmland":
 			spawn_interval = 8.0
+			duel_interval = 34.0
 		"trenches":
 			spawn_interval = 4.0
+			duel_interval = 20.0
 		_:
 			spawn_interval = 4.5
+			duel_interval = 24.0
 	spawn_cd = 1.0
 	tracer_cd = 0.5
 	burst_cd = 2.0
+	duel_cd = 10.0
+	clock = 0.0
 
 
 func _spawn_segment() -> void:
@@ -46,6 +62,18 @@ func _spawn_segment() -> void:
 	add_child(seg)
 	seg.position = Vector2(0, -140.0)
 	segments.append(seg)
+	# burning buildings scattered along the front, to scale at this altitude
+	var fire_chance := 0.30 if spawn_interval < 6.0 else 0.12
+	if randf() < fire_chance:
+		fires.append({"p": Vector2(randf_range(60.0, 660.0), -140.0), "seed": randf() * 100.0})
+
+
+func _spawn_duel() -> void:
+	var d: Node2D = DuelScript.new()
+	add_child(d)
+	d.position = Vector2(0, -120.0)
+	d.setup()
+	duels.append(d)
 
 
 func _bez(a: Vector2, m: Vector2, b: Vector2, u: float) -> Vector2:
@@ -108,10 +136,15 @@ func _shell_burst() -> void:
 
 
 func _process(delta: float) -> void:
+	clock += delta
 	spawn_cd -= delta
 	if spawn_cd <= 0.0:
 		spawn_cd = spawn_interval * randf_range(0.8, 1.3)
 		_spawn_segment()
+	duel_cd -= delta
+	if duel_cd <= 0.0:
+		duel_cd = duel_interval * randf_range(0.85, 1.25)
+		_spawn_duel()
 	var dy := Global.scroll_speed * delta
 	for i in range(segments.size() - 1, -1, -1):
 		var s: Node2D = segments[i]
@@ -122,6 +155,15 @@ func _process(delta: float) -> void:
 		if s.position.y > 1280.0 + 180.0:
 			s.queue_free()
 			segments.remove_at(i)
+	for i in range(duels.size() - 1, -1, -1):
+		var d = duels[i]  # untyped: the duel may already be deleted (self-frees off-screen)
+		if not is_instance_valid(d):
+			duels.remove_at(i)
+	for i in range(fires.size() - 1, -1, -1):
+		var f: Dictionary = fires[i]
+		f["p"] = (f["p"] as Vector2) + Vector2(0, dy)
+		if (f["p"] as Vector2).y > 1280.0 + 120.0:
+			fires.remove_at(i)
 	tracer_cd -= delta
 	if tracer_cd <= 0.0:
 		tracer_cd = randf_range(0.3, 0.8)
@@ -162,3 +204,17 @@ func _draw() -> void:
 		var p: Vector2 = b["p"]
 		draw_circle(p, 30.0 * k + 6.0, Color(1.0, 0.5, 0.15, 0.75 * (1.0 - k)))
 		draw_circle(p + Vector2(0, -10), 34.0 * k, Color(0.24, 0.21, 0.19, 0.55 * k))
+	# burning buildings: small at this altitude, fire flicker + smoke columns
+	for f in fires:
+		var fp: Vector2 = f["p"]
+		var sd: float = float(f["seed"])
+		draw_rect(Rect2(fp.x - 15, fp.y - 10, 30, 20), Color(0.16, 0.13, 0.10))
+		draw_rect(Rect2(fp.x - 15, fp.y - 10, 30, 6), Color(0.10, 0.08, 0.07))
+		var fl := 0.65 + 0.35 * sin(clock * 15.0 + sd)
+		draw_circle(fp + Vector2(-6, -12), 8.0 * fl, Color(1.0, 0.45, 0.10, 0.85))
+		draw_circle(fp + Vector2(6, -14), 6.5 * fl, Color(1.0, 0.72, 0.25, 0.9))
+		draw_circle(fp + Vector2(0, -10), 5.0 * fl, Color(1.0, 0.9, 0.5, 0.9))
+		for i in 4:
+			var rise := fmod(clock * 30.0 + sd * 7.0 + float(i) * 30.0, 120.0)
+			var sp := fp + Vector2(sin(clock * 1.7 + sd + float(i) * 2.0) * 8.0, -22.0 - rise)
+			draw_circle(sp, 6.0 + rise * 0.09, Color(0.16, 0.15, 0.14, 0.42 * (1.0 - rise / 130.0)))

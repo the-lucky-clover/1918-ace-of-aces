@@ -206,7 +206,15 @@ func _maybe_drop_pickup() -> void:
 		return  # ground targets don't drop pickups
 	if randf() < 0.14:
 		var p := pickup_scene.instantiate()
-		var kinds := ["ammo", "ammo", "repair", "bomb"]
+		var kinds := ["ammo", "ammo", "ammo", "repair", "repair", "bomb", "bomb",
+			"spread", "rapid", "wingman", "fuel", "fuel"]
 		p.setup(kinds[randi() % kinds.size()])
-		get_parent().add_child(p)
-		p.global_position = global_position
+		# deferred: kills happen inside physics collision callbacks
+		get_parent().call_deferred("add_child", p)
+		p.set_deferred("global_position", global_position)
+
+
+func _draw() -> void:
+	# soft top-down shadow from the sortie sun rig (ground targets skip it)
+	if is_aircraft:
+		Sun.draw_shadow(self, 18.0)

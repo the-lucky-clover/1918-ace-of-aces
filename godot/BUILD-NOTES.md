@@ -91,6 +91,68 @@ Both smoke tests pass with **zero script/resource errors**. Boss-rush log:
 - **Art**: all 42 finished Blender-rendered sprites from
   `~/workspace/1918-ace-of-aces-assets/sprites/` are imported and used.
 
+## Feature pass — 2026-10-03: power-ups, wingman, fuel, ground war, sun, music
+
+- **SPREAD SHOT** (`player.gd` `power_spread`): 5-way fan, 20 s. Rendered
+  from the Blender item set (`render_powerups.py --kind spread`).
+- **RAPID FIRE** (`player.gd` `power_rapid`): 2.5x fire-rate multiplier,
+  20 s. Rendered from the Blender item set (`render_powerups.py --kind rapid`).
+- **WINGMAN** (`scripts/wingman.gd`, `scenes/wingman.tscn`,
+  `assets/sprites/wingman-spad.png`): escort AI in the same SPAD livery
+  hue-shifted (shifted roundels/fuselage — `render_wingman.py` rotates hue
+  0.5) so P1 is instantly discernible. Trails the player's flight path with
+  a position-history buffer, holds rear-left / rear-right slots in a ^
+  chevron pointing along the flight direction. Own HP (40), dies in an
+  explosion; fights, firing at enemies within 430 px. Up to 2 at once
+  (`player.gd` `add_wingman`); a dead wingman frees its slot, so a new
+  pickup can replace it. Pickup icon: `item-wingman.png`.
+- **LOOP-DE-LOOP** (`player.gd` `try_loop`): Q key (new `loop` input action,
+  physical keycode 81) or double-tap. Full 0.75 s roll, invulnerable during
+  the maneuver AND through a 2.5 s deck-stabilization window after. 10 s
+  cooldown. HUD shows READY/cooldown.
+- **FUEL** (`player.gd`, `hud.gd`): gauge depletes steadily — base 1.2/s +
+  up to 1.8/s scaled by throttle, so pushing it drinks fuel. FUEL pickups
+  (+35) from the drop table, and one drifts in every 24 s as a pressure
+  valve. Low fuel (<25): flashing gauge + beep (`fuel_warn.wav`). Empty
+  tank = engine dead: no thrust, heavy drag, sinking dead-stick glide;
+  grabbing fuel restarts the engine; gliding into the deck = OUT OF FUEL
+  crash (own debrief-fail path, wingmen die with you). Fuel can pickup
+  rendered from the Blender item set (`render_fuel.py`, `item-fuel.png`).
+- **Minimap** (`scripts/minimap.gd`): pickups colored by type (magenta
+  spread, cyan rapid, blue wingman, orange fuel, yellow else); wingmen as
+  blue dots; player blip rings — cyan (rapid), magenta (spread), gold
+  (loop invuln / stabilization).
+- **HUD** (`scripts/hud.gd`): fuel gauge under the hull bar
+  (green->amber->red, flashes below 25%); power-up status line
+  (SPREAD/RAPID timers, LOOP [Q] readiness, WINGMEN count).
+- **Ground war expansion** (`scripts/ground_war.gd`,
+  `scripts/tank_duel.gd`): burning buildings (small at this altitude)
+  scattered along the front with flickering fire and rising smoke columns;
+  tank duels — Allied khaki (blue-grey diamond) vs German field-grey
+  (dark-red square) tanks trading arcing shells, 75% hit chance, burning
+  wrecks persist as they scroll. Pure ground theater, cannot hurt the
+  player.
+- **Dynamic lighting** (`scripts/sun.gd`): each sortie declares a takeoff
+  time (`sortie_data.gd` "takeoff"); `Sun.shadow_for_takeoff()` maps it to
+  a shadow vector — long shadows east/west at dawn/dusk, short at noon.
+  Player, enemies, bosses, wingmen draw soft top-down elliptical shadows
+  via `Sun.draw_shadow()`.
+- **HDR-ish bloom**: `main.tscn` `WorldEnvironment` + Environment
+  `background_mode=BG_CANVAS`, subtle glow (intensity 0.35, bloom 0.05) —
+  cheap, only brightens explosions/firelight/popups.
+- **Music** (`scripts/music.gd` autoload, `tools/make_music.py`):
+  three ORIGINAL synthesized chiptune loops (numpy -> WAV, square/triangle
+  waves, no external assets) — `splash_theme.wav` (heroic 32 s),
+  `pause_theme.wav` (restrained 32 s), `gameplay_theme.wav` (heroic 1m52
+  seamless loop), plus `fuel_warn.wav` beep. Crossfades (1.4 s) on
+  title/splash, sortie/gameplay, pause. All validated as seamless loops
+  (boundary continuity checked in the synth script).
+- **Build order**: run `tools/make_music.py` BEFORE exporting/importing, so
+  the four WAVs exist in `assets/music/`; the music autoload loads them at
+  runtime. (They're committed with the project too.)
+- Headless-validated 2026-10-03: clean import + autostart + autoboss
+  smoke tests, zero errors.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render
@@ -100,8 +162,9 @@ Both smoke tests pass with **zero script/resource errors**. Boss-rush log:
   validated debrief, but the headless tests used godmode — not yet exercised.
 - **Bosses 2–6 and sorties 2–6**: data-driven on the same validated code
   paths, but only boss 0 / sortie 1 ran headless. Needs an editor playthrough.
-- **No audio**: no music/SFX yet (the web build has a synthesized score —
-  port or regenerate for Godot).
+- **No audio**: SFX (explosions, gunfire, pickups) not yet built — music
+  tracks only (the web build has a synthesized score — port or regenerate
+  SFX for Godot).
 - **Touch controls**: mouse-click fire works; real touch-drag flight is not
   implemented (`emulate_touch_from_mouse` is on, but no touch flight scheme).
 - **No export presets**: iOS/Android/desktop export still needs configuring

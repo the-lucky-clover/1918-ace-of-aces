@@ -1,5 +1,6 @@
 extends Area2D
-## Pickup: ammo (guns up), repair (+30 hull), bomb (+1 bomb).
+## Pickup: ammo (guns up), repair (+30 hull), bomb (+1 bomb), spread
+## (5-way fan), rapid (2.5x fire rate), wingman (AI escort), fuel (+35).
 ## Drifts down the screen; the player collects it on contact.
 
 var ptype := "ammo"
@@ -39,4 +40,17 @@ func collect(player: Area2D) -> void:
 		"bomb":
 			player.add_bomb()
 			FX.popup(get_parent(), global_position, "+BOMB", Color.CYAN)
+		"spread":
+			if player.has_method("power_spread"):
+				player.power_spread()
+		"rapid":
+			if player.has_method("power_rapid"):
+				player.power_rapid()
+		"wingman":
+			if player.has_method("add_wingman"):
+				player.add_wingman()
+		"fuel":
+			if player.has_method("add_fuel"):
+				player.add_fuel(35.0)
+				FX.popup(get_parent(), global_position, "+FUEL", Color(1.0, 0.6, 0.2))
 	queue_free()
