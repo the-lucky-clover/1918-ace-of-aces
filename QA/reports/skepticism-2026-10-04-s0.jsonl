@@ -1,8 +1,7 @@
-{"date":"2026-10-04","seedfault":"","sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","type":"meta","version":"13"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":0.0,"touch_path":false,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":18.0,"score":410,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":10.0275323333332,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":75.0,"kills":5,"kpm":14.0,"score":610,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":20.0267323333329,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":50.0,"kills":6,"kpm":12.0,"score":735,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":30.0328283333341,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":50.0,"dmg_per_min":75.0,"kills":8,"kpm":12.0,"score":1129,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":40.0320283333316,"touch_path":true,"type":"snapshot"}
-{"detail":"killed by rammed by aagun (36px)","kind":"death","sortie":0,"t":45.8660443333296,"type":"event"}
-{"deaths":1,"dmg":100.0,"kills":9,"run_s":50.0,"score":1289,"seedfault":false,"sortie":0,"t":47.8719398888845,"type":"run_end"}
+{"date":"2026-10-04","seedfault":"","sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","type":"meta","version":"14"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":0.0,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":230,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":10.0284173333332,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":75.0,"kills":5,"kpm":14.0,"score":920,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":20.0276173333329,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":50.0,"kills":5,"kpm":10.0,"score":920,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":30.0268173333345,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":35.0,"dmg_per_min":52.0,"kills":6,"kpm":8.0,"score":1070,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":40.0329133333321,"touch_path":true,"type":"snapshot"}
+{"deaths":0,"dmg":67.0,"kills":7,"run_s":50.0,"score":1320,"seedfault":false,"sortie":0,"t":50.0224589333288,"type":"run_end"}

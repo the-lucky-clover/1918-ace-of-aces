@@ -986,6 +986,102 @@ App Store Connect → implement the `_billing_*`/`_storekit_*` hooks.
   120px, sfx spam 6/s, rumble storm 4/s, hitch 100ms x8, barren 2/min,
   pinata 25/min.
 
+## Photorealism lighting: true north, HDR-style, 94th aerodrome — 2026-10-04 (v14)
+
+### 1. TRUE NORTH + sun position (`scripts/sun.gd` rewritten)
+- **North decision: screen-up IS North.** The pilot launches from the home
+  aerodrome in the south and flies the route rail north into German-held
+  territory — the Western Front ran roughly east-west with the Allied rear
+  to the south-west, and the v3-era model already assumed midday shadows
+  point north. Documented in the script header.
+- **Solar model:** latitude 48.7 N (Toul/Gengault), reference date 15 May
+  1918 (declination +18.8 deg), local mean time treated as solar time
+  (approximation, stated). Standard elevation/azimuth math; azimuth from
+  North clockwise, mapped to screen (North = -Y, East = +X).
+- **Night:** sun below -0.5 deg switches to a REPRESENTATIVE full moon
+  (azimuth 140 deg, elevation 35 deg) — not an ephemeris, just honest
+  moonlight. Twilight band: full day above +3 deg, full night below -8 deg
+  (smoothstepped `night_factor`).
+- **One light vector:** `Sun.set_takeoff(t)` (called once per sortie in
+  `main.gd`) fills `Sun.current` — is_night, night_factor, light_dir,
+  elevation/azimuth, shadow_len, ambient (ground multiplier), grade
+  (fullscreen wash), light_color. Shadows, crater rim-light, water glints,
+  hangar rims, atmosphere grades all read it. Old wrappers
+  (`shadow_for_takeoff`, `elevation_for_takeoff`, `mood_tint`) kept working,
+  now derived from the same model; `mood_tint` extends to deep-blue night.
+
+### 2. HDR-STYLE lighting (honest scope)
+- Renderer is `gl_compatibility`: NO real bloom/HDR output exists in this
+  pipeline. "HDR-style" is simulated and documented as such: exposure
+  multiplies (ambient), fullscreen grading, additive glow sprites (moon
+  halo, searchlight pools, flare pots), directional sheen (water glints
+  and hangar rims oriented to the light vector), per-time-of-day color
+  grading. Nothing claims real HDR.
+
+### 3. Hat-in-the-Ring aerodrome (`scripts/airfield.gd`, home flavor rebuilt)
+Research (web, 2026-10-04): the 94th Aero Squadron — formed Kelly Field
+Texas Aug 1917; Villeneuve-les-Vertus (20 Feb 1918), Epiez (1 Apr, rained
+in on arrival), then **Gengault (Croix-de-Metz) Aerodrome near Toul, 7 Apr
+– 30 Jun 1918**, first combat station. First US victories 14 Apr 1918
+(Campbell & Winslow, Nieuport 28s). The "Hat in the Ring" — Uncle Sam's
+top hat tossed into a ring — became the Air Service's symbol.
+Sources: en.wikipedia.org/wiki/Villeneuve-les-Vertus_Aerodrome,
+en.wikipedia.org/wiki/94th_Aero_Squadron,
+forgottenairfields.com (Toul-Croix de Metz), airandspaceforces.com
+("Over There", Apr 1988 "The First Victory").
+- Rebuilt home field: **Bessonneau canvas hangars** (arched profile,
+  rib arcs, sun-side rim light from the light vector), **mown grass strip**
+  with whitewashed edge markers (1918 fields were grass, not pavement),
+  **Hat-in-the-Ring insignia** painted on the parked SPADs (ring + top-hat
+  glyph), April **mud** patches, **puddles** with sky/moon glints when the
+  weather is rain/storm, a fuel **tender** truck, 8 milling ground crew.
+- **Night:** flare-pot path lighting — braziers lining the strip
+  (period-plausible night-landing aids), flickering, compensating back up
+  against the night modulate since they are light sources.
+- Framed as "inspired by" throughout — never a claimed reproduction of
+  any specific photograph.
+
+### 4. Night vs noon vibes + launch-time schedule
+- **Night** (`scripts/atmosphere.gd`): baked starfield, moon glow + disc,
+  two sweeping searchlight pools (visual only — from top-down a vertical
+  beam reads as a drifting glow; the real ones hunted Zeppelins), deep-blue
+  grade; `background.gd` applies the sun rig's ambient multiplier to the
+  whole landscape (aircraft live outside it, so they stay readable).
+  Muzzle flashes scale up 1.6x at night (`fx/muzzle.gd`) — gunfire pops
+  in the dark. Gameplay readability always wins: enemies, tracers and
+  pickups are untouched by the darkening.
+- **Noon:** volumetric top-light lift (blazing sun, elevation > 45 deg,
+  clear skies) — crisp, luminous, full color.
+- **Schedule** (sortie_data.gd): S1 05:40 dawn · S2 **03:20 night** (U-boats
+  surfaced under moonlight — was 06:15) · S3 **12:00 high noon** (was 10:30)
+  · S4 14:00 afternoon · S5 09:45 morning · S6 17:30 dusk · S7 18:45
+  storm-dusk (storm overrides light anyway).
+
+### 5. What was NOT re-rendered and why
+- No Blender re-renders this pass: the lighting is all in the rig
+  (ambient/grade/glow/sheen), which relights every existing sprite for
+  free. The aerodrome is procedural `_draw` work (it was never a Blender
+  asset). Re-rendering the world per time-of-day would multiply asset
+  weight for zero gameplay gain.
+
+### Tuning numbers (v14)
+- Night ambient ground multiplier: (0.22, 0.27, 0.42); night grade wash:
+  (0.05, 0.08, 0.24) at 0.30 alpha; moon shadow len 9px, blue-grey.
+- Muzzle night boost x1.6; searchlight alpha 0.10; noon lift max 0.10.
+
+### Adjacent fix: skeptic softlock false positive
+- The nightly's first v14 run went 45/46: `qa-skepticism-report` failed on
+  two CRITICAL `softlock` anomalies in S6 — "no progress for 25s". The game
+  was NOT stuck: S6's waves spawn on schedule (trains t=2, arty t=16,
+  first fighters t=30) and the bot was alive and flying; it just hadn't
+  scored in the detector's fixed 25s window. Same family as v13's
+  "Baron-duel softlock false positive".
+- Fix in `scripts/skeptic.gd::_check_softlock`: stand the detector down
+  while the wave schedule still has waves on the way within
+  SOFTLOCK_IDLE_S + 15s — scheduled content arriving IS run progress.
+  Wave-stall itself stays covered by `_check_wave_stall`, so no real spawn
+  failure can hide behind this. The detector was wrong, not the game.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

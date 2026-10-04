@@ -1,9 +1,10 @@
-{"date":"2026-10-04","seedfault":"","sortie":4,"sortie_name":"Sortie 5 — The Pens","type":"meta","version":"13"}
+{"date":"2026-10-04","seedfault":"","sortie":4,"sortie_name":"Sortie 5 — The Pens","type":"meta","version":"14"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":6.5,"dmg_per_min":39.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":10.0286059999999,"touch_path":true,"type":"snapshot"}
-{"detail":"\"explosion_small\" fired 7x in one second — the mix is shouting","kind":"sfx_spam","seedfault":false,"sev":"MED","sortie":4,"t":11.9140237777775,"type":"anomaly"}
-{"detail":"\"flak\" fired 9x in one second — the mix is shouting","kind":"sfx_spam","seedfault":false,"sev":"MED","sortie":4,"t":15.0144139999995,"type":"anomaly"}
-{"boss_spawned":false,"deaths":0,"dmg":32.5,"dmg_per_min":97.0,"kills":1,"kpm":2.0,"score":150,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":20.0278060000001,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":52.0,"dmg_per_min":104.0,"kills":3,"kpm":6.0,"score":487,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":30.0270060000017,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":52.0,"dmg_per_min":78.0,"kills":8,"kpm":12.0,"score":1594,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":40.0283899999993,"touch_path":true,"type":"snapshot"}
-{"deaths":0,"dmg":62.0,"kills":13,"run_s":50.0,"score":3599,"seedfault":false,"sortie":4,"t":50.0275899999961,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":70.0,"dmg_per_min":419.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":10.0342350666665,"touch_path":true,"type":"snapshot"}
+{"detail":"\"explosion_small\" fired 8x in one second — the mix is shouting","kind":"sfx_spam","seedfault":false,"sev":"MED","sortie":4,"t":13.9718510666661,"type":"anomaly"}
+{"detail":"\"flak\" fired 8x in one second — the mix is shouting","kind":"sfx_spam","seedfault":false,"sev":"MED","sortie":4,"t":13.9718510666661,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":83.0,"dmg_per_min":249.0,"kills":1,"kpm":2.0,"score":260,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":20.0334350666664,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by flak shell (6px)","kind":"death","sortie":4,"t":25.8331630666673,"type":"event"}
+{"boss_spawned":false,"deaths":1,"dmg":159.5,"dmg_per_min":319.0,"kills":4,"kpm":8.0,"score":1384,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":30.042481466668,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":1,"dmg":159.5,"dmg_per_min":239.0,"kills":4,"kpm":6.0,"score":1384,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":40.0416814666655,"touch_path":true,"type":"snapshot"}
+{"deaths":1,"dmg":169.0,"kills":5,"run_s":50.0,"score":1554,"seedfault":false,"sortie":4,"t":47.6272814666628,"type":"run_end"}

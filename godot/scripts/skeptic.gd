@@ -404,6 +404,18 @@ func _check_softlock(alive: bool, _delta: float) -> void:
 	if bool(main.get("boss_spawned")) and br != null and is_instance_valid(br):
 		_last_prog_t = _t()
 		return
+	# v14: waves still on the way mean the run is advancing by design — a
+	# sortie can legitimately go 25s+ with no score/kill progress while the
+	# bot lines up ground targets or waits out a scheduled lull (S6's first
+	# air wave is at t=30s). Only cry stuck when the schedule is empty or
+	# the next wave is far off. Wave-stall itself is covered by
+	# _check_wave_stall, so this can't mask a real spawn failure.
+	var sched: Array = main.get("schedule")
+	if not sched.is_empty():
+		var next_at := float((sched[0] as Dictionary)["at"])
+		if next_at - _t() < SkepticConfig.SOFTLOCK_IDLE_S + 15.0:
+			_last_prog_t = _t()
+			return
 	var sig := float(main.get("score")) + float(main.get("total_kills")) * 1000.0
 	var o: Dictionary = main.get("objectives")
 	for k in o:

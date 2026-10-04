@@ -322,6 +322,48 @@ elif check == 'enemy-pass-model':
     m = read('main.gd')
     if 'brief_txt' not in m or 's.has("lore")' not in m:
         sys.exit('main.gd missing lore brief wiring')
+elif check == 'lighting-schedule':
+    # v14: every sortie has a valid takeoff; the true-north sun model
+    # returns sane (non-NaN) light state for each; night sorties exist;
+    # the background and atmosphere actually read the sun rig.
+    import math
+    sd = read('sortie_data.gd')
+    takeoffs = re.findall(r'"takeoff":\s*"(\d\d:\d\d)"', sd)
+    if len(takeoffs) < 7:
+        sys.exit('expected >=7 sortie takeoffs, found %d' % len(takeoffs))
+    def solar(mins):
+        lat = math.radians(48.7); dec = math.radians(18.8)
+        h = math.radians((mins / 60.0 - 12.0) * 15.0)
+        sin_e = math.sin(lat) * math.sin(dec) + math.cos(lat) * math.cos(dec) * math.cos(h)
+        sin_e = max(-1.0, min(1.0, sin_e))
+        elev = math.degrees(math.asin(sin_e))
+        cos_az = (math.sin(dec) - math.sin(lat) * sin_e) / max(0.001, math.cos(lat) * math.cos(math.asin(sin_e)))
+        az = math.degrees(math.acos(max(-1.0, min(1.0, cos_az))))
+        if h > 0: az = 360.0 - az
+        return elev, az
+    nights = 0
+    for t in takeoffs:
+        hh, mm = int(t[:2]), int(t[3:])
+        if not (0 <= hh < 24 and 0 <= mm < 60):
+            sys.exit('bad takeoff time: %s' % t)
+        elev, az = solar(hh * 60 + mm)
+        if math.isnan(elev) or math.isnan(az):
+            sys.exit('sun model NaN for takeoff %s' % t)
+        if elev < -0.5: nights += 1
+    if nights < 1:
+        sys.exit('no night sortie scheduled — night vs noon variety missing')
+    bg = read('background.gd')
+    if 'Sun.current' not in bg or 'ambient' not in bg:
+        sys.exit('background.gd ignores the sun rig ambient')
+    at = read('atmosphere.gd')
+    if '_stars_tex' not in at or '_night' not in at:
+        sys.exit('atmosphere.gd missing night mode')
+    af = read('airfield.gd')
+    if '_draw_bessonneau' not in af or '_draw_hat_in_ring' not in af or '_draw_flare_pots' not in af:
+        sys.exit('airfield.gd missing 94th rebuild pieces')
+    sn = read('sun.gd')
+    if 'LAT_DEG' not in sn or 'screen-up IS North' not in sn:
+        sys.exit('sun.gd missing true-north documentation')
 elif check == 'ghost-baron-duel':
     # v11: the mythic Thunderhead Duel — spectral boss, storm arena, unlock flow
     import os
@@ -542,6 +584,7 @@ gdscript_check "gdscript-ads-test-ids" ads-test-ids
 gdscript_check "gdscript-ads-no-real-ids" ads-no-real-ids
 gdscript_check "gdscript-ads-state" ads-state
 gdscript_check "gdscript-bot-skeptic-sane" bot-skeptic-sane
+gdscript_check "gdscript-lighting-schedule" lighting-schedule
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"

@@ -1,7 +1,7 @@
-{"date":"2026-10-04","seedfault":"","sortie":1,"sortie_name":"Sortie 2 — Wolfpack","type":"meta","version":"13"}
+{"date":"2026-10-04","seedfault":"","sortie":1,"sortie_name":"Sortie 2 — Wolfpack","type":"meta","version":"14"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Wolfpack","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":150.0,"kills":2,"kpm":12.0,"score":160,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Wolfpack","t":10.0328209999999,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":75.0,"kills":4,"kpm":12.0,"score":460,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Wolfpack","t":20.032021,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":50.0,"kills":5,"kpm":10.0,"score":660,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Wolfpack","t":30.0312210000012,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":37.0,"kills":7,"kpm":10.0,"score":960,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Wolfpack","t":40.030420999999,"touch_path":true,"type":"snapshot"}
-{"deaths":0,"dmg":25.0,"kills":11,"run_s":50.0,"score":1779,"seedfault":false,"sortie":1,"t":50.0296209999954,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":3.0,"dmg_per_min":18.0,"kills":3,"kpm":18.0,"score":430,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Wolfpack","t":10.0325156666666,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":28.0,"dmg_per_min":84.0,"kills":7,"kpm":20.0,"score":1167,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Wolfpack","t":20.0317156666668,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":28.0,"dmg_per_min":56.0,"kills":13,"kpm":26.0,"score":2969,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Wolfpack","t":30.0309156666683,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":28.0,"dmg_per_min":42.0,"kills":15,"kpm":22.0,"score":3356,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Wolfpack","t":40.027777777777,"touch_path":true,"type":"snapshot"}
+{"deaths":0,"dmg":53.0,"kills":17,"run_s":50.0,"score":3856,"seedfault":false,"sortie":1,"t":50.0293156666624,"type":"run_end"}

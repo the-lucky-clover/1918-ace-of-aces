@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v14 — 2026-10-04
+
+Avast, the sun itself be pressed into service! This here v14 teaches the sky true North — screen-up be the pole star, an' every shadow, glint, an' rim o' light now steers by one honest sun-vector, reckoned from real solar figures for Toul in May of 1918. No fakery in the riggin': the renderer can't do true HDR, so we paints the "HDR look" with grades, glows, an' directional sheen, an' says so plain. The home aerodrome be rebuilt from the 94th Aero Squadron's own digs at Gengault — Bessonneau canvas hangars, a grass strip, the Hat-in-the-Ring proud on the SPADs, April mud underfoot, an' flare-pots burnin' after dark. An' mark the watch-bill: some sorties now launch by moonlight with stars an' searchlights sweepin', while others fly at blazin' high noon — two different worlds, same war. Arrr, the light itself be a crewman now!
+
+
 ## v13 — 2026-10-04
 
 A tireless clockwork pilot joins the crew! This here v13 hires a bot aviator what flies the real stick — touch-steerin', trigger-holdin', loop-de-loopin' when the lead gets hot — while a sharp-eyed skeptic rides along, loggin' everythin' what feels wrong: unfair deaths, soft-locks, stallin' bandits what break the pass, shouty sound mixes, and barren skies. It even proved its mettle by sniffin' out a sabotaged scout we wedged ourselves. The nightly now flies seven bot sorties and writes a skepticism report with 1942-seasoned ideas. Arrr, trust but verify!

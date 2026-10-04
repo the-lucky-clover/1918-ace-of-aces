@@ -103,7 +103,7 @@ const SORTIES: Array = [
 			{"t": 46.5, "type": "uboat", "count": 4, "gap": 4.0},
 			{"t": 50.0, "type": "bomber", "count": 3, "gap": 2.5},
 		],
-		"takeoff": "06:15",
+		"takeoff": "03:20",
 		"boss_at": 62.0,
 	},
 	{
@@ -124,7 +124,7 @@ const SORTIES: Array = [
 			{"t": 48.0, "type": "zeppelin", "count": 2, "gap": 9.0},
 			{"t": 52.0, "type": "parked", "count": 4, "gap": 2.0},
 		],
-		"takeoff": "10:30",
+		"takeoff": "12:00",
 		"boss_at": 64.0,
 	},
 	{

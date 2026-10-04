@@ -19,7 +19,9 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var t := 1.0 - clampf(age / life, 0.0, 1.0)
-	var r := 15.0 * t + 4.0
+	# v14: gunfire pops harder in the dark — night sorties read by flash
+	var boost := 1.0 + 0.6 * Global.night_factor
+	var r := (15.0 * t + 4.0) * boost
 	draw_circle(Vector2.ZERO, r, Color(col.r, col.g, col.b, 0.85 * t))
 	draw_circle(Vector2.ZERO, r * 0.45, Color(1, 1, 1, 0.9 * t))
 	for i in 4:

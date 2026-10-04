@@ -209,6 +209,12 @@ func start_sortie(i: int) -> void:
 	world.add_child(player)
 	player.global_position = Vector2(Global.VIEW_W * 0.5, Global.VIEW_H - 160.0)
 	player.died.connect(_on_player_died)
+	# v14: true-north sun rig — one light vector for shadows, glints,
+	# grades and night mode. Set BEFORE Background/Airfield setup so their
+	# ambient modulate reads fresh light state. Everything downstream
+	# reads Sun.current.
+	Sun.set_takeoff(String(s.get("takeoff", "12:00")))
+	Global.night_factor = float(Sun.current.get("night_factor", 0.0))
 	# world + HUD
 	$Background.setup(String(s["theme"]))
 	$GroundWar.setup(String(s["theme"]))
@@ -233,8 +239,7 @@ func start_sortie(i: int) -> void:
 	squad_broken = false
 	Global.squadron_broken = false
 	total_kills = 0  # v13: the skeptic tracks economy per sortie
-	# sun rig: shadows follow the sortie's takeoff time
-	Sun.shadow_offset = Sun.shadow_for_takeoff(String(s.get("takeoff", "12:00")))
+	# mood tint + atmosphere read the already-computed Sun.current
 	mood_rect.color = Sun.mood_tint(String(s.get("takeoff", "12:00")))
 	# atmosphere rig: light shafts, scorch gradient, weather grade
 	_atmo.setup(String(s.get("takeoff", "12:00")), String(s["theme"]))

@@ -6,8 +6,12 @@ extends Node2D
 ## a windsock, and sandbag revetments (all visual). The live targets are
 ## spawned into the world by main.gd via escort_spots(): parked aircraft
 ## in the revetments + one light AA gun.
-## "home": the Allied aerodrome — tents, windsock, parked SPADs, milling
-## ground crew. Pure dressing; never a target, never collides.
+## "home": the Allied aerodrome — rebuilt v14 from 94th Aero Squadron
+## research (Gengault/Croix-de-Metz near Toul, April-June 1918): Bessonneau
+## canvas hangars, a mown grass strip, the Hat-in-the-Ring insignia on the
+## parked SPADs, April mud (puddles when it rains), and flare-pot path
+## lighting at night. "Inspired by" — never a claimed reproduction.
+## Pure dressing; never a target, never collides.
 
 const EnemyScene := preload("res://scenes/enemy.tscn")
 
@@ -18,6 +22,11 @@ var _phase := 0.0
 func setup(p_faction: String) -> void:
 	faction = p_faction
 	add_to_group("airfields")
+	# v14: the field sits in the sortie's true-north light — night darkens
+	# it with everything else. Flare pots are light sources, so they
+	# compensate back up in _draw_flare_pots().
+	if not Sun.current.is_empty():
+		modulate = Sun.current.get("ambient", Color(1, 1, 1))
 
 
 func _ready() -> void:
@@ -85,6 +94,86 @@ func _draw_revetment(p: Vector2) -> void:
 	draw_arc(p, 30.0, PI * 0.9, PI * 2.1, 12, Color(0.42, 0.40, 0.30), 6.0)
 
 
+func _draw_bessonneau(p: Vector2, s: float, canvas: Color, trim: Color) -> void:
+	# Bessonneau canvas hangar: the French standard the 94th lived under —
+	# arched canvas on a timber frame. Top-down: a rounded body with rib
+	# arcs across the span, and a sun-side rim catching the light.
+	var w := 116.0 * s
+	var h := 62.0 * s
+	draw_rect(Rect2(p.x - w * 0.5, p.y - h * 0.5, w, h), canvas)
+	draw_circle(p + Vector2(-w * 0.5, 0), h * 0.5, canvas)
+	draw_circle(p + Vector2(w * 0.5, 0), h * 0.5, canvas)
+	for i in 5:
+		var x := p.x - w * 0.5 + w * float(i) / 4.0
+		draw_line(Vector2(x, p.y - h * 0.5), Vector2(x, p.y + h * 0.5), trim, 2.0)
+	# rim light: the canvas lip on the light side (true-north sun rig)
+	var ldir: Vector2 = Sun.current.get("light_dir", Vector2(0, -1))
+	var la := ldir.angle()
+	var lcol: Color = Sun.current.get("light_color", Color(1, 1, 1))
+	draw_arc(p, w * 0.5 + 3.0 * s, la - 0.85, la + 0.85, 14,
+		Color(lcol.r, lcol.g, lcol.b, 0.45), 3.0 * s)
+
+
+func _draw_grass_strip() -> void:
+	# mown grass strip — 1918 fields were grass, not pavement
+	draw_rect(Rect2(-130, -110, 260, 230), Color(0.19, 0.22, 0.13, 0.60))
+	for i in 6:
+		var y := -95.0 + float(i) * 38.0
+		draw_circle(Vector2(-122, y), 3.0, Color(0.75, 0.72, 0.60, 0.70))
+		draw_circle(Vector2(122, y), 3.0, Color(0.75, 0.72, 0.60, 0.70))
+
+
+func _draw_hat_in_ring(p: Vector2) -> void:
+	# the 94th's famous emblem: Uncle Sam's top hat tossed into a ring,
+	# painted on the fuselage
+	draw_arc(p, 7.0, 0.0, TAU, 16, Color(0.80, 0.75, 0.60), 2.0)
+	draw_line(p + Vector2(-4.5, 2.5), p + Vector2(4.5, 2.5),
+		Color(0.15, 0.14, 0.20), 2.5)  # brim
+	draw_rect(Rect2(p.x - 2.8, p.y - 4.5, 5.6, 7.0),
+		Color(0.15, 0.14, 0.20))  # crown
+
+
+func _draw_mud_patch(p: Vector2, s: float) -> void:
+	# April 1918 was wet — the 94th sat rain-bound at Epiez on arrival
+	draw_circle(p, 34.0 * s, Color(0.13, 0.10, 0.07, 0.75))
+	draw_circle(p + Vector2(14, -8) * s, 20.0 * s, Color(0.16, 0.12, 0.08, 0.70))
+
+
+func _draw_puddles() -> void:
+	# standing water in the mud — catches the sky (and the moon)
+	var lcol: Color = Sun.current.get("light_color", Color(1, 1, 1))
+	for pp in [Vector2(-70, 95), Vector2(40, 105), Vector2(95, 20)]:
+		draw_circle(pp, 12.0, Color(0.10, 0.13, 0.20, 0.90))
+		draw_circle(pp + Vector2(-3, -3), 7.0, Color(lcol.r, lcol.g, lcol.b, 0.50))
+
+
+func _is_night() -> bool:
+	return not Sun.current.is_empty() and bool(Sun.current.get("is_night", false))
+
+
+func _draw_flare_pots() -> void:
+	# flare-path lighting: braziers lining the strip for night landings.
+	# Light sources compensate back up against the night modulate.
+	var amb: Color = Sun.current.get("ambient", Color(1, 1, 1))
+	var lum := (amb.r + amb.g + amb.b) / 3.0
+	var comp: float = 1.0 / maxf(lum, 0.35)
+	for i in 4:
+		var y := -80.0 + float(i) * 55.0
+		for x in [-122.0, 122.0]:
+			var fp := Vector2(x, y)
+			var fl := 0.7 + 0.3 * sin(_phase * 9.0 + float(i) * 1.7 + x)
+			var glow := clampf(0.25 * comp, 0.0, 1.0)
+			draw_circle(fp, 10.0 * fl, Color(1.0, 0.55, 0.15, glow))
+			draw_circle(fp, 5.0 * fl, Color(1.0, 0.62, 0.20, clampf(0.8 * comp, 0.0, 1.0)))
+			draw_circle(fp, 2.5, Color(1.0, 0.85, 0.45))
+
+
+func _draw_tender(p: Vector2) -> void:
+	# fuel/service tender: a boxy lorry silhouette by the hangars
+	draw_rect(Rect2(p.x - 16, p.y - 8, 32, 16), Color(0.30, 0.28, 0.22))
+	draw_rect(Rect2(p.x - 22, p.y - 6, 8, 12), Color(0.24, 0.22, 0.18))
+
+
 func _draw_german() -> void:
 	_draw_runway()
 	var canvas := Color(0.30, 0.30, 0.27)
@@ -108,21 +197,31 @@ func _draw_spad(p: Vector2) -> void:
 		draw_circle(p + Vector2(wx, -6), 4.5, Color(0.20, 0.25, 0.55))  # roundels
 		draw_circle(p + Vector2(wx, -6), 2.2, Color(0.85, 0.85, 0.85))
 		draw_circle(p + Vector2(wx, -6), 1.0, Color(0.75, 0.20, 0.20))
+	_draw_hat_in_ring(p + Vector2(0, 6))  # v14: the 94th's emblem
 
 
 func _draw_home() -> void:
-	_draw_runway()
-	var canvas := Color(0.58, 0.52, 0.36)
-	var trim := Color(0.32, 0.28, 0.20)
-	_draw_tent(Vector2(-90, -70), 0.9, canvas, trim)
-	_draw_tent(Vector2(0, -80), 1.1, canvas, trim)
-	_draw_tent(Vector2(95, -65), 0.85, canvas, trim)
-	_draw_windsock(Vector2(-125, 30))
+	# v14: Gengault, April 1918 — Bessonneau hangars, grass strip, mud,
+	# the Hat in the Ring on the SPADs, flare pots after dark.
+	_draw_grass_strip()
+	var canvas := Color(0.60, 0.54, 0.38)
+	var trim := Color(0.33, 0.29, 0.20)
+	_draw_bessonneau(Vector2(-95, -70), 1.0, canvas, trim)
+	_draw_bessonneau(Vector2(10, -85), 1.15, canvas, trim)
+	_draw_bessonneau(Vector2(105, -65), 0.9, canvas, trim)
+	_draw_windsock(Vector2(-130, 30))
 	_draw_spad(Vector2(-40, 40))
 	_draw_spad(Vector2(45, 55))
+	_draw_tender(Vector2(100, 90))
+	_draw_mud_patch(Vector2(-60, 100), 1.0)
+	_draw_mud_patch(Vector2(60, -10), 0.7)
+	if Global.weather_kind in ["rain", "storm"]:
+		_draw_puddles()
+	if _is_night():
+		_draw_flare_pots()
 	# ground crew: khaki dots milling about the machines
-	for i in 6:
+	for i in 8:
 		var a := _phase * (0.5 + 0.12 * float(i)) + float(i) * 1.7
-		var cp := Vector2(-40, 40) + Vector2(cos(a), sin(a) * 0.7) * (18.0 + 4.0 * float(i % 3))
+		var cp := Vector2(-40, 40) + Vector2(cos(a), sin(a) * 0.7) * (18.0 + 4.0 * float(i % 4))
 		draw_circle(cp, 3.0, Color(0.46, 0.42, 0.30))
 		draw_circle(cp + Vector2(0, -1.5), 1.6, Color(0.30, 0.28, 0.20))

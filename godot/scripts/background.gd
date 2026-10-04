@@ -179,14 +179,18 @@ class GroundFeatures extends Node2D:
 					# sky sheen on the water: cooler, toward the top
 					_ellipse(p + Vector2(0, -9.0) * s, 28.0 * s, 16.0 * s,
 						Color(0.17, 0.21, 0.30, 0.45))
-					# firelight glint skimming the water
+					# v14: light glint skimming the water, oriented TOWARD the light
+					# (true-north sun rig) and tinted by it — sun amber by day,
+					# moon silver by night. The glint sits on the light side.
+					var ldir: Vector2 = Sun.current.get("light_dir", Vector2(0, -1))
+					var lcol: Color = Sun.current.get("light_color", Color(1, 1, 1))
 					var g := 0.35 + 0.65 * (0.5 + 0.5 * sin(flick * 6.0 + it["ph"]))
-					_ellipse(p + Vector2(-10.0, -6.0) * s, 12.0 * s, 5.0 * s,
-						Color(1.0, 0.45, 0.12, 0.55 * g), 0.5)
+					_ellipse(p + ldir * 13.0 * s, 12.0 * s, 5.0 * s,
+						Color(lcol.r, lcol.g, lcol.b, 0.55 * g), ldir.angle())
 					# cool sky glint on the far side
 					var g2 := 0.35 + 0.65 * (0.5 + 0.5 * sin(flick * 4.0 - it["ph"]))
-					_ellipse(p + Vector2(11.0, 8.0) * s, 8.0 * s, 3.5 * s,
-						Color(0.65, 0.75, 0.95, 0.4 * g2), -0.5)
+					_ellipse(p - ldir * 12.0 * s, 8.0 * s, 3.5 * s,
+						Color(0.65, 0.75, 0.95, 0.4 * g2), ldir.angle())
 				"stump":
 					# root flare where it meets the earth
 					_ellipse(p + Vector2(0, 10) * s, 13.0 * s, 6.5 * s,
@@ -481,6 +485,14 @@ func setup(theme_name: String) -> void:
 	theme = theme_name
 	var t: Dictionary = THEMES[theme]
 	ground.color = t["c"]
+	# v14: the true-north sun rig's ambient multiplier darkens the whole
+	# landscape at night — modulate hits the ground rect, every feature and
+	# every set piece. Aircraft live outside Background, so they stay
+	# readable against the dark earth. Gameplay readability always wins.
+	if not Sun.current.is_empty():
+		modulate = Sun.current.get("ambient", Color(1, 1, 1))
+	else:
+		modulate = Color(1, 1, 1)
 	features.generate(bool(t["furrows"]), theme_name)
 	horizon.flashes.clear()
 	for p in pieces:
