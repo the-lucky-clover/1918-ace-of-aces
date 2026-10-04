@@ -19,6 +19,7 @@ var _haze: Array = []          # {p, s, vx, a}
 var _shaft_alpha := 0.0        # 0 in daylight, ~0.10 at dawn/dusk
 var _scorch_alpha := 0.0       # theme-driven: the front is that way
 var _grade := Color(1, 1, 1, 0)
+var _glare := 0.0        # dawn/dusk sun glare when climbing toward the light
 var _t := 0.0
 var _grain_tick := 0
 var _grain_off := Vector2.ZERO
@@ -77,6 +78,15 @@ func _process(delta: float) -> void:
 			p.x = -s
 		h["p"] = p
 	queue_redraw()
+	# sun glare: at dawn/dusk, climbing toward the light washes the lens —
+	# mild, atmospheric, never blinding
+	var gl := 0.0
+	if _shaft_alpha > 0.02:
+		var pl := get_tree().get_first_node_in_group("player")
+		if pl != null and is_instance_valid(pl) and "velocity" in pl:
+			var vy: float = (pl.get("velocity") as Vector2).y
+			gl = clampf(-vy / 430.0, 0.0, 1.0) * 0.09
+	_glare = lerpf(_glare, gl, 1.0 - exp(-3.0 * delta))
 
 
 func _draw() -> void:
@@ -110,6 +120,9 @@ func _draw() -> void:
 	# weather color grade washes everything last
 	if _grade.a > 0.003:
 		draw_rect(Rect2(Vector2.ZERO, vsz), _grade)
+	# sun glare: thin warm wash when climbing into a low sun
+	if _glare > 0.004:
+		draw_rect(Rect2(Vector2.ZERO, vsz), Color(1.0, 0.97, 0.90, _glare))
 
 
 # ------------------------------------------------- texture bakery ---

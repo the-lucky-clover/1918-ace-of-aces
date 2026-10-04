@@ -6,6 +6,7 @@ var vel := Vector2.ZERO
 var damage := 10.0
 var from_player := true
 var life := 2.5
+var _grazed := false  # graze awarded once per tracer
 
 
 func _ready() -> void:
@@ -38,6 +39,16 @@ func _physics_process(delta: float) -> void:
 	if life <= 0.0 or position.y < -60.0 or position.y > Global.VIEW_H + 60.0 \
 			or position.x < -60.0 or position.x > Global.VIEW_W + 60.0:
 		queue_free()
+		return
+	# graze: an enemy tracer threading the 20–30 px annulus around the
+	# airframe — a near miss, not a hit — rewards the pilot's nerve
+	if not from_player and not _grazed:
+		var player := get_tree().get_first_node_in_group("player")
+		if player != null and is_instance_valid(player) and bool(player.get("alive")):
+			var d: float = player.global_position.distance_to(global_position)
+			if d > 20.0 and d < 30.0:
+				_grazed = true
+				get_tree().call_group("game", "award_graze", global_position)
 
 
 func _draw() -> void:

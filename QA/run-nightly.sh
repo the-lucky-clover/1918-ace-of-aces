@@ -206,6 +206,77 @@ elif check == 'camera-iron-rule':
             var = s.split('=')[0].strip()
             if var not in ('_cam_c', '_cam_z'):
                 sys.exit('cinematic writes unexpected camera var: %s' % var)
+elif check == 'airfield-spawn':
+    m = read('main.gd')
+    if 'AirfieldScript' not in m or 'etype == "airfield"' not in m:
+        sys.exit('main.gd missing airfield spawn path')
+    a = read('airfield.gd')
+    # the airfield is a visual cluster on its own group; its parked
+    # aircraft register as individual "enemies" targets
+    if 'add_to_group("airfields")' not in a:
+        sys.exit('airfield.gd not in airfields group')
+elif check == 'gas-system-sane':
+    import os
+    if not os.path.exists(P + 'gas_cloud.gd'):
+        sys.exit('gas_cloud.gd missing')
+    g = read('gas_cloud.gd')
+    for pat in ('add_to_group("gasclouds")', 'take_gas_damage', 'Global.wind'):
+        if pat not in g:
+            sys.exit('gas_cloud.gd missing: %s' % pat)
+    m = read('main.gd')
+    if 'GasCloudScript' not in m or 'etype == "gasstrike"' not in m:
+        sys.exit('main.gd missing gasstrike spawn path')
+    p = read('player.gd')
+    for pat in ('gasmask_t', 'take_gas_damage', 'power_gasmask'):
+        if pat not in p:
+            sys.exit('player.gd missing gas wiring: %s' % pat)
+    pk = read('pickup.gd')
+    if '"gasmask"' not in pk or '_make_gasmask_texture' not in pk:
+        sys.exit('pickup.gd missing gasmask pickup path')
+    e = read('enemy.gd')
+    if '"gasmask"' not in e:
+        sys.exit('enemy.gd drop pool missing gasmask')
+    s = read('sortie_data.gd')
+    if '"gasstrike"' not in s:
+        sys.exit('sortie_data.gd has no gasstrike waves')
+    mm = read('minimap.gd')
+    if '"gasclouds"' not in mm:
+        sys.exit('minimap.gd does not render gas clouds')
+elif check == 'chateau-roads-sane':
+    b = read('background.gd')
+    for pat in ('"chateau":', '"road_paved":', '"road_cross":'):
+        if pat not in b:
+            sys.exit('background.gd missing draw case: %s' % pat)
+    # the farmland pool lives in the POOLS const near the top of the file
+    i = b.find('"farmland": [')
+    blk = b[i:i + 700]
+    for pat in ('"road_paved"', '"road_cross"'):
+        if pat not in blk:
+            sys.exit('farmland pool missing: %s' % pat)
+    if '"kind": "chateau"' not in b:
+        sys.exit('background.gd missing chateau placement block')
+elif check == 'flak-secondary-sane':
+    s = read('sortie_data.gd')
+    if '"flak"' not in s:
+        sys.exit('flak secondary missing from SECONDARY_DEFS')
+    mm = read('minimap.gd')
+    if '"flak": "aagun"' not in mm:
+        sys.exit('minimap SEC_ETYPE missing flak->aagun')
+    m = read('main.gd')
+    i = m.find('sec_id = "flak"')
+    if i < 0 or '"aagun":' not in m[max(0, i - 200):i]:
+        sys.exit('main.gd kill-match missing "aagun" -> "flak"')
+elif check == 'graze-streak-sane':
+    bl = read('bullet.gd')
+    if 'award_graze' not in bl:
+        sys.exit('bullet.gd missing graze call')
+    m = read('main.gd')
+    for pat in ('func award_graze', 'air_streak = 0', '"RAMPAGE!"', 'HEDGE-HOPPER'):
+        if pat not in m:
+            sys.exit('main.gd missing streak/graze wiring: %s' % pat)
+    bo = read('boss.gd')
+    if 'TAUNTS' not in bo:
+        sys.exit('boss.gd missing taunt table')
 PYEOF
         record "$name" "PASS"
     else
@@ -234,6 +305,10 @@ gdscript_check "gdscript-airfield-spawn"  airfield-spawn
 gdscript_check "gdscript-atmosphere-wired" atmosphere-wired
 gdscript_check "gdscript-atmosphere-precompute" atmosphere-precompute
 gdscript_check "gdscript-camera-iron-rule" camera-iron-rule
+gdscript_check "gdscript-gas-system" gas-system-sane
+gdscript_check "gdscript-chateau-roads" chateau-roads-sane
+gdscript_check "gdscript-flak-secondary" flak-secondary-sane
+gdscript_check "gdscript-graze-streak" graze-streak-sane
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"

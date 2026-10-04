@@ -224,12 +224,14 @@ func update_fuel(f: float, max_f: float) -> void:
 
 ## spread_t, rapid_t: seconds remaining; loop_cd/loop_max: loop cooldown;
 ## wingmen: active escort count.
-func update_powerups(spread_t: float, rapid_t: float, loop_cd: float, loop_max: float, wingmen: int) -> void:
+func update_powerups(spread_t: float, rapid_t: float, loop_cd: float, loop_max: float, wingmen: int, gasmask_t: float = 0.0) -> void:
 	var bits: Array = []
 	if spread_t > 0.0:
 		bits.append("SPREAD %ds" % int(ceil(spread_t)))
 	if rapid_t > 0.0:
 		bits.append("RAPID %ds" % int(ceil(rapid_t)))
+	if gasmask_t > 0.0:
+		bits.append("MASK %ds" % int(ceil(gasmask_t)))
 	if loop_cd <= 0.0:
 		bits.append("LOOP [Q] READY")
 	else:

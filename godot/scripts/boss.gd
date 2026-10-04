@@ -25,7 +25,20 @@ var spiral_a := 0.0
 var entering := true
 var phase_invuln := 0.0
 var enraged := false  # last-stand: faster guns under 15% HP
+var taunt_cd := 9.0   # the ace talks trash mid-duel — personality, not ceremony
 var _cur_frame := -1  # cache: avoid reloading the texture every frame
+
+# Duel taunts: period-flavored trash talk. Fictional aces, fictional mouths.
+const TAUNTS: Array = [
+	"You fly like a farmer!",
+	"Come down and fight, coward!",
+	"My grandmother loops tighter!",
+	"Is that a SPAD or a kite?",
+	"Chomping at MY heels? Ha!",
+	"The sun won't save you!",
+	"I've downed better men than you!",
+	"Watch the master at work!",
+]
 
 var sprite: Sprite2D
 var bullet_scene := preload("res://scenes/bullet.tscn")
@@ -96,6 +109,14 @@ func _physics_process(delta: float) -> void:
 
 	position += vel * delta
 	position.x = clampf(position.x, 70.0, Global.VIEW_W - 70.0)
+
+	# trash talk: every so often the ace can't resist running his mouth
+	if not entering:
+		taunt_cd -= delta
+		if taunt_cd <= 0.0:
+			taunt_cd = randf_range(11.0, 16.0)
+			FX.popup(get_parent(), global_position + Vector2(0, -78),
+				TAUNTS[randi() % TAUNTS.size()], Color(1.0, 0.62, 0.5))
 
 	# banking frames
 	if vel.x < -40.0:

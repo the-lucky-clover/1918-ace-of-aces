@@ -338,7 +338,7 @@ func _maybe_drop_pickup() -> void:
 func _spawn_pickup() -> void:
 	var p := pickup_scene.instantiate()
 	var kinds := ["ammo", "ammo", "ammo", "repair", "repair", "bomb", "bomb",
-		"spread", "rapid", "wingman", "fuel", "fuel"]
+		"spread", "rapid", "wingman", "fuel", "fuel", "gasmask"]
 	p.setup(kinds[randi() % kinds.size()])
 	# deferred: kills happen inside physics collision callbacks
 	get_parent().call_deferred("add_child", p)

@@ -79,7 +79,8 @@ class GroundFeatures extends Node2D:
 
 	# theme -> feature kind pool
 	const POOLS := {
-		"farmland": ["mud", "mud", "stump", "wreck", "road", "cloudwisp"],
+		"farmland": ["mud", "mud", "mud", "stump", "stump", "wreck", "road",
+			"road", "road_paved", "road_cross", "cloudwisp", "cloudwisp"],
 		"trenches": ["mud", "crater", "crater", "scorch", "stump", "wreck", "road", "cloudwisp"],
 		"nomansland": ["crater", "crater", "scorch", "mud", "stump", "wreck", "road", "cloudwisp"],
 		"uboat_flotilla": ["wave", "wave", "wake", "cloudwisp"],
@@ -106,6 +107,18 @@ class GroundFeatures extends Node2D:
 				"r": randf() * TAU,
 				"ph": randf() * TAU,
 			})
+		# chateaux: rare countryside set-pieces (grandeur, not targets) —
+		# forced count, never in the random pool, farmland only
+		if theme_name == "farmland":
+			for c in 3:
+				items.append({
+					"kind": "chateau",
+					"p": Vector2(randf_range(100.0, 620.0), randf_range(-H, H)),
+					"s": randf_range(1.1, 1.5),
+					"r": 0.0,
+					"ph": randf() * TAU,
+					"v": randi() % 3,  # 0 standing, 1 burning, 2 ancient ruins
+				})
 
 	func scroll(dy: float) -> void:
 		var H := 1280.0
@@ -282,6 +295,81 @@ class GroundFeatures extends Node2D:
 						var wy := p.y + (float(k) - 1.0) * 130.0 * s
 						draw_line(Vector2(p.x - rw / 2 + 6, wy), Vector2(p.x + rw / 2 - 6, wy),
 							Color(0.28, 0.23, 0.15, 0.6), 2.0)
+				"road_paved":
+					# paved main road: metalled surface, edge lines, dashed center
+					var prw := 64.0 * s
+					draw_rect(Rect2(p.x - prw / 2, p.y - 220.0 * s, prw, 440.0 * s),
+						Color(0.30, 0.295, 0.27, 0.92))
+					draw_line(Vector2(p.x - prw / 2 + 5, p.y - 220.0 * s),
+						Vector2(p.x - prw / 2 + 5, p.y + 220.0 * s),
+						Color(0.55, 0.53, 0.48, 0.65), 2.0)
+					draw_line(Vector2(p.x + prw / 2 - 5, p.y - 220.0 * s),
+						Vector2(p.x + prw / 2 - 5, p.y + 220.0 * s),
+						Color(0.55, 0.53, 0.48, 0.65), 2.0)
+					for k in 4:
+						var cwy := p.y + (float(k) - 1.5) * 110.0 * s
+						draw_line(Vector2(p.x, cwy - 20.0 * s), Vector2(p.x, cwy + 20.0 * s),
+							Color(0.62, 0.60, 0.54, 0.75), 3.0)
+				"road_cross":
+					# crossroads: paved route crossed by a dirt farm track
+					var crw := 56.0 * s
+					draw_rect(Rect2(p.x - crw / 2, p.y - 200.0 * s, crw, 400.0 * s),
+						Color(0.30, 0.295, 0.27, 0.92))
+					draw_rect(Rect2(p.x - 200.0 * s, p.y - 26.0 * s, 400.0 * s, 52.0 * s),
+						Color(0.24, 0.20, 0.14, 0.88))
+					draw_rect(Rect2(p.x - crw / 2, p.y - 26.0 * s, crw, 52.0 * s),
+						Color(0.27, 0.26, 0.23, 0.9))
+				"chateau":
+					# French chateau in three states: 0 standing proud,
+					# 1 burning, 2 ancient ruins. Pure set-piece grandeur —
+					# no ceremony, no targets, just the countryside.
+					var v: int = int(it.get("v", 0))
+					var stone := Color(0.44, 0.40, 0.31, 0.96)
+					var stone_d := Color(0.36, 0.32, 0.25, 0.96)
+					var slate := Color(0.24, 0.27, 0.34, 0.96)
+					var bw := 150.0 * s
+					var bh := 92.0 * s
+					if v == 2:
+						# ancient ruins: broken wall stubs + rubble field
+						draw_rect(Rect2(p.x - bw / 2, p.y - bh / 2, bw * 0.42, 16.0 * s), stone_d)
+						draw_rect(Rect2(p.x + bw * 0.08, p.y - bh / 2 + 26.0 * s, 15.0 * s, bh * 0.52), stone_d)
+						draw_rect(Rect2(p.x - bw * 0.30, p.y + bh * 0.10, bw * 0.60, 12.0 * s), stone)
+						var phc: float = it["ph"]
+						for k in 9:
+							var ra := phc + TAU * float(k) / 9.0
+							var rp := p + Vector2(cos(ra), sin(ra)) * (52.0 + 26.0 * (0.5 + 0.5 * sin(phc * 2.0 + float(k)))) * s
+							draw_circle(rp, (3.0 + 2.5 * (0.5 + 0.5 * sin(phc * 3.0 + float(k) * 1.3))) * s,
+								Color(0.38, 0.34, 0.27, 0.9))
+					else:
+						# main block + side wings + mansard roof lines + courtyard
+						draw_rect(Rect2(p.x - bw / 2, p.y - bh / 2, bw, bh), stone)
+						draw_rect(Rect2(p.x - bw / 2 - 42.0 * s, p.y - bh * 0.22, 42.0 * s, bh * 0.72), stone_d)
+						draw_rect(Rect2(p.x + bw / 2, p.y - bh * 0.22, 42.0 * s, bh * 0.72), stone_d)
+						draw_rect(Rect2(p.x - bw / 2, p.y - bh / 2, bw, 18.0 * s), slate)
+						draw_line(Vector2(p.x - bw / 2, p.y - bh / 2 + 18.0 * s),
+							Vector2(p.x + bw / 2, p.y - bh / 2 + 18.0 * s), slate, 3.0)
+						# window rhythm
+						for k in 5:
+							var wx := p.x - bw / 2 + (float(k) + 0.5) * bw / 5.0
+							draw_rect(Rect2(wx - 5.0 * s, p.y - 8.0 * s, 10.0 * s, 22.0 * s),
+								Color(0.16, 0.18, 0.24, 0.9))
+						# courtyard shadow
+						_ellipse(p + Vector2(0, bh * 0.72), bw * 0.42, 16.0 * s,
+							Color(0.30, 0.28, 0.22, 0.5))
+						if v == 1:
+							# burning: firelight glow + flickering flames
+							_ellipse(p, bw * 0.62, bh * 0.62, Color(1.0, 0.42, 0.10, 0.30), 0.0)
+							for k in 6:
+								var fa := float(it["ph"]) + TAU * float(k) / 6.0
+								var fp := p + Vector2(cos(fa) * bw * 0.30, sin(fa) * bh * 0.28)
+								var fh := (26.0 + 14.0 * sin(flick * 9.0 + float(k) * 2.1)) * s
+								var fw := 10.0 * s
+								draw_colored_polygon(PackedVector2Array([
+									fp + Vector2(-fw, 0), fp + Vector2(fw, 0),
+									fp + Vector2(0, -fh)]), Color(1.0, 0.45, 0.08, 0.85))
+								draw_colored_polygon(PackedVector2Array([
+									fp + Vector2(-fw * 0.5, 0), fp + Vector2(fw * 0.5, 0),
+									fp + Vector2(0, -fh * 0.55)]), Color(1.0, 0.80, 0.25, 0.9))
 		if furrows:
 			# faint plough lines, farmland only
 			for i in 16:

@@ -31,6 +31,7 @@ var weapon_level := 1
 var weapon_timer := 0.0
 var spread_t := 0.0
 var rapid_t := 0.0
+var gasmask_t := 0.0   # gas mask: timed immunity to mustard gas clouds
 var loop_t := 0.0
 var loop_cd := 0.0
 var warn_cd := 0.0
@@ -146,9 +147,10 @@ func _physics_process(delta: float) -> void:
 			weapon_level = 1
 	spread_t = maxf(0.0, spread_t - delta)
 	rapid_t = maxf(0.0, rapid_t - delta)
+	gasmask_t = maxf(0.0, gasmask_t - delta)
 	# --- HUD: fuel, power-ups, loop ---
 	get_tree().call_group("hud", "update_fuel", fuel, MAX_FUEL)
-	get_tree().call_group("hud", "update_powerups", spread_t, rapid_t, loop_cd, LOOP_CD, wingmen.size())
+	get_tree().call_group("hud", "update_powerups", spread_t, rapid_t, loop_cd, LOOP_CD, wingmen.size(), gasmask_t)
 
 
 func _draw() -> void:
@@ -262,6 +264,23 @@ func power_spread() -> void:
 func power_rapid() -> void:
 	rapid_t = 20.0
 	FX.popup(get_parent(), global_position + Vector2(0, -56), "RAPID FIRE!", Color.CYAN)
+
+
+func power_gasmask() -> void:
+	gasmask_t = 25.0
+	FX.popup(get_parent(), global_position + Vector2(0, -56), "GAS MASK!", Color(0.6, 0.9, 0.4))
+
+
+## Mustard gas damage: insidious — no invulnerability frames, the fog just
+## keeps burning. The gas mask grants full immunity (checked by the cloud).
+func take_gas_damage(amount: float) -> void:
+	if debug_godmode or not alive:
+		return
+	hp -= amount
+	FX.add_trauma(0.12)
+	get_tree().call_group("hud", "update_integrity", hp, MAX_HP)
+	if hp <= 0.0:
+		_die()
 
 
 func add_fuel(amount: float) -> void:

@@ -477,6 +477,96 @@ Targets still pop against terrain (enemy sprites + red minimap squares
 untouched); difficulty untouched; 1942 spirit intact — new detail just
 shows up, no popup ceremonies.
 
+## Roads, chateaux, mustard gas + brainstorm barrage — 2026-10-03 (v7)
+
+### 1. Roads: proper road networks
+- Farmland background pool grew two network pieces: `road_paved` (metalled
+  main road — edge lines, dashed center line) and `road_cross` (crossroads
+  where a paved route crosses a dirt farm track). The existing dirt supply
+  road (`road`, the trucks' road) stays. Seeded placement, seamless tiling,
+  zero per-frame cost.
+
+### 2. Chateaux: three states, rear-area set-pieces
+- `scripts/background.gd` now places 3 chateaux per farmland sortie in the
+  farmland pool (forced count, never in the random pool — grandeur is
+  curated, not scattered): **STANDING** (stone block, mansard roof lines,
+  window rhythm, side wings, courtyard shadow), **BURNING** (firelight glow,
+  6 flickering procedural flames on the walls), **ANCIENT RUINS** (broken
+  wall stubs, rubble field of 9 seeded stones). They just exist — no targets,
+  no popups, no ceremony (194x rule).
+
+### 3. Mustard gas: a real hazard (`scripts/gas_cloud.gd`)
+- Three-phase life: **warn** (2.2s grey-green pre-gas wisp + rising hiss =
+  telegraph), **bloom** (1.5s expansion), **active** (11s full cloud).
+- Clouds **drift with `Global.wind`** and linger; 5–7 seeded billow puffs +
+  3 drifting tendrils + 2 ground-hug patches, all procedural.
+- **Damage: 6.0 HP/s** inside the radius (~130px). No invulnerability frames —
+  the fog just keeps burning. At 100 hull that's ~16s of exposure to kill;
+  meaningful, not mean.
+- Sources: `gasstrike` waves on S1 (t=20) and S4 (t=28) — three blooming
+  banks in a loose diagonal, and the directive's "burst gas projectors"
+  fold into the same strike visually. Minimap shows gas banks as sickly
+  yellow-green hazard rings.
+
+### 4. Gas mask power-up: the counter
+- New pickup kind `gasmask` in the carrier drop pool (13-entry pool —
+  drop chance identical to spread/rapid/wingman, 1/13 per roll; the pool
+  only rolls when a drop happens, so the overall pickup economy is
+  unchanged).
+- Procedurally drawn 64×64 mask sprite (olive facepiece, dark lenses,
+  filter canister) generated at runtime in `pickup.gd` — no missing-asset
+  risk (verified headless: texture instantiates clean).
+- Grants **25s gas immunity** (`player.gasmask_t`), HUD shows `MASK %ds` in
+  the power-up line + a green ring on the player blip in the minimap.
+  While masked, gas clouds are harmless. "GAS MASK!" pickup popup.
+
+### 5. Brainstorm barrage — 12 ideas, 6 shipped
+The full dozen:
+1. ~~Kill-streak callouts~~ ✅ SHIPPED — air-kill chains inside a 4s window:
+   DOUBLE KILL +50 / TRIPLE KILL +120 / RAMPAGE! +300 / UNSTOPPABLE! +600.
+2. ~~Graze rewards~~ ✅ SHIPPED — enemy tracers threading the 20–30px
+   annulus around the airframe pay +10 ("GRAZE +10"), 0.4s anti-spam
+   throttle. Pilots who fly close get paid.
+3. ~~Boss taunts~~ ✅ SHIPPED — each ace runs his mouth every 11–16s
+   mid-duel ("You fly like a farmer!", "Is that a SPAD or a kite?" — 8
+   period-flavored lines). Personality, not ceremony.
+4. ~~Hedge-hopper daredevil bonus~~ ✅ SHIPPED — kills scored below
+   y=1000 (down in the weeds) pay +25% ("HEDGE-HOPPER +%d"). Flying low
+   is 1942; now it pays.
+5. ~~Sun glare~~ ✅ SHIPPED — dawn/dusk: climbing toward the light adds
+   a mild warm screen wash (max 9% alpha, smooth-lerped). Atmospheric,
+   never blinding.
+6. ~~"Silence the AA" secondary~~ ✅ SHIPPED — flak batteries are now a
+   proper secondary objective (S1×1, S4×2, S5×2, +500 bonus), with minimap
+   mapping (`flak`→`aagun`) and kill-path wiring in `main.gd`.
+7. ❌ Wingman "cover me" call — cut: needs a command UI; "no buttons"
+   design bar wins.
+8. ❌ Dynamic trench advance (front line pushes with the campaign) —
+   cut: ground-war rewrite, v8 territory.
+9. ❌ Boss wingman ambush phase (the ace calls in a wingman at 50% HP) —
+   cut: difficulty bar stays mild; the rage timer already does this job.
+10. ❌ Power-up magnet pickup — cut: 1942 never had one; economy is
+    balanced as-is.
+11. ❌ Landing-gear repair pads at the home aerodrome — cut: touch-and-go
+    landings are a whole flight model; the fuel/repair pickups cover it.
+12. ❌ Cinematic kill-cam on ace takedowns — cut: iron rule says no
+    camera cuts; the duel deserves its dignity.
+
+### Tuning numbers (v7)
+- Gas: 6.0 HP/s DoT, radius 130px (clouds spawn at 46px, bloom to full),
+  active 11s, drift = wind × 0.55.
+- Gas mask: 25s immunity, drop rate 1/13 of carrier drop rolls.
+- Streaks: 4s window; strafe unchanged; air kills 2/3/5/8 → +50/+120/
+  +300/+600. Hedge-hop: +25% of kill value below y=1000. Graze: +10,
+  0.4s throttle.
+
+### Readability guardrails (unchanged)
+- Gas clouds read instantly (yellow-green, unmistakable); the warn phase
+  always precedes damage. Camera iron rule untouched — no rotation, no
+  tilt, pan/zoom only (nightly `camera-iron-rule` check still green).
+- Chateaux and roads are countryside dressing: they never spawn on the
+  flight path in a way that hides targets.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render
@@ -484,6 +574,10 @@ shows up, no popup ceremonies.
   from the existing procedural aircraft builder — no longer a placeholder.
 - **Player-death → debrief-fail path**: code is straightforward and shares the
   validated debrief, but the headless tests used godmode — not yet exercised.
+  Death-by-gas in particular (no i-frames, DoT kill) wants a live eyeball.
+- **Gas mask pickup drop**: in the drop pool at 1/13 and the texture
+  instantiates clean headless, but no live run has confirmed a mask drop
+  appearing in play yet.
 - **Bosses 2–6 and sorties 2–6**: data-driven on the same validated code
   paths, but only boss 0 / sortie 1 ran headless. Needs an editor playthrough.
 - **No audio**: SFX (explosions, gunfire, pickups) not yet built — music

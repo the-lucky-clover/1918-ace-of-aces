@@ -34,6 +34,7 @@ const SEC_ETYPE := {
 	"arty": "arty",
 	"parked": "parked",
 	"trucks": "truck",
+	"flak": "aagun",
 }
 
 
@@ -93,6 +94,14 @@ func _draw() -> void:
 	_draw_storm_cells(pulse)
 	# objective markers under the icons: pulsing rings on live targets
 	_draw_objective_markers(pulse)
+	# mustard gas banks: sickly yellow-green hazard rings
+	for g in get_tree().get_nodes_in_group("gasclouds"):
+		if not is_instance_valid(g):
+			continue
+		var gp := _wpos(g)
+		var gr: float = float(g.get("radius")) * _sx()
+		draw_arc(gp, gr, 0.0, TAU, 24, Color(0.65, 0.78, 0.25, 0.85), 2.0)
+		draw_circle(gp, gr * 0.45, Color(0.60, 0.72, 0.22, 0.30))
 	# pickups
 	for p in get_tree().get_nodes_in_group("pickups"):
 		if not is_instance_valid(p):
@@ -141,6 +150,8 @@ func _draw() -> void:
 			draw_arc(pp, 12.5, 0.0, TAU, 16, Color(1.0, 0.4, 1.0), 2.0)
 		if "invuln" in pl and float(pl.get("invuln")) > 1.6:
 			draw_arc(pp, 15.5, 0.0, TAU, 16, Color(1.0, 0.85, 0.3), 2.0)
+		if "gasmask_t" in pl and float(pl.get("gasmask_t")) > 0.0:
+			draw_arc(pp, 18.5, 0.0, TAU, 16, Color(0.55, 0.85, 0.35), 2.0)
 	draw_rect(r, Color(0.75, 0.72, 0.65, 0.9), false, 2.0)
 
 

@@ -13,6 +13,7 @@ const AirfieldScript := preload("res://scripts/airfield.gd")
 const CinematicScript := preload("res://scripts/cinematic.gd")
 const WeatherScript := preload("res://scripts/weather.gd")
 const AtmosphereScript := preload("res://scripts/atmosphere.gd")
+const GasCloudScript := preload("res://scripts/gas_cloud.gd")
 
 var state: int = State.TITLE
 var sortie_index := 0
@@ -30,6 +31,9 @@ var fuel_cd := 24.0             # steady fuel-pickup pressure valve
 var last_tap_t := -10.0         # double-tap -> loop-de-loop
 var strafe_streak := 0          # consecutive trench strafes
 var strafe_window := 0.0        # streak window (seconds)
+var air_streak := 0             # consecutive air kills (kill-streak callouts)
+var air_window := 0.0           # air-kill streak window (seconds)
+var graze_cd := 0.0             # graze award throttle (anti-spam)
 var squad_kills := 0            # squadron aircraft downed this sortie
 var squad_goal := 0             # attainable break-point (~55% of strength)
 var squad_strength := 0         # nominal fighter-wave strength
@@ -217,6 +221,9 @@ func start_sortie(i: int) -> void:
 	sortie_time = 0.0
 	strafe_streak = 0
 	strafe_window = 0.0
+	air_streak = 0
+	air_window = 0.0
+	graze_cd = 0.0
 	$MenuLayer.hide_all()
 	# takeoff cinematic, then gameplay begins (skipped in headless autotest)
 	_cine_mode = "takeoff"
@@ -394,6 +401,13 @@ func _process(delta: float) -> void:
 		strafe_window -= delta
 		if strafe_window <= 0.0:
 			strafe_streak = 0
+	# air-kill streak window decay
+	if air_window > 0.0:
+		air_window -= delta
+		if air_window <= 0.0:
+			air_streak = 0
+	# graze award throttle
+	graze_cd = maxf(0.0, graze_cd - delta)
 	if debrief_timer > 0.0:
 		debrief_timer -= delta
 		if debrief_timer <= 0.0:
@@ -407,6 +421,17 @@ func _process(delta: float) -> void:
 
 
 func _spawn_enemy(etype: String) -> void:
+	# mustard gas strike: three blooming fog banks in a loose diagonal —
+	# telegraphed, drifting with the wind, dodge or mask up
+	if etype == "gasstrike":
+		for i in 3:
+			var gc := GasCloudScript.new()
+			world.add_child(gc)
+			gc.global_position = Vector2(
+				clampf(randf_range(140.0, Global.VIEW_W - 140.0) + float(i - 1) * 150.0,
+					80.0, Global.VIEW_W - 80.0),
+				-80.0 - float(i) * 70.0)
+		return
 	# troop trucks are their own script (drive → stop → unload infantry)
 	if etype == "truck":
 		var t := TruckScript.new()
@@ -477,6 +502,8 @@ func _on_enemy_killed(e: Area2D) -> void:
 			sec_id = "trenches"
 		"railwaygun":
 			sec_id = "railgun"
+		"aagun":
+			sec_id = "flak"
 		"bomber":
 			sec_id = "bombers"
 		"uboat":
@@ -512,6 +539,50 @@ func _on_enemy_killed(e: Area2D) -> void:
 			score += bonus
 			FX.popup(world, e.global_position + Vector2(0, -40),
 				"STRAFE x%d  +%d" % [strafe_streak, bonus], Color(1.0, 0.55, 0.2))
+	# air-kill streaks: consecutive fighter kills inside the window —
+	# the duel rewards the hot hand
+	if String(e.etype) in Sorties.SQUADRON_TYPES:
+		air_streak += 1
+		air_window = 4.0
+		var acall := ""
+		var abonus := 0
+		match air_streak:
+			2:
+				acall = "DOUBLE KILL"
+				abonus = 50
+			3:
+				acall = "TRIPLE KILL"
+				abonus = 120
+			5:
+				acall = "RAMPAGE!"
+				abonus = 300
+			8:
+				acall = "UNSTOPPABLE!"
+				abonus = 600
+		if acall != "":
+			score += abonus
+			FX.popup(world, e.global_position + Vector2(0, -56),
+				"%s  +%d" % [acall, abonus], Color(1.0, 0.75, 0.25))
+			FX.add_trauma(0.15)
+	# hedge-hopping: kills scored down in the weeds pay a daredevil's cut
+	if player != null and is_instance_valid(player) \
+			and player.global_position.y > 1000.0:
+		var hbonus := int(int(e.score_value) * 0.25)
+		if hbonus > 0:
+			score += hbonus
+			FX.popup(world, e.global_position + Vector2(0, -40),
+				"HEDGE-HOPPER +%d" % hbonus, Color(0.6, 0.95, 0.5))
+	$HUDLayer.update_score(score)
+
+
+## Graze: an enemy tracer threading within a hair of the airframe without
+## connecting — the pilot's skill, rewarded. Throttled against spam.
+func award_graze(pos: Vector2) -> void:
+	if state != State.PLAYING or graze_cd > 0.0:
+		return
+	graze_cd = 0.4
+	score += 10
+	FX.popup(world, pos + Vector2(0, -24), "GRAZE +10", Color(0.75, 0.85, 1.0))
 	$HUDLayer.update_score(score)
 
 
