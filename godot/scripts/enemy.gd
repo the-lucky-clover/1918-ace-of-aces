@@ -82,6 +82,20 @@ var volley_left := 0     # Archie conga-line volley: shells still to fire
 var volley_t := 0.0      # timer between volley shells (~0.4s apart)
 var _cur_frame := -1  # cache: avoid reloading the texture every frame
 
+# --- 1942 pass model (v10): aircraft make PASSES, not residences ---
+const PASS_ENTER := 0
+const PASS_ATTACK := 1
+const PASS_TURN := 2
+const PASS_EXIT := 3
+const TURN_Y := 1120.0  # the run goes ~7/8 down the visible scene (VIEW_H = 1280)
+var pass_state := PASS_ENTER
+var pass_mode := false    # flying aircraft only; ground/naval ride the scroll
+var pass_exempt := false  # boss escorts and anything else that must linger
+var turn_dir := 1.0
+var turn_t := 0.0
+var turn_dur := 1.15
+var heading := Vector2(0, 1)
+
 var sprite: Sprite2D
 var bullet_scene := preload("res://scenes/bullet.tscn")
 var flak_scene := preload("res://scenes/flak_shell.tscn")
@@ -100,6 +114,7 @@ func configure(p_etype: String) -> void:
 	behavior = t["behavior"]
 	is_aircraft = t["aircraft"]
 	sprite_keys = t["sprites"]
+	pass_mode = is_aircraft  # flying types make 1942 passes; ground rides the scroll
 	weave_phase = randf() * TAU
 	fire_cd = randf_range(0.6, fire_interval)
 
@@ -136,6 +151,144 @@ func _physics_process(delta: float) -> void:
 	# break-offs, sloppier gunnery. Subtle; the fight stays winnable.
 	var ragged := Global.squadron_broken and etype in ["triplane", "scout", "fighter", "bomber"]
 
+	# 1942 pass model: flying aircraft make passes (top → 7/8 down → 180°
+	# bank into the wind → out the top, gone for good). Ground/naval targets
+	# ride the world scroll downward, as they always have.
+	var guns_live := true
+	if pass_mode and not pass_exempt:
+		guns_live = _pass_move(delta, player, ragged)
+	else:
+		_legacy_move(delta, player, ragged)
+
+	position += vel * delta
+
+	# banking frames for aircraft — a hard bank through the 180° turn
+	if is_aircraft and sprite_keys.size() == 3:
+		if pass_mode and not pass_exempt and pass_state == PASS_TURN:
+			_set_sprite(2 if turn_dir > 0.0 else 0)
+		elif vel.x < -30.0:
+			_set_sprite(0)
+		elif vel.x > 30.0:
+			_set_sprite(2)
+		else:
+			_set_sprite(1)
+
+	# firing with a telegraph wind-up: brief flash warns before the shot.
+	# Pass aircraft only fight on the way down — the turn is the exit.
+	if fire_interval > 0.0 and guns_live:
+		if windup > 0.0:
+			windup -= delta
+			sprite.modulate = Color(2.2, 1.4, 1.4, sprite.modulate.a) if int(age * 24.0) % 2 == 0 else Color(1, 1, 1, sprite.modulate.a)
+			if windup <= 0.0:
+				sprite.modulate = Color(1, 1, 1, 1)
+				fire_cd = fire_interval * randf_range(0.85, 1.15) * (1.2 if ragged else 1.0)
+				_fire(player)
+		else:
+			fire_cd -= delta
+			if fire_cd <= 0.0:
+				windup = 0.35
+				fire_cd = 0.35  # held: the shot lands when windup ends
+
+	# spawn fade-in
+	if spawn_age < 0.4:
+		spawn_age += delta
+		sprite.modulate.a = minf(1.0, spawn_age / 0.4)
+
+	# Archie conga-line volley: fused shells march out ~0.4s apart along the
+	# trajectory toward the player's area (denser when the guns are hot)
+	if volley_left > 0:
+		volley_t -= delta
+		if volley_t <= 0.0:
+			volley_t = 0.4
+			volley_left -= 1
+			_fire_flak_shell(player)
+
+	# despawn: pass aircraft exit off the top and are never seen again until
+	# the next wave; everything else rides the scroll off the bottom.
+	if pass_mode and not pass_exempt and pass_state == PASS_EXIT and position.y < -140.0:
+		queue_free()
+		return
+	if position.y > Global.VIEW_H + 120.0:
+		queue_free()
+
+
+## The 1942 pass: ENTER (top of frame) → ATTACK (the run, ~7/8 down, guns
+## live) → TURN (180° bank, wings into the wind) → EXIT (off the top, gone).
+## Returns whether the guns are live this frame.
+func _pass_move(delta: float, player: Node2D, ragged: bool) -> bool:
+	match pass_state:
+		PASS_ENTER:
+			vel = Vector2(sin(age * 2.0 + weave_phase) * 40.0, speed * 0.9)
+			if global_position.y >= 110.0:
+				pass_state = PASS_ATTACK
+		PASS_ATTACK:
+			_attack_run(player, ragged)
+			if global_position.y >= TURN_Y:
+				_begin_turn()
+		PASS_TURN:
+			turn_t += delta
+			var k: float = clampf(turn_t / turn_dur, 0.0, 1.0)
+			heading = Vector2(0, 1).rotated(turn_dir * PI * k)
+			vel = heading * speed + Global.wind * 0.35
+			if k >= 1.0:
+				pass_state = PASS_EXIT
+		PASS_EXIT:
+			vel = Vector2(sin(age * 2.2 + weave_phase) * speed * 0.45, -speed) \
+				+ Global.wind * 0.35
+	return pass_state == PASS_ENTER or pass_state == PASS_ATTACK
+
+
+## The attack run: each type's personality, on the way down. The scout's
+## dive always carries downward — the pass never stalls into a hover.
+func _attack_run(player: Node2D, ragged: bool) -> void:
+	match behavior:
+		"weave":
+			vel = Vector2(sin(age * 2.2 + weave_phase) * speed * (1.08 if ragged else 0.8), speed * 0.55)
+		"dive":
+			if not diving and player and global_position.y > 120.0:
+				diving = true
+			if diving and player and is_instance_valid(player):
+				var want := (Vector2(player.global_position.x, player.global_position.y + 160.0) - global_position)
+				var break_dist := 56.0 if ragged else 8.0
+				if want.length() > break_dist:
+					vel = want.normalized() * speed
+				else:
+					vel = Vector2(0, speed)
+				vel.y = maxf(vel.y, speed * 0.45)  # the pass always carries down
+			else:
+				vel = Vector2(0, speed * 0.7)
+		"heavy":
+			vel = Vector2(sin(age * 0.8 + weave_phase) * 40.0, speed)
+		"drift":
+			vel = Vector2(sin(age * 0.6 + weave_phase) * 24.0, speed)
+		_:
+			vel = Vector2(0, speed)
+
+
+## Commit to the 180: bank INTO the wind (upwind side); in calm air, bank
+## toward the nearest edge so the arc stays on-screen. Readable beat —
+## contrail puff + airy whoosh — then the guns go quiet for the exit.
+func _begin_turn() -> void:
+	pass_state = PASS_TURN
+	turn_t = 0.0
+	turn_dur = {"bomber": 1.7, "balloon": 2.4, "zeppelin": 2.6}.get(etype, 1.15)
+	var wx: float = Global.wind.x
+	if absf(wx) > 12.0:
+		turn_dir = -signf(wx)
+	elif global_position.x < Global.VIEW_W * 0.5:
+		turn_dir = -1.0
+	else:
+		turn_dir = 1.0
+	# never freeze a firing telegraph mid-flash — the turn is a clean exit
+	windup = 0.0
+	sprite.modulate = Color(1, 1, 1, sprite.modulate.a)
+	FX.bank_puff(get_parent(), global_position)
+	SFX.play("bank_whoosh", -8.0, randf_range(0.94, 1.06), 0.04)
+
+
+## World-anchored movement: ground/naval targets (and pass-exempt aircraft,
+## e.g. boss escorts) ride the world scroll downward — the pre-v10 behavior.
+func _legacy_move(delta: float, player: Node2D, ragged: bool) -> void:
 	match behavior:
 		"weave":
 			vel = Vector2(sin(age * 2.2 + weave_phase) * speed * (1.08 if ragged else 0.8), speed * 0.55)
@@ -174,50 +327,6 @@ func _physics_process(delta: float) -> void:
 				sprite.scale = Vector2.ONE * (1.0 - 0.35 * k)
 				if submerge_t >= 2.0:
 					queue_free()  # escaped beneath the waves
-
-	position += vel * delta
-
-	# banking frames for aircraft
-	if is_aircraft and sprite_keys.size() == 3:
-		if vel.x < -30.0:
-			_set_sprite(0)
-		elif vel.x > 30.0:
-			_set_sprite(2)
-		else:
-			_set_sprite(1)
-
-	# firing with a telegraph wind-up: brief flash warns before the shot
-	if fire_interval > 0.0:
-		if windup > 0.0:
-			windup -= delta
-			sprite.modulate = Color(2.2, 1.4, 1.4, sprite.modulate.a) if int(age * 24.0) % 2 == 0 else Color(1, 1, 1, sprite.modulate.a)
-			if windup <= 0.0:
-				sprite.modulate = Color(1, 1, 1, 1)
-				fire_cd = fire_interval * randf_range(0.85, 1.15) * (1.2 if ragged else 1.0)
-				_fire(player)
-		else:
-			fire_cd -= delta
-			if fire_cd <= 0.0:
-				windup = 0.35
-				fire_cd = 0.35  # held: the shot lands when windup ends
-
-	# spawn fade-in
-	if spawn_age < 0.4:
-		spawn_age += delta
-		sprite.modulate.a = minf(1.0, spawn_age / 0.4)
-
-	# Archie conga-line volley: fused shells march out ~0.4s apart along the
-	# trajectory toward the player's area (denser when the guns are hot)
-	if volley_left > 0:
-		volley_t -= delta
-		if volley_t <= 0.0:
-			volley_t = 0.4
-			volley_left -= 1
-			_fire_flak_shell(player)
-
-	# despawn off the bottom
-	if position.y > Global.VIEW_H + 120.0:
-		queue_free()
 
 
 func _fire(player: Node2D) -> void:

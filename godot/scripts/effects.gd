@@ -8,6 +8,7 @@ const CloudScript := preload("res://scripts/fx/flak_cloud.gd")
 const ShockwaveScript := preload("res://scripts/fx/shockwave.gd")
 const MuzzleScript := preload("res://scripts/fx/muzzle.gd")
 const GoreScript := preload("res://scripts/fx/gore.gd")
+const BankPuffScript := preload("res://scripts/fx/bank_puff.gd")
 
 var trauma: float = 0.0
 var _hitstop_depth := 0
@@ -99,3 +100,10 @@ func collect_burst(parent: Node, pos: Vector2, color: Color = Color.WHITE) -> vo
 	s.col = color
 	parent.add_child(s)
 	s.global_position = pos
+
+
+## Contrail puff: the readable beat when an enemy banks into its 180° turn.
+func bank_puff(parent: Node, pos: Vector2) -> void:
+	var p: Node2D = BankPuffScript.new()
+	parent.add_child(p)
+	p.global_position = pos

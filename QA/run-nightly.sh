@@ -10,7 +10,8 @@
 #   GDScript: static hardening checks — squadron state resets per sortie,
 #          both death paths arm the debrief timer (no stranded screens),
 #          tween kill-guards present (no flicker stacking), empty-pool guard
-#          in background generation, squadron goal helpers present.
+#          in background generation, squadron goal helpers present,
+#          the v10 1942 enemy pass model (states, wind-bank, exit despawn).
 #   Sync:  VERSION file, splash ver-badge, and both global.gd copies agree.
 #
 # Writes QA/reports/YYYY-MM-DD.md with pass/fail per check.
@@ -298,6 +299,26 @@ elif check == 'ground-war-two-way':
     sd = read('sortie_data.gd')
     if sd.count('"lore"') != 6:
         sys.exit('sortie_data.gd: expected 6 lore lines, found %d' % sd.count('"lore"'))
+elif check == 'enemy-pass-model':
+    # v10: the 1942 pass — ENTER → ATTACK (guns live) → TURN (180° bank into
+    # the wind) → EXIT (off the top, despawned). Ground/naval targets exempt.
+    import os
+    e = read('enemy.gd')
+    for pat in ('PASS_ENTER', 'PASS_ATTACK', 'PASS_TURN', 'PASS_EXIT',
+                'TURN_Y', '_begin_turn', '_attack_run', '_legacy_move',
+                'pass_exempt', 'Global.wind', 'bank_puff', 'bank_whoosh'):
+        if pat not in e:
+            sys.exit('enemy.gd missing 1942 pass-model piece: %s' % pat)
+    fx = read('effects.gd')
+    if 'BankPuffScript' not in fx or 'func bank_puff' not in fx:
+        sys.exit('effects.gd missing bank_puff contrail')
+    if not os.path.exists(P + 'fx/bank_puff.gd'):
+        sys.exit('scripts/fx/bank_puff.gd missing')
+    s = read('sfx.gd')
+    if '"bank_whoosh"' not in s:
+        sys.exit('sfx.gd missing bank_whoosh registration')
+    if not os.path.exists('/home/hatch/workspace/1918-godot/assets/sfx/bank_whoosh.wav'):
+        sys.exit('assets/sfx/bank_whoosh.wav missing')
     m = read('main.gd')
     if 'brief_txt' not in m or 's.has("lore")' not in m:
         sys.exit('main.gd missing lore brief wiring')
@@ -334,6 +355,7 @@ gdscript_check "gdscript-chateau-roads" chateau-roads-sane
 gdscript_check "gdscript-flak-secondary" flak-secondary-sane
 gdscript_check "gdscript-graze-streak" graze-streak-sane
 gdscript_check "gdscript-ground-war-two-way" ground-war-two-way
+gdscript_check "gdscript-enemy-pass-model" enemy-pass-model
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"

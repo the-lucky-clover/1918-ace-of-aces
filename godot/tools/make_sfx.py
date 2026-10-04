@@ -178,4 +178,19 @@ rp = (highpass(noise(n, 311), 1400.0) * env_exp(n, 30.0) * 0.5
       + np.sin(2.0 * np.pi * 480.0 * np.arange(n) / SR) * env_exp(n, 32.0) * 0.2)
 write_wav("rifle_pop.wav", rp)
 
+# banking turn whoosh: the 180° bank — airier and shorter than the loop
+# whoosh, a soft cousin that marks the pass exit without stealing focus
+n = int(0.5 * SR)
+t = np.arange(n) / SR
+swell = env_ar(n, 0.12, 0.22)
+raw = noise(n, 401)
+cut = 900.0 + 2200.0 * np.sin(np.pi * np.clip(t / 0.5, 0, 1))
+y = np.zeros(n)
+acc = 0.0
+for i in range(n):
+    a = 1.0 - np.exp(-2.0 * np.pi * cut[i] / SR)
+    acc += a * (raw[i] - acc)
+    y[i] = acc
+write_wav("bank_whoosh.wav", y * swell * 0.6)
+
 print("ALL SFX DONE")

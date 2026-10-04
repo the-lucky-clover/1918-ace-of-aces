@@ -696,6 +696,52 @@ The full dozen:
 - Every new projectile is a slow readable tracer with a telegraph; camera
   iron rule untouched (nightly `camera-iron-rule` still green).
 
+## The 1942 pass — 2026-10-03 (v10)
+
+### 1. Pass state machine (`enemy.gd`)
+- Flying aircraft now make PASSES, not residences: ENTER (top of frame) →
+  ATTACK (the run, ~7/8 down, guns live) → TURN (180° bank) → EXIT (off the
+  top, despawned, never seen again until a new wave).
+- The run goes to TURN_Y = 1120 (~7/8 of the 1280px visible scene). Guns go
+  quiet the moment the turn commits — the turn is the exit, not the fight.
+- No lingering, no hovering: the scout's dive always carries downward
+  (`vel.y` floored at 45% of speed) so the pass can never stall.
+- Ground/naval targets (AA, railway gun, trenches, U-boats, pens, depots,
+  trains, arty, parked) are exempt by nature — they ride the world scroll
+  as before. Bosses are exempt (arenas, not passes). A `pass_exempt` flag
+  covers boss escorts and anything else that must linger.
+
+### 2. Wind-influenced 180° bank
+- Bank direction reads physically: with |wind.x| > 12 px/s the aircraft
+  banks INTO the wind (upwind side); in calm air it banks toward the
+  nearest screen edge so the arc stays on-screen.
+- The turn drags the sortie wind vector (×0.35) through the arc and the
+  climb-out, so the wind visibly shapes the maneuver.
+- Turn duration per type: 1.15 s fighters, 1.7 s bomber, 2.4 s balloon,
+  2.6 s zeppelin — heavies carve wide lazy arcs.
+- Readability: hard banked sprite frame through the turn + a contrail puff
+  (`FX.bank_puff`, new `scripts/fx/bank_puff.gd`) + a new airy `bank_whoosh`
+  SFX (synthesized in `tools/make_sfx.py`, registered in `scripts/sfx.gd`).
+
+### 3. Per-type adaptation
+- triplane/fighter (weave): personality unchanged on the way down.
+- scout (dive): still dives at the player — then breaks off into the turn
+  at 7/8 instead of kamikaze-chasing. Ragged squadrons break earlier.
+- bomber (heavy): slow straight run, wide 1.7 s turn.
+- balloon/zeppelin (drift): slow majestic drift down, lazy 2.4–2.6 s turn.
+- Verified headless: scout/fighter/bomber full ENTER→ATTACK→TURN→EXIT→
+  despawn cycles with zero script errors; wind (50,0) produced turn_dir -1
+  (into the wind) as designed.
+
+### Tuning numbers (v10)
+- TURN_Y 1120 (7/8 of VIEW_H); turn durations 1.15 / 1.7 / 2.4 / 2.6 s.
+- Wind bank threshold 12 px/s; wind drag ×0.35 through turn + exit.
+- Exit despawn at y < -140; bottom despawn unchanged for scrolled targets.
+
+### Readability guardrails (unchanged)
+- The 180 reads in under a second: banked frame + puff + whoosh. Camera
+  iron rule untouched — the turn is sprite + velocity, zero camera motion.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

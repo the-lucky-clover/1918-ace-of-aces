@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v10 — 2026-10-04
+
+v10: the sky learns the 1942 pass, me hearties! Enemy crates now scream in from the top, fight ye down seven-eighths o' the sky, then bank a hard 180 with wings rolled into the wind an' vanish off the top — ne'er to be seen till the next wave delivers 'em fresh. No lingerin', no hoverin', no kamikaze tomfoolery (save what's designed fer it). A contrail puff an' an airy whoosh mark the turn, bosses keep their arenas, an' the ground-pounders hold their scroll as always. Pure Capcom thunder, arrr!
+
+
 ## v9 — 2026-10-04
 
 v9: the ground war grows teeth, me hearties! Infantry an' MG nests now fire pot-shots at yer crate just fer the sport of it, German/French/British tanks duel beneath ye AND take the occasional crack at yer altitude, with fresh tank-boom thunder an' deck-rumblin' haptics. The lads below fight livelier amongst themselves, an' each sortie now carries a line o' Flying Circus flavor — loose as a sailor's yarn, respectful o' the fallen, celebratin' the win.
