@@ -1,0 +1,9 @@
+{"date":"2026-10-04","seedfault":"","sortie":3,"sortie_name":"Sortie 4 — Powder Keg","type":"meta","version":"13"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":3,"sortie_name":"Sortie 4 — Powder Keg","t":0.0,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":1,"kpm":6.0,"score":100,"seedfault":false,"sortie":3,"sortie_name":"Sortie 4 — Powder Keg","t":10.0324769999999,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":12.5,"dmg_per_min":37.0,"kills":2,"kpm":6.0,"score":220,"seedfault":false,"sortie":3,"sortie_name":"Sortie 4 — Powder Keg","t":20.0279783333331,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":32.0,"dmg_per_min":64.0,"kills":3,"kpm":6.0,"score":380,"seedfault":false,"sortie":3,"sortie_name":"Sortie 4 — Powder Keg","t":30.0319444444456,"touch_path":true,"type":"snapshot"}
+{"detail":"\"explosion_small\" fired 8x in one second — the mix is shouting","kind":"sfx_spam","seedfault":false,"sev":"MED","sortie":3,"t":31.030797000001,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":63.0,"dmg_per_min":94.0,"kills":4,"kpm":6.0,"score":550,"seedfault":false,"sortie":3,"sortie_name":"Sortie 4 — Powder Keg","t":40.0328383333317,"touch_path":true,"type":"snapshot"}
+{"detail":"bot ran the tank dry and lawn-darted","kind":"fuel_death","sortie":3,"t":47.8294529999957,"type":"event"}
+{"deaths":1,"dmg":101.0,"kills":6,"run_s":50.0,"score":910,"seedfault":false,"sortie":3,"t":49.836188999995,"type":"run_end"}

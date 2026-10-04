@@ -8,6 +8,7 @@ extends Area2D
 ## window after. Fuel atrophies with speed; empty tank = dead engine glide.
 
 signal died
+signal damaged(amount: float)  # v13 skepticism hook: every HP loss, pre-death
 
 const ACCEL := 2600.0
 const MAX_SPEED := 430.0
@@ -230,6 +231,7 @@ func take_damage(amount: float) -> void:
 		return
 	hp -= amount
 	invuln = 1.0
+	damaged.emit(amount)
 	FX.hit_flash(sprite)
 	FX.add_trauma(0.35)
 	SFX.play("damage", -2.0)

@@ -1,0 +1,7 @@
+{"date":"2026-10-04","seedfault":"stall","sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","type":"meta","version":"13"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":0.0,"touch_path":true,"type":"snapshot"}
+{"detail":"wedged scout pass machine (debug_freeze_pass) + pinned","kind":"seedfault","sortie":0,"t":2.9141863333333,"type":"event"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":1,"kpm":6.0,"score":80,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":10.0299033333333,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":33.0,"dmg_per_min":99.0,"kills":3,"kpm":8.0,"score":310,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":20.0303313333332,"touch_path":true,"type":"snapshot"}
+{"detail":"scout wedged in ATTACK for 17s (expected ~9s) — v10's pass model violated","etype":"scout","kind":"pass_stall","pass_state":1,"seedfault":true,"sev":"HIGH","sortie":0,"t":20.3475473333332,"type":"anomaly"}
+{"deaths":0,"dmg":33.0,"kills":3,"run_s":25.0,"score":310,"seedfault":true,"sortie":0,"t":25.029931333334,"type":"run_end"}

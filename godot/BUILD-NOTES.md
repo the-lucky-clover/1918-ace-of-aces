@@ -913,6 +913,79 @@ App Store Connect → implement the `_billing_*`/`_storekit_*` hooks.
 - `player.heal()` never updated the HUD — repair pickups left the integrity
   bar stale. Now calls `update_integrity` like every other HP change.
 
+## Automated playtesting + continuous skepticism — 2026-10-04 (v13)
+
+### 1. Bot pilot (`scripts/bot_pilot.gd`, `class_name BotPilot`)
+- A mid-skill bot that plays through the REAL control path: steering via
+  `Global.touch_wish` (the v8 touch scheme), `Input.action_press("fire")`
+  held, `Input.action_press("bomb")` on panic, `player.try_loop()` when a
+  closing tracer gets inside 110px. Thinks every 0.12s with steering noise —
+  competent enough to finish sorties sometimes and die sometimes.
+- Dodges toward open space, detours for pickups (fuel when thirsty),
+  gives active gas clouds a wide berth, keeps ~260px off gun targets.
+- Deaths alternate: odd deaths take the rewarded revive (exercising the v12
+  test-ads path end to end), even deaths retry (exercising death → debrief).
+- Added by main.gd only under `--botpilot` (with `--autostart`): no godmode,
+  no free wingmen/power-ups — the bot earns everything like a player.
+- Deterministic run length: `--botquit=N` quits on GAME time (the skeptic
+  calls `get_tree().quit()`); `--quit-after` is only a backstop because it
+  counts render frames and headless spins ~2x the physics rate.
+
+### 2. Skeptic (`scripts/skeptic.gd`, thresholds in `scripts/skeptic_config.gd`)
+- Instruments the run and flags anything that feels wrong — every detector
+  logs EVIDENCE (timestamps, positions, entities), never vibes:
+  - CRITICAL (fail the nightly): `unfair_death_early` (death <3s after
+    spawn/revive), `iframes_broken` (two hits <0.9s apart — the 1.0s
+    immunity leaked), `softlock` (no score/kill/objective progress 25s
+    while alive), `bot_zero_progress` (30s, zero kills AND zero damage).
+  - HIGH: `pass_stall` / `pass_overlife` / `pass_no_turn` (v10 spec, with
+    PER-ENEMY expected timings from speed/behavior — a balloon's 32s run
+    is majestic, not a stall), `death_no_visible_cause`,
+    `wave_stall` (next wave 40s overdue, empty sky).
+  - MED: `spawn_camp`, `sfx_spam` (>6 of one sound/sec), `rumble_storm`,
+    hitches, `econ_barren` / `econ_pinata` (kills/min outliers).
+- Cause attribution on death: nearest tracer/flak/gas/enemy; fuel deaths
+  and gas DoT are logged as designed paths, not anomalies.
+- Writes `QA/reports/skepticism-<date>-s<N>.jsonl` INCREMENTALLY (flushed
+  per line) — a hard `--quit-after` kill can never lose evidence.
+- Seeded-fault proof: `--seedfault=stall` wedges one mid-run aircraft's
+  pass machine (pinned + bullet-sponged so the fault stays observable);
+  the nightly asserts `pass_stall` fired. Proven working.
+
+### 3. Hooks (minimal, additive)
+- `player.gd`: `signal damaged(amount)` emitted in `take_damage`.
+- `sfx.gd`: `play_log` / `rumble_log` ring buffers (rumble logged even on
+  non-mobile so headless verifies the call sites fire).
+- `enemy.gd`: `debug_freeze_pass` (seeded fault only).
+- `flak_shell.gd`: joins `flakshells` group (death attribution).
+- `main.gd`: `total_kills` counter; `--botpilot` branch in `_debug_autostart`.
+
+### 4. Nightly wiring (`QA/run-nightly.sh`)
+- `godot-bot-sortie-1..6` (50s each), `godot-bot-mythic` (110s, reaches
+  the storm), `godot-bot-seedfault` (25s, proves the detector).
+- `qa-seedfault-proof`: PASS only if `pass_stall` was flagged.
+- `qa-skepticism-report`: `tools/merge_skeptic.py` builds
+  `QA/reports/skepticism-<date>.md` — stat table, anomaly table with
+  severity, and a 1942-grounded ideas section (suggestions only, never
+  auto-applied). Exits 1 — failing the nightly — on any CRITICAL.
+- `gdscript-bot-skeptic-sane`: static wiring check for the whole system.
+
+### 5. First findings (2026-10-04 shakedown)
+- S1 (50s): 17 kills, 1 death → rewarded revive granted cleanly, zero
+  anomalies. The sky felt right.
+- S4 (50s): 8 kills, 1 death; MED `sfx_spam` — 8 explosion_small + 8 flak
+  pops in one second during the t=28 gas strike. Genuinely shouty; a human
+  should listen to that moment.
+- Seeded fault: `pass_stall` + `pass_overlife` both fired as designed.
+
+### Tuning numbers (v13)
+- Bot: think 0.12s, steer noise ±0.15, dodge 240px, loop threat 110px +
+  0.2s react, bomb panic 10 bullets/200px, pickup 420px, fuel-seek 500px/35.
+- Skeptic: unfair window 3s, no-source 320px, softlock 25s, wave stall 40s,
+  zero-progress 30s, stall margin 1.6x+3s, life margin 1.5x, spawn camp
+  120px, sfx spam 6/s, rumble storm 4/s, hitch 100ms x8, barren 2/min,
+  pinata 25/min.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

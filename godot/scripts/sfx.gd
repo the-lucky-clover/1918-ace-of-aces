@@ -32,6 +32,11 @@ var _next := 0
 var muted := false
 var _mobile := false
 var _rumble_cd := 0.0
+# v13 skepticism hooks: ring buffers of recent play/rumble calls (capped).
+# Rumble calls are logged even on non-mobile so headless runs can verify
+# the call sites fire; the _mobile gate still controls actual vibration.
+var play_log: Array = []
+var rumble_log: Array = []
 
 
 func _ready() -> void:
@@ -62,6 +67,9 @@ func play(sfx_name: String, vol_db: float = 0.0, pitch: float = 1.0,
 	var stream: AudioStream = streams.get(sfx_name)
 	if stream == null:
 		return
+	play_log.append({"name": sfx_name, "ms": Time.get_ticks_msec()})
+	if play_log.size() > 128:
+		play_log.pop_front()
 	var p := players[_next]
 	_next = (_next + 1) % POOL
 	p.stream = stream
@@ -72,6 +80,7 @@ func play(sfx_name: String, vol_db: float = 0.0, pitch: float = 1.0,
 
 ## Sharp haptic pulse. Mobile only — desktop never buzzes.
 func rumble(ms: int, amp: float = 0.7) -> void:
+	_log_rumble("rumble", ms)
 	if not _mobile:
 		return
 	Input.vibrate_handheld(ms, amp)
@@ -89,4 +98,11 @@ func rumble_at(pos: Vector2, base_ms: int = 120, radius: float = 520.0) -> void:
 		return
 	var k := 1.0 - d / radius
 	_rumble_cd = 0.18
+	_log_rumble("rumble_at", int(base_ms * (0.35 + 0.65 * k)))
 	Input.vibrate_handheld(int(base_ms * (0.35 + 0.65 * k)), 0.4 + 0.6 * k)
+
+
+func _log_rumble(kind: String, ms: int) -> void:
+	rumble_log.append({"kind": kind, "ms": int(ms), "at": Time.get_ticks_msec()})
+	if rumble_log.size() > 128:
+		rumble_log.pop_front()

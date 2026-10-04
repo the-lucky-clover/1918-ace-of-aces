@@ -26,6 +26,7 @@ func setup(from: Vector2, to: Vector2, dmg: float = 6.5, radius: float = 40.0) -
 
 
 func _ready() -> void:
+	add_to_group("flakshells")  # v13: the skeptic attributes flak deaths
 	z_index = 15
 
 

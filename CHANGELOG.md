@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v13 — 2026-10-04
+
+A tireless clockwork pilot joins the crew! This here v13 hires a bot aviator what flies the real stick — touch-steerin', trigger-holdin', loop-de-loopin' when the lead gets hot — while a sharp-eyed skeptic rides along, loggin' everythin' what feels wrong: unfair deaths, soft-locks, stallin' bandits what break the pass, shouty sound mixes, and barren skies. It even proved its mettle by sniffin' out a sabotaged scout we wedged ourselves. The nightly now flies seven bot sorties and writes a skepticism report with 1942-seasoned ideas. Arrr, trust but verify!
+
+
 ## v12 — 2026-10-04
 
 v12: the quartermaster rigs the money-makin' tackle, me hearties — but with TRAININ' sails, mind! AdMob test colors fly (Google's own sample pennants, not a doubloon o' real revenue): watch a rewarded ad on the death debrief an' fly again at sixty percent hull, or catch an honest interstitial betwixt victorious sorties — never mid-battle, never the first sortie, three to a watch max. An' fer them what hate the barkers, a $2.99 REMOVE ADS charter in the pause parley — simulated in test waters, clearly badged, no real gold changes hands till the Captain wires the true store accounts. Flip TEST_MODE, swap the IDs, an' we sail fer profit, arrr!

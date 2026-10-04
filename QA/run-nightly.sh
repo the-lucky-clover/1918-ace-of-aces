@@ -394,6 +394,45 @@ elif check == 'ads-no-real-ids':
         sys.exit('real-looking ad IDs committed while TEST_MODE is on: %s' % '; '.join(bad))
     if not test_mode and not bad:
         sys.exit('TEST_MODE off but no real ad IDs found — config looks half-swapped')
+elif check == 'bot-skeptic-sane':
+    # v13: the bot pilot + skepticism engine are wired end to end
+    import os
+    G = '/home/hatch/workspace/1918-godot/'
+    for f in ('scripts/bot_pilot.gd', 'scripts/skeptic.gd',
+              'scripts/skeptic_config.gd', 'tools/merge_skeptic.py'):
+        if not os.path.exists(G + f):
+            sys.exit('%s missing' % f)
+    bp = read('bot_pilot.gd')
+    for pat in ('Global.touch_wish', 'try_loop', '_on_revive_requested',
+                '_on_menu_next', 'ST_PLAYING', 'ST_DEBRIEF'):
+        if pat not in bp:
+            sys.exit('bot_pilot.gd missing: %s' % pat)
+    sk = read('skeptic.gd')
+    for pat in ('pass_stall', 'pass_overlife', 'pass_no_turn', 'softlock',
+                'unfair_death_early', 'iframes_broken', 'sfx_spam',
+                'rumble_storm', 'spawn_camp', 'bot_zero_progress',
+                'wave_stall', 'debug_freeze_pass', 'skepticism-'):
+        if pat not in sk:
+            sys.exit('skeptic.gd missing detector/hook: %s' % pat)
+    p = read('player.gd')
+    if 'signal damaged' not in p or 'damaged.emit' not in p:
+        sys.exit('player.gd missing damaged signal')
+    s = read('sfx.gd')
+    if 'play_log' not in s or 'rumble_log' not in s:
+        sys.exit('sfx.gd missing play/rumble logs')
+    e = read('enemy.gd')
+    if 'debug_freeze_pass' not in e:
+        sys.exit('enemy.gd missing debug_freeze_pass')
+    m = read('main.gd')
+    for pat in ('--botpilot', 'total_kills', 'BotPilot.new()', 'Skeptic.new()'):
+        if pat not in m:
+            sys.exit('main.gd missing bot wiring: %s' % pat)
+    sh = open('/home/hatch/workspace/1918-ace-of-aces/QA/run-nightly.sh').read()
+    for pat in ('godot-bot-sortie-', 'godot-bot-mythic', 'godot-bot-seedfault',
+                'qa-seedfault-proof', 'qa-skepticism-report',
+                'merge_skeptic.py'):
+        if pat not in sh:
+            sys.exit('run-nightly.sh missing bot stage: %s' % pat)
 elif check == 'ads-state':
     # v12: remove-ads must suppress every ad path; placements + caps wired
     a = read('ads.gd')
@@ -452,6 +491,33 @@ fi
 for s in 0 1 2 3 4 5 6; do
     godot_check "godot-sortie-$((s+1))" "$GODOT" --headless --path "$PROJECT" --quit-after 1500 -- --autostart --sortie="$s"
 done
+# --- v13: bot playtest + continuous skepticism ---
+# The bot flies each sortie through the real control path (50s each; the
+# mythic duel gets 110s so the run can reach the storm). --botquit drives
+# run length by GAME time (--quit-after counts render frames and headless
+# spins ~2x the physics rate, so it is only a backstop). Fragments land in
+# QA/reports/ as skepticism-<date>-s<N>.jsonl; merge_skeptic.py builds the
+# report and fails on CRITICAL anomalies. Bot failures fail loudly.
+SKEP_DIR="$REPORT_DIR"
+rm -f "$SKEP_DIR/skepticism-$DATE-s"*.jsonl
+for s in 0 1 2 3 4 5; do
+    godot_check "godot-bot-sortie-$((s+1))" "$GODOT" --headless --path "$PROJECT" --quit-after 9000 -- --autostart --botpilot --botquit=50 --sortie="$s"
+done
+godot_check "godot-bot-mythic" "$GODOT" --headless --path "$PROJECT" --quit-after 16000 -- --autostart --botpilot --botquit=110 --sortie=6
+# seeded fault: wedge one pass aircraft — the skeptic MUST flag pass_stall.
+# This proves the detector fires on real faults, not just theory.
+godot_check "godot-bot-seedfault" "$GODOT" --headless --path "$PROJECT" --quit-after 5000 -- --autostart --botpilot --botquit=25 --sortie=0 --seedfault=stall
+if grep -q '"kind":"pass_stall"' "$SKEP_DIR/skepticism-$DATE-s0-seed.jsonl" 2>/dev/null; then
+    record "qa-seedfault-proof" "PASS"
+else
+    record "qa-seedfault-proof" "FAIL — pass_stall not flagged in the seedfault run"
+fi
+# merge fragments into QA/reports/skepticism-<date>.md (exits 1 on CRITICAL)
+if python3 "$PROJECT/tools/merge_skeptic.py" "$SKEP_DIR" "$DATE" >"$OUT" 2>&1; then
+    record "qa-skepticism-report" "PASS — $(grep -o 'SKEPTIC:.*' "$OUT" | head -1)"
+else
+    record "qa-skepticism-report" "FAIL — $(grep -o 'SKEPTIC:.*' "$OUT" | head -1)"
+fi
 web_check   "web-photo-keyframes" photo-keyframes
 web_check   "web-intro-timeout"   intro-timeout
 web_check   "web-version-sync"    version-sync
@@ -475,6 +541,7 @@ gdscript_check "gdscript-ghost-baron-duel" ghost-baron-duel
 gdscript_check "gdscript-ads-test-ids" ads-test-ids
 gdscript_check "gdscript-ads-no-real-ids" ads-no-real-ids
 gdscript_check "gdscript-ads-state" ads-state
+gdscript_check "gdscript-bot-skeptic-sane" bot-skeptic-sane
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"

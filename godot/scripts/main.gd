@@ -23,6 +23,7 @@ const CAMPAIGN_LAST := 5
 const MYTHIC_SORTIE := 6
 const SAVE_PATH := "user://1918.cfg"
 var score := 0
+var total_kills := 0  # v13 skepticism hook: every enemy kill, all types
 var sortie_time := 0.0
 var schedule: Array = []        # {at: float, type: String}, sorted by time
 var boss_spawned := false
@@ -132,6 +133,17 @@ func _debug_autostart() -> void:
 	print("[AUTOTEST] starting sortie %d with godmode player" % (si + 1))
 	start_sortie(si)
 	if player:
+		if "--botpilot" in OS.get_cmdline_user_args():
+			# v13: the bot flies the real control path — no godmode, no
+			# freebies. It earns its wingmen and power-ups like a player.
+			print("[AUTOTEST] bot-pilot mode: BotPilot + Skeptic attached")
+			var bp := BotPilot.new()
+			bp.main = self
+			add_child(bp)
+			var sk := Skeptic.new()
+			add_child(sk)
+			sk.setup(self, si)
+			return
 		player.debug_godmode = true
 		# exercise the new feature paths every validation run
 		player.add_wingman()
@@ -220,6 +232,7 @@ func start_sortie(i: int) -> void:
 	squad_kills = 0
 	squad_broken = false
 	Global.squadron_broken = false
+	total_kills = 0  # v13: the skeptic tracks economy per sortie
 	# sun rig: shadows follow the sortie's takeoff time
 	Sun.shadow_offset = Sun.shadow_for_takeoff(String(s.get("takeoff", "12:00")))
 	mood_rect.color = Sun.mood_tint(String(s.get("takeoff", "12:00")))
@@ -623,6 +636,7 @@ func _spawn_boss(idx: int) -> void:
 func _on_enemy_killed(e: Area2D) -> void:
 	if e == null:
 		return
+	total_kills += 1
 	score += int(e.score_value)
 	FX.popup(world, e.global_position, "+%d" % int(e.score_value), Color.WHITE)
 	# squadron shoot-down goal: fighter-wave kills count; breaking the

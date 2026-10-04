@@ -91,6 +91,7 @@ const TURN_Y := 1120.0  # the run goes ~7/8 down the visible scene (VIEW_H = 128
 var pass_state := PASS_ENTER
 var pass_mode := false    # flying aircraft only; ground/naval ride the scroll
 var pass_exempt := false  # boss escorts and anything else that must linger
+var debug_freeze_pass := false  # v13 seeded fault: freeze the pass machine
 var turn_dir := 1.0
 var turn_t := 0.0
 var turn_dur := 1.15
@@ -216,6 +217,10 @@ func _physics_process(delta: float) -> void:
 ## live) → TURN (180° bank, wings into the wind) → EXIT (off the top, gone).
 ## Returns whether the guns are live this frame.
 func _pass_move(delta: float, player: Node2D, ragged: bool) -> bool:
+	if debug_freeze_pass:
+		# v13 seeded fault: the pass machine is wedged — the skeptic must
+		# flag this enemy as stalled/over-life. Guns stay as they were.
+		return pass_state == PASS_ENTER or pass_state == PASS_ATTACK
 	match pass_state:
 		PASS_ENTER:
 			vel = Vector2(sin(age * 2.0 + weave_phase) * 40.0, speed * 0.9)
