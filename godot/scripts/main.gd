@@ -112,6 +112,8 @@ func _ready() -> void:
 	$MenuLayer.duel_requested.connect(_on_menu_duel)
 	$MenuLayer.resume_requested.connect(_on_menu_resume)
 	$MenuLayer.next_requested.connect(_on_menu_next)
+	$MenuLayer.revive_requested.connect(_on_revive_requested)
+	Ads.note_session_start()
 	fade.color = Color(0, 0, 0, 1)
 	_fade_to(0.0, 0.8)
 	# Headless smoke test: `-- --autostart` jumps straight into sortie 1
@@ -302,6 +304,8 @@ func _show_debrief() -> void:
 	state = State.DEBRIEF
 	if debug_autotest:
 		print("[AUTOTEST] debrief: win=%s primary=%s score=%d t=%.1f" % [debrief_win, primary_done, score, sortie_time])
+	if debrief_win:
+		Ads.note_sortie_completed()
 	var s: Dictionary = Sorties.SORTIES[sortie_index]
 	var last := sortie_index == CAMPAIGN_LAST
 	var mythic := sortie_index == MYTHIC_SORTIE
@@ -321,6 +325,7 @@ func _show_debrief() -> void:
 		"squad_strength": squad_strength,
 		"squad_broken": squad_broken,
 		"squad_bonus": squad_bonus,
+		"can_revive": (not debrief_win) and player != null and is_instance_valid(player),
 	})
 
 
@@ -462,9 +467,31 @@ func _on_menu_next() -> void:
 		# legend complete — the ghost is laid to rest
 		_to_title()
 	elif debrief_win:
-		start_sortie(sortie_index + 1)
+		# natural break: sortie cleared, next one ahead — the one place an
+		# interstitial may appear (cooldown + session caps enforced in Ads).
+		var nxt := sortie_index + 1
+		Ads.show_interstitial_then(func() -> void: start_sortie(nxt))
 	else:
 		start_sortie(sortie_index)  # retry
+
+
+## Rewarded revive: player opted into the ad on the death debrief.
+func _on_revive_requested() -> void:
+	if state != State.DEBRIEF or player == null or not is_instance_valid(player):
+		return
+	Ads.show_rewarded("revive", _on_revive_reward)
+
+
+func _on_revive_reward() -> void:
+	if state != State.DEBRIEF or player == null or not is_instance_valid(player):
+		return
+	$MenuLayer.hide_all()
+	player.revive(0.6)
+	state = State.PLAYING
+	get_tree().paused = false
+	Music.play_game()
+	FX.popup(world, player.global_position + Vector2(0, -70), "BACK IN THE FIGHT!", Color(0.5, 1.0, 0.5))
+	print("[Main] rewarded revive granted — player back at 60% hull")
 
 
 # --------------------------------------------------------------- update ---

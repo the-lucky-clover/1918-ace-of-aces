@@ -266,6 +266,26 @@ func heal(amount: float) -> void:
 	get_tree().call_group("hud", "update_integrity", hp, MAX_HP)
 
 
+## Rewarded-ad revive: back in the fight mid-sortie with partial hull.
+## Wingmen stay lost (they died with you); everything else resets clean.
+func revive(hull_frac: float) -> void:
+	alive = true
+	hp = MAX_HP * clampf(hull_frac, 0.1, 1.0)
+	fuel = MAX_FUEL
+	engine_dead = false
+	invuln = 3.0  # breathing room: the sky is still full of lead
+	loop_t = 0.0
+	loop_cd = 0.0
+	loop_frame = -1
+	if base_texture != null:
+		sprite.texture = base_texture
+	velocity = Vector2.ZERO
+	global_position = Vector2(Global.VIEW_W * 0.5, Global.VIEW_H - 160.0)
+	get_tree().call_group("hud", "update_integrity", hp, MAX_HP)
+	get_tree().call_group("hud", "update_bombs", bombs)
+	SFX.play("pickup")
+
+
 func add_bomb() -> void:
 	bombs += 1
 	get_tree().call_group("hud", "update_bombs", bombs)

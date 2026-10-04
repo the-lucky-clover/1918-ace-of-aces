@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v12 — 2026-10-04
+
+v12: the quartermaster rigs the money-makin' tackle, me hearties — but with TRAININ' sails, mind! AdMob test colors fly (Google's own sample pennants, not a doubloon o' real revenue): watch a rewarded ad on the death debrief an' fly again at sixty percent hull, or catch an honest interstitial betwixt victorious sorties — never mid-battle, never the first sortie, three to a watch max. An' fer them what hate the barkers, a $2.99 REMOVE ADS charter in the pause parley — simulated in test waters, clearly badged, no real gold changes hands till the Captain wires the true store accounts. Flip TEST_MODE, swap the IDs, an' we sail fer profit, arrr!
+
+
 ## v11 — 2026-10-04
 
 v11: the Ghost o' the Red Baron rises from the thunderheads, me hearties! A secret seventh duel fer them what conquers all six sorties — a spectral crimson triplane what breathes like a haunt, smears afterimages across the sky, an' wails like the storm itself. Three fair phases, honest guns, no bullet-hell bilge. The arena be a proper thunderhead tempest, lightning crackin' with real thunder at last. researched the old Capcom 1942 scrolls too — we borrow the pass, the loop, an' the kill-ratio glory, but the 32-stage marathon an' one-hit deaths stay buried at sea. Respect the fallen, celebrate the win — WE WON, arrr!

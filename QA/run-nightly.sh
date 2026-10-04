@@ -362,6 +362,72 @@ elif check == 'ghost-baron-duel':
     for wav in ('ghost_wail.wav', 'thunder.wav'):
         if not os.path.exists(A + '/sfx/' + wav):
             sys.exit('assets/sfx/%s missing' % wav)
+elif check == 'ads-test-ids':
+    # v12: config must carry Google's OFFICIAL test IDs (verified against
+    # https://developers.google.com/admob/android/test-ads and the iOS page)
+    c = read('ads_config.gd')
+    official = {
+        'ca-app-pub-3940256099942544~3347511713': 'android app id',
+        'ca-app-pub-3940256099942544~1458002511': 'ios app id',
+        'ca-app-pub-3940256099942544/1033173712': 'android interstitial',
+        'ca-app-pub-3940256099942544/5224354917': 'android rewarded',
+        'ca-app-pub-3940256099942544/4411468910': 'ios interstitial',
+        'ca-app-pub-3940256099942544/1712485313': 'ios rewarded',
+    }
+    for unit, label in official.items():
+        if unit not in c:
+            sys.exit('ads_config.gd missing official test id (%s): %s' % (label, unit))
+    if 'const TEST_MODE := true' not in c:
+        sys.exit('ads_config.gd TEST_MODE is not true — test IDs must not ship as live config')
+elif check == 'ads-no-real-ids':
+    # v12: no real-looking ad unit/app IDs may be committed while TEST_MODE is on
+    import glob
+    c = read('ads_config.gd')
+    test_mode = 'const TEST_MODE := true' in c
+    bad = []
+    for f in glob.glob(P + '*.gd'):
+        src = open(f).read()
+        for m in re.finditer(r'ca-app-pub-(\d{16})([~/])(\d+)', src):
+            if m.group(1) != '3940256099942544':
+                bad.append('%s: %s' % (f.split('/')[-1], m.group(0)))
+    if test_mode and bad:
+        sys.exit('real-looking ad IDs committed while TEST_MODE is on: %s' % '; '.join(bad))
+    if not test_mode and not bad:
+        sys.exit('TEST_MODE off but no real ad IDs found — config looks half-swapped')
+elif check == 'ads-state':
+    # v12: remove-ads must suppress every ad path; placements + caps wired
+    a = read('ads.gd')
+    for pat in ('func is_remove_ads', 'func show_rewarded', 'func show_interstitial_then',
+                'func rewarded_available', 'INTERSTITIAL_COOLDOWN_S',
+                'INTERSTITIAL_MAX_PER_SESSION', 'INTERSTITIAL_MIN_SORTIES_COMPLETED'):
+        if pat not in a:
+            sys.exit('ads.gd missing ads piece: %s' % pat)
+    # both show paths must bail when remove-ads is owned
+    for fn in ('func show_rewarded', 'func show_interstitial_then'):
+        i = a.find(fn)
+        body = a[i:i + 900]
+        if 'is_remove_ads()' not in body:
+            sys.exit('ads.gd %s does not gate on is_remove_ads()' % fn)
+    ip = read('iaps.gd')
+    for pat in ('func has_remove_ads', 'func purchase_remove_ads',
+                'func restore_purchases', '"purchases"', '"remove_ads"',
+                '1918_remove_ads'):
+        if pat not in ip:
+            sys.exit('iaps.gd missing IAP piece: %s' % pat)
+    if 'AdsConfig.TEST_MODE' not in ip:
+        sys.exit('iaps.gd does not honor TEST_MODE')
+    me = read('menus.gd')
+    for pat in ('REMOVE ADS', 'revive_requested', 'FLY AGAIN'):
+        if pat not in me:
+            sys.exit('menus.gd missing ads UI piece: %s' % pat)
+    mn = read('main.gd')
+    for pat in ('revive_requested', '_on_revive_reward', 'player.revive(',
+                'show_interstitial_then', 'note_session_start', 'note_sortie_completed'):
+        if pat not in mn:
+            sys.exit('main.gd missing ads wiring piece: %s' % pat)
+    pl = read('player.gd')
+    if 'func revive(' not in pl:
+        sys.exit('player.gd missing revive()')
 PYEOF
         record "$name" "PASS"
     else
@@ -373,6 +439,15 @@ PYEOF
 godot_check "godot-import"      "$GODOT" --headless --path "$PROJECT" --import
 godot_check "godot-smoke-30s"   "$GODOT" --headless --path "$PROJECT" --quit-after 1800 -- --autostart
 godot_check "godot-boss-rush"   "$GODOT" --headless --path "$PROJECT" --quit-after 3600 -- --autostart --autoboss
+godot_check "godot-ads-flow"    "$GODOT" --headless --path "$PROJECT" --script res://tools/test_ads.gd
+if ! grep -q '\[TESTADS\] PASS' "$OUT"; then
+    # godot_check already recorded; downgrade if the PASS marker is missing
+    for i in "${!names[@]}"; do
+        if [[ "${names[$i]}" == "godot-ads-flow" && "${results[$i]}" == PASS* ]]; then
+            results[$i]="FAIL — [TESTADS] PASS marker missing"
+        fi
+    done
+fi
 # sortie sweep: every sortie's weather, waves, and flak paths must run clean
 for s in 0 1 2 3 4 5 6; do
     godot_check "godot-sortie-$((s+1))" "$GODOT" --headless --path "$PROJECT" --quit-after 1500 -- --autostart --sortie="$s"
@@ -397,6 +472,9 @@ gdscript_check "gdscript-graze-streak" graze-streak-sane
 gdscript_check "gdscript-ground-war-two-way" ground-war-two-way
 gdscript_check "gdscript-enemy-pass-model" enemy-pass-model
 gdscript_check "gdscript-ghost-baron-duel" ghost-baron-duel
+gdscript_check "gdscript-ads-test-ids" ads-test-ids
+gdscript_check "gdscript-ads-no-real-ids" ads-no-real-ids
+gdscript_check "gdscript-ads-state" ads-state
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"

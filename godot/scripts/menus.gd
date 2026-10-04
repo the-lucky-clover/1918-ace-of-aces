@@ -1,10 +1,13 @@
 extends CanvasLayer
 ## Title / pause / debrief overlays. Always processes (even while paused).
 
+const AdsConfig := preload("res://scripts/ads_config.gd")
+
 signal start_requested
 signal duel_requested
 signal resume_requested
 signal next_requested
+signal revive_requested
 
 var title_root: Control
 var pause_root: Control
@@ -18,6 +21,8 @@ var blink_t := 0.0
 var pause_obj_box: VBoxContainer
 var sound_btn: Button
 var sound_on := true
+var ads_btn: Button
+var revive_btn: Button
 
 
 func _ready() -> void:
@@ -140,6 +145,12 @@ func _build_pause() -> void:
 	var sc := CenterContainer.new()
 	sc.add_child(sound_btn)
 	vb.add_child(sc)
+	# remove-ads IAP: $2.99 one-time, TEST MODE badged until Steven goes live
+	ads_btn = _button(_ads_button_text())
+	ads_btn.pressed.connect(_on_remove_ads_pressed)
+	var ac := CenterContainer.new()
+	ac.add_child(ads_btn)
+	vb.add_child(ac)
 
 
 func _toggle_sound() -> void:
@@ -147,6 +158,44 @@ func _toggle_sound() -> void:
 	SFX.set_muted(not sound_on)
 	Music.set_muted(not sound_on)
 	sound_btn.text = "SOUND: ON" if sound_on else "SOUND: OFF"
+
+
+func _ads_button_text() -> String:
+	var iaps := get_node_or_null("/root/IAPs")
+	var owned: bool = iaps != null and iaps.has_method("has_remove_ads") and bool(iaps.call("has_remove_ads"))
+	if owned:
+		return "ADS REMOVED ✓"
+	var t := "REMOVE ADS — %s" % AdsConfig.IAP_PRICE_LABEL
+	if AdsConfig.TEST_MODE:
+		t += " (TEST)"
+	return t
+
+
+func _refresh_ads_button() -> void:
+	if ads_btn == null:
+		return
+	ads_btn.text = _ads_button_text()
+	var iaps := get_node_or_null("/root/IAPs")
+	var owned: bool = iaps != null and iaps.has_method("has_remove_ads") and bool(iaps.call("has_remove_ads"))
+	ads_btn.disabled = owned
+
+
+func _on_remove_ads_pressed() -> void:
+	SFX.play("ui_confirm")
+	ads_btn.disabled = true
+	var iaps := get_node_or_null("/root/IAPs")
+	if iaps == null or not iaps.has_method("purchase_remove_ads"):
+		push_warning("[Menus] IAPs autoload missing — cannot purchase")
+		ads_btn.disabled = false
+		return
+	iaps.call("purchase_remove_ads", _on_purchase_result)
+
+
+func _on_purchase_result(success: bool, info: String) -> void:
+	print("[Menus] remove-ads purchase: success=%s info=%s" % [str(success), info])
+	_refresh_ads_button()
+	if success:
+		SFX.play("ui_confirm")
 
 
 func _build_debrief() -> void:
@@ -163,6 +212,16 @@ func _build_debrief() -> void:
 	var bc := CenterContainer.new()
 	bc.add_child(debrief_next_btn)
 	vb.add_child(bc)
+	# rewarded revive: opt-in only, never forced, never mid-action
+	var rt := "✚ FLY AGAIN — WATCH AD"
+	if AdsConfig.TEST_MODE:
+		rt += " (TEST)"
+	revive_btn = _button(rt)
+	revive_btn.pressed.connect(_on_revive_pressed)
+	var rc := CenterContainer.new()
+	rc.add_child(revive_btn)
+	vb.add_child(rc)
+	revive_btn.visible = false
 	vb.add_child(_label("ENTER — continue", 22, Color(0.7, 0.7, 0.75)))
 
 
@@ -176,6 +235,8 @@ func hide_all() -> void:
 	title_root.visible = false
 	pause_root.visible = false
 	debrief_root.visible = false
+	if revive_btn != null:
+		revive_btn.visible = false
 
 
 func show_title(ghost_unlocked: bool = false) -> void:
@@ -186,6 +247,7 @@ func show_title(ghost_unlocked: bool = false) -> void:
 
 
 func show_pause(objectives: Dictionary) -> void:
+	_refresh_ads_button()
 	for c in pause_obj_box.get_children():
 		c.queue_free()
 	pause_obj_box.add_child(_label("— OBJECTIVES —", 22, Color(0.9, 0.8, 0.5)))
@@ -258,4 +320,18 @@ func show_debrief(data: Dictionary) -> void:
 		debrief_next_btn.text = "NEXT SORTIE"
 	else:
 		debrief_next_btn.text = "RETRY"
+	var ads := get_node_or_null("/root/Ads")
+	var can_revive: bool = bool(data.get("can_revive", false)) and ads != null and bool(ads.call("rewarded_available"))
+	if can_revive:
+		revive_btn.visible = true
+		revive_btn.disabled = false
+	else:
+		revive_btn.visible = false
 	debrief_root.visible = true
+
+
+func _on_revive_pressed() -> void:
+	SFX.play("ui_confirm")
+	revive_btn.disabled = true
+	revive_btn.visible = false
+	revive_requested.emit()

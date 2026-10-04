@@ -23,6 +23,8 @@ Sorties="*res://scripts/sortie_data.gd"
 FX="*res://scripts/effects.gd"
 Music="*res://scripts/music.gd"
 SFX="*res://scripts/sfx.gd"
+IAPs="*res://scripts/iaps.gd"
+Ads="*res://scripts/ads.gd"
 
 [display]
 

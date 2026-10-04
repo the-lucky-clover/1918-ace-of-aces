@@ -848,6 +848,71 @@ retrospective, the Capcom Database wiki). Mechanics distilled:
 - Camera iron rule untouched. The ghost reads in under a second: crimson
   triplane, translucency pulse, wail on entrance.
 
+## Test ads + remove-ads IAP (test mode) — 2026-10-04 (v12)
+
+### 1. Architecture: provider-agnostic facade, honest test mode
+- `scripts/ads_config.gd` (preloaded consts, NOT class_name — global classes
+  don't resolve in `--script` headless mode): `TEST_MODE = true` ships ON,
+  Google's six OFFICIAL test IDs (verified against developers.google.com
+  AdMob test-ads docs for Android + iOS), product `1918_remove_ads` $2.99,
+  and the honest caps (180s cooldown, 3/session, min 1 sortie completed).
+- `scripts/ads.gd` (autoload "Ads"): `show_rewarded(context, on_reward)`,
+  `show_interstitial_then(on_done)`, `rewarded_available()`,
+  `is_remove_ads()` (delegates to IAPs), `note_session_start()`,
+  `note_sortie_completed()`, stats persisted in `user://1918.cfg` ("ads").
+  Remove-ads ownership suppresses EVERY ad path — no requests, no shows.
+- `scripts/ads_impl_poing.gd`: concrete Poing Studios AdMob plugin mapping
+  (`MobileAds.initialize()`, `InterstitialAdLoader`/`RewardedAdLoader` +
+  load callbacks, `show()`), loaded ONLY when `res://addons/admob` exists,
+  so it can never break a plugin-less build. Dismiss detection probes the
+  plugin's listener convention with a loudly-logged degraded fallback.
+- Backend order: real plugin → TEST MODE simulation (logged timers, zero
+  network) → safe no-op. Desktop/headless without the plugin = test-mode
+  simulation, so the whole flow is exercisable here.
+
+### 2. Placements (honest UX, Steven's spec)
+- REWARDED (opt-in only): death debrief shows "✚ FLY AGAIN — WATCH AD
+  (TEST)" → `main._on_revive_reward` → `player.revive(0.6)`: back mid-sortie
+  at 60% hull, 3s invuln, wingmen stay lost. Never forced, never mid-action.
+  Hidden entirely when remove-ads is owned.
+- INTERSTITIAL: only in `_on_menu_next` on the victory → next-sortie path —
+  never mid-sortie, never on death/retry, never before 1 sortie completed,
+  max 3 per session, 180s cooldown. `on_done` continues the flow even when
+  no ad shows, so the game can never hang on an ad.
+- No fake close buttons, no countdowns, no accidental-tap layouts — the SDK
+  renders its own chrome when the real plugin is installed.
+
+### 3. $2.99 remove-ads IAP
+- `scripts/iaps.gd` (autoload "IAPs"): `has_remove_ads()`,
+  `purchase_remove_ads(on_result)`, `restore_purchases(on_result)`,
+  `simulate_cancel` (test path). TEST MODE simulates the store sheet with a
+  1.2s delay and clear "NOT A REAL CHARGE" logging; state persists in
+  `user://1918.cfg` ("purchases"/"remove_ads").
+- Real-billing hooks `_billing_*` (Android GodotGooglePlayBilling singleton)
+  and `_storekit_*` (iOS) are clearly-marked integration points — method
+  names vary by plugin version and are intentionally NOT guessed.
+- Pause menu: "REMOVE ADS — $2.99 (TEST)" button → "ADS REMOVED ✓" when
+  owned. Refreshed every time the pause menu opens.
+
+### 4. Validation
+- New `tools/test_ads.gd` headless functional test: purchase → persistence →
+  full ad suppression → cancel path → rewarded grant → min-sorties gate →
+  eligible interstitial show/close. PASS.
+- Nightly: `gdscript-ads-test-ids` (pins the six official IDs + TEST_MODE),
+  `gdscript-ads-no-real-ids` (fails on any non-test ad ID while TEST_MODE),
+  `gdscript-ads-state` (gating + wiring), `godot-ads-flow` (the functional
+  test, requires its [TESTADS] PASS marker).
+
+### 5. Steven's go-live moves (see ADS-SETUP.md at repo root)
+AdMob account + app/ad-unit IDs → `TEST_MODE = false` + swap IDs in
+`ads_config.gd` → install Poing AdMob plugin via AssetLib → App IDs into the
+Android/iOS export configs → create `1918_remove_ads` in Play Console +
+App Store Connect → implement the `_billing_*`/`_storekit_*` hooks.
+
+### Adjacent fix
+- `player.heal()` never updated the HUD — repair pickups left the integrity
+  bar stale. Now calls `update_integrity` like every other HP change.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render
