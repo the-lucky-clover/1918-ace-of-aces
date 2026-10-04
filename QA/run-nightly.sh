@@ -332,7 +332,7 @@ elif check == 'lighting-schedule':
     if len(takeoffs) < 7:
         sys.exit('expected >=7 sortie takeoffs, found %d' % len(takeoffs))
     def solar(mins):
-        lat = math.radians(48.7); dec = math.radians(18.8)
+        lat = math.radians(48.9); dec = math.radians(18.8)
         h = math.radians((mins / 60.0 - 12.0) * 15.0)
         sin_e = math.sin(lat) * math.sin(dec) + math.cos(lat) * math.cos(dec) * math.cos(h)
         sin_e = max(-1.0, min(1.0, sin_e))

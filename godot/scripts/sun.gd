@@ -10,9 +10,10 @@ extends RefCounted
 ## v3-era model already assumed "midday shadows point north". Every
 ## orientation-dependent effect reads Sun.current["light_dir"].
 ##
-## Solar model: latitude 48.7 N (Toul / Gengault — home of the 94th Aero
-## Squadron, April-June 1918), reference date 15 May 1918 (mid-campaign
-## "Spring 1918", solar declination +18.8 deg). Local mean time is treated
+## Solar model: latitude 48.9 N (Rembercourt — the home field per
+## godot/research/v14-hat-in-the-ring-aerodrome.md; 94th Aero Squadron,
+## Sep-Nov 1918, SPAD XIII era), reference date 15 May 1918
+## (mid-campaign, solar declination +18.8 deg). Local mean time is treated
 ## as solar time — an approximation, stated plainly.
 ##
 ## Night (sun below -0.5 deg elevation) switches to a REPRESENTATIVE full
@@ -22,7 +23,7 @@ extends RefCounted
 ## multiplies, additive glow sprites and directional sheen. Documented,
 ## not faked.
 
-const LAT_DEG := 48.7
+const LAT_DEG := 48.9
 const DECL_DEG := 18.8  # 15 May
 
 ## Current mission's shadow offset (kept: background crater rims and

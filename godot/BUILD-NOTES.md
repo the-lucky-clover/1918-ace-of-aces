@@ -1019,12 +1019,18 @@ App Store Connect → implement the `_billing_*`/`_storekit_*` hooks.
   grading. Nothing claims real HDR.
 
 ### 3. Hat-in-the-Ring aerodrome (`scripts/airfield.gd`, home flavor rebuilt)
-Research (web, 2026-10-04): the 94th Aero Squadron — formed Kelly Field
-Texas Aug 1917; Villeneuve-les-Vertus (20 Feb 1918), Epiez (1 Apr, rained
-in on arrival), then **Gengault (Croix-de-Metz) Aerodrome near Toul, 7 Apr
-– 30 Jun 1918**, first combat station. First US victories 14 Apr 1918
-(Campbell & Winslow, Nieuport 28s). The "Hat in the Ring" — Uncle Sam's
-top hat tossed into a ring — became the Air Service's symbol.
+Research (web, 2026-10-04, plus the repo's own
+`godot/research/v14-hat-in-the-ring-aerodrome.md`): the 94th Aero Squadron
+— formed Kelly Field Texas Aug 1917; Villeneuve-les-Vertus (Feb 1918),
+Epiez (1 Apr, rained in on arrival), Gengault/Croix-de-Metz near Toul
+(7 Apr–30 Jun, first combat, first US victories 14 Apr 1918 by Campbell &
+Winslow in Nieuport 28s) — but the in-game home field follows the brief's
+recommendation: **Rembercourt Aerodrome (1 Sep–20 Nov 1918)**, the
+squadron's longest home, the full 1st Pursuit Group's field, and the
+**SPAD XIII era** (the game's aircraft). The "Hat in the Ring" — Uncle
+Sam's top hat tossed into a ring — became the Air Service's symbol.
+Solar latitude accordingly 48.9 N. Night pursuit from this field is
+period-real (185th Aero Squadron, Oct-Nov 1918).
 Sources: en.wikipedia.org/wiki/Villeneuve-les-Vertus_Aerodrome,
 en.wikipedia.org/wiki/94th_Aero_Squadron,
 forgottenairfields.com (Toul-Croix de Metz), airandspaceforces.com

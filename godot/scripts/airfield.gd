@@ -7,10 +7,14 @@ extends Node2D
 ## spawned into the world by main.gd via escort_spots(): parked aircraft
 ## in the revetments + one light AA gun.
 ## "home": the Allied aerodrome — rebuilt v14 from 94th Aero Squadron
-## research (Gengault/Croix-de-Metz near Toul, April-June 1918): Bessonneau
-## canvas hangars, a mown grass strip, the Hat-in-the-Ring insignia on the
-## parked SPADs, April mud (puddles when it rains), and flare-pot path
-## lighting at night. "Inspired by" — never a claimed reproduction.
+## research (Rembercourt Aerodrome, Sep-Nov 1918 — the Hat-in-the-Ring
+## squadron's longest home, SPAD XIII era; see
+## godot/research/v14-hat-in-the-ring-aerodrome.md): Bessonneau canvas
+## hangars, a mown grass strip, the Hat-in-the-Ring insignia on the parked
+## SPADs, lived-in mud (Epiez's rain-bound April is the inclement
+## reference), and flare-pot path lighting at night — night pursuit sorties
+## genuinely flew from this field (185th Aero Squadron, Oct-Nov 1918).
+## "Inspired by" — never a claimed reproduction.
 ## Pure dressing; never a target, never collides.
 
 const EnemyScene := preload("res://scenes/enemy.tscn")
@@ -134,7 +138,9 @@ func _draw_hat_in_ring(p: Vector2) -> void:
 
 
 func _draw_mud_patch(p: Vector2, s: float) -> void:
-	# April 1918 was wet — the 94th sat rain-bound at Epiez on arrival
+	# lived-in mud — 1918 fields were grass/dirt, and rain grounded
+	# everything (Epiez, 1 Apr 1918: "continual rain meant flying was
+	# impossible upon arrival")
 	draw_circle(p, 34.0 * s, Color(0.13, 0.10, 0.07, 0.75))
 	draw_circle(p + Vector2(14, -8) * s, 20.0 * s, Color(0.16, 0.12, 0.08, 0.70))
 
