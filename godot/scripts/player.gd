@@ -45,6 +45,10 @@ var wingmen: Array = []
 var sprite: Sprite2D
 var bullet_scene := preload("res://scenes/bullet.tscn")
 var wingman_scene := preload("res://scenes/wingman.tscn")
+const LOOP_FRAMES := 12
+var loop_frames: Array[Texture2D] = []
+var base_texture: Texture2D
+var loop_frame := -1
 
 
 func _ready() -> void:
@@ -53,6 +57,9 @@ func _ready() -> void:
 	collision_mask = Global.L_EBULLET | Global.L_PICKUP | Global.L_ENEMY
 	Global.make_circle(self, 14.0)
 	sprite = $Sprite2D
+	base_texture = sprite.texture
+	for i in LOOP_FRAMES:
+		loop_frames.append(load("res://assets/sprites/loop/loop-%02d.png" % i))
 	area_entered.connect(_on_area_entered)
 
 
@@ -87,7 +94,8 @@ func _physics_process(delta: float) -> void:
 	# turns slightly sluggish — felt, mild, never unfair (no weather damage)
 	var wnd := Global.wind
 	var grip := 1.0 - 0.10 * Global.weather_intensity
-	var wish := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	var wish := (Input.get_vector("move_left", "move_right", "move_up", "move_down") \
+		+ Global.touch_wish).limit_length(1.0)
 	if engine_dead:
 		wish = Vector2.ZERO
 		velocity *= exp(-5.5 * delta)
@@ -109,13 +117,22 @@ func _physics_process(delta: float) -> void:
 	if engine_dead and position.y >= Global.VIEW_H - 70.0:
 		_crash()
 		return
-	# --- loop-de-loop roll (smoothed banking otherwise) ---
+	# --- loop-de-loop: real Immelmann frame sequence (Blender-rendered,
+	# strictly top-down): level -> nose-up foreshorten -> edge-on sliver ->
+	# inverted belly-up -> nose-down foreshorten -> level recovery.
 	if loop_t > 0.0:
 		loop_t -= delta
-		sprite.rotation += TAU * delta / LOOP_DUR
+		var prog := clampf(1.0 - loop_t / LOOP_DUR, 0.0, 1.0)
+		var fi := mini(int(prog * LOOP_FRAMES), LOOP_FRAMES - 1)
+		if fi != loop_frame:
+			loop_frame = fi
+			sprite.texture = loop_frames[fi]
+		sprite.rotation = 0.0
 		if loop_t <= 0.0:
+			sprite.texture = base_texture
 			sprite.rotation = 0.0
 			bank_angle = 0.0
+			loop_frame = -1
 			# punch out of the maneuver: forward dash, classic 194x
 			velocity += Vector2(0, -150.0)
 	else:
@@ -202,6 +219,8 @@ func try_loop() -> void:
 	invuln = maxf(invuln, LOOP_DUR + STAB_DUR)
 	FX.popup(get_parent(), global_position + Vector2(0, -56), "LOOP!", Color.CYAN)
 	FX.add_trauma(0.2)
+	SFX.play("loop")
+	SFX.rumble(50, 0.5)
 
 
 func take_damage(amount: float) -> void:
@@ -213,6 +232,8 @@ func take_damage(amount: float) -> void:
 	invuln = 1.0
 	FX.hit_flash(sprite)
 	FX.add_trauma(0.35)
+	SFX.play("damage", -2.0)
+	SFX.rumble(70, 1.0)  # sharp buzz: you got hit
 	get_tree().call_group("hud", "update_integrity", hp, MAX_HP)
 	if hp <= 0.0:
 		_die()

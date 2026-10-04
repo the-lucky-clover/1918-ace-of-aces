@@ -567,6 +567,87 @@ The full dozen:
 - Chateaux and roads are countryside dressing: they never spawn on the
   flight path in a way that hides targets.
 
+## Sound, haptics, touch, real loop animation — 2026-10-03 (v8)
+
+### 1. Original synthesized SFX (`tools/make_sfx.py`, `scripts/sfx.gd`)
+- 10 original WAVs synthesized with numpy (same wave-craft approach as
+  `make_music.py`) into `assets/sfx/` — no external audio, ever:
+  `explosion_small` (0.45s noise burst + sub thump), `explosion_large`
+  (1.05s deeper boom + crackle), `boss_defeat` (1.8s four staggered
+  blasts), `damage` (0.28s metallic thud), `pickup` (0.35s two-sine
+  chime), `ui_tick` (0.06s click), `ui_confirm` (0.22s major-third blip),
+  `loop` (0.75s filtered-noise whoosh, exactly LOOP_DUR), `flak`
+  (0.24s sharp aerial pop), `gas` (1.2s band-passed warning hiss).
+  The warning beep stays covered by `Music.fuel_warning()`.
+- `scripts/sfx.gd` (new autoload, after Music in project.godot): 10-player
+  round-robin pool (polyphony cap, no stacking mud), `play(name, vol_db,
+  pitch, vary)` with per-call pitch wobble, `set_muted(m)` with a 0.25s
+  fade, process_mode ALWAYS so UI clicks sound while paused.
+- Every silence replaced: `FX.explosion` (small/large by flag), player
+  damage, `try_loop`, boss `_die_spectacular`, pickup collect, flak
+  `_detonate` (pop layered over the small boom — intentional), gas
+  warn→bloom, every menu button (tick) + FLY/RESUME/NEXT (confirm).
+- Pause menu gained a **SOUND: ON/OFF** toggle (`menus.gd`) that mutes SFX
+  and music together (`Music.set_muted` tweens all tracks; warn beep
+  included). The old web-only music toggle is now in-game.
+
+### 2. Mobile haptics (`SFX.rumble` / `SFX.rumble_at`)
+- `Input.vibrate_handheld()` only — hard-gated to
+  `mobile`/`web_android`/`web_ios`; desktop never buzzes. 0.18s cooldown
+  so dense fights don't become a jackhammer.
+- The map: player damage = 70ms sharp; large explosions = proximity
+  rumble (900px falloff, min 30ms); boss defeat = 280ms triumphant;
+  UI selections = 15ms light tick; loop = 50ms; flak pops = 90ms
+  proximity. Tasteful, not a massage chair.
+
+### 3. Touch controls audit + complete (`main.gd`, `global.gd`)
+- **Double-tap-and-hold → pause menu**: was MISSING, now implemented —
+  second tap held ≥0.55s pauses (checked in `_process`, tap must stay
+  inside 28px slop or it becomes a steering drag).
+- **Double-tap → loop-de-loop**: existed for mouse; now a proper
+  tap-vs-drag gesture path for touch (quick release of the second tap
+  fires `try_loop`). Desktop keeps double-click→loop, ESC pause, Q loop.
+- **NEW: relative-drag steering** — there was no touch flight at all.
+  Drag on a touch device feeds `Global.touch_wish` (140px = full stick),
+  blended with WASD in `player.gd`. Strictly mobile-gated so desktop
+  clicks never steer.
+- Emulation cross-talk fixed: with `emulate_touch_from_mouse` /
+  `emulate_mouse_from_touch` both on, taps arrive twice — the touch
+  path runs only on touch devices, the mouse path only on desktop.
+- No on-screen gameplay buttons (standing rule). Title screen shows
+  touch hints on mobile only (DRAG fly / DOUBLE-TAP loop /
+  DOUBLE-TAP+HOLD pause).
+
+### 4. Real loop-de-loop animation (12 Blender frames, `assets/sprites/loop/`)
+- `blender/render_loop.py` renders the same SPAD XIII build as the player
+  sprite through a true Immelmann: level → nose-up foreshorten → nose-on
+  edge sliver → inverted belly-up (gear to camera) → nose-down
+  foreshorten → level recovery. 12 frames, 30° pitch steps, camera
+  framing locked at the level pose, strictly top-down (iron rule).
+- Two gotchas found and fixed, both documented in the script header:
+  (a) `aircraft()`'s joined mesh carries a baked `(pi/2,0,0)` rotation —
+  that IS the level top-down pose, zeroing it aims the plane at the
+  camera; (b) the roundels are separate objects and must be joined into
+  the airframe or they hover while the plane pitches.
+- Frame 0 is pixel-identical (0.12%) to the shipped `player-spad.png`,
+  so the swap is seamless; `player.gd` swaps `sprite.texture` through
+  the 12 frames over LOOP_DUR (0.75s), killing the old flat-spin cheat.
+  Invulnerability window unchanged (LOOP_DUR + STAB_DUR), matched to the
+  maneuver. The autotest's `try_loop()` call exercises the frame path
+  headless.
+
+### Tuning numbers (v8)
+- SFX pool: 10 players, round-robin; pitch wobble ±8% default.
+- Haptics: cooldown 0.18s; damage 70ms/1.0; big-explosion proximity
+  900px→30ms min; boss 280ms/1.0; UI 15ms/0.3; loop 50ms/0.5.
+- Touch: TAP_SLOP 28px, DOUBLE_TAP_T 0.35s, HOLD_PAUSE_T 0.55s,
+  DRAG_FULL 140px.
+- Loop: 12 frames / 0.75s = 16fps flip-book; frame 0 == player sprite.
+
+### Readability guardrails (unchanged)
+- Camera iron rule untouched — the loop is a sprite swap, zero camera
+  movement. Nightly `camera-iron-rule` check still green.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render
@@ -580,11 +661,11 @@ The full dozen:
   appearing in play yet.
 - **Bosses 2–6 and sorties 2–6**: data-driven on the same validated code
   paths, but only boss 0 / sortie 1 ran headless. Needs an editor playthrough.
-- **No audio**: SFX (explosions, gunfire, pickups) not yet built — music
-  tracks only (the web build has a synthesized score — port or regenerate
-  SFX for Godot).
-- **Touch controls**: mouse-click fire works; real touch-drag flight is not
-  implemented (`emulate_touch_from_mouse` is on, but no touch flight scheme).
+- **Touch controls**: implemented and gesture-logic reviewed, but never
+  exercised on a real touchscreen — the drag-steer feel (140px full
+  deflection) and the 0.55s hold timing want a human thumb.
+- **Haptics**: API-gated and cooldown-throttled, but `vibrate_handheld`
+  never fired on real hardware from here — needs a device check.
 - **No export presets**: iOS/Android/desktop export still needs configuring
   in the editor (export templates + presets).
 - **Difficulty balance**: tuned for "beatable" but not playtested by a human.

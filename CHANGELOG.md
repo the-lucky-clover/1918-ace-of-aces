@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v8 — 2026-10-04
+
+v8: ten fresh-synthesized boom-boxes be thund'rin' in the SFX locker, the ship herself buzzes yer palm on every hit (mobile haptics, tasteful-like), touch pilots can now steer by drag, double-tap summons a TRUE Blender-built Immelmann loop (no more flat-spin fakery!), an' double-tap-and-hold calls the pause parley. Sound off be a button's tap away, mateys!
+
+
 ## v7 — 2026-10-04
 
 Arrr, v7 be a grand haul! Roads be paved 'cross the fair French countryside, chateaux rise proud, burn, an' crumble, an' Fritz be lobbin' mustard gas that drifts on the wind — six points a second if ye sit in it, ye daft bugger! Fear not: gas masks drop from the payload cycle (twenty-five seconds o' sweet immunity). Kill-streaks pay gold, grazes earn their ten, tauntin' aces run their mouths, hedge-hoppin' pays a daredevil's cut, an' the dawn sun glares proper when ye climb into it. All green, no rot in the timbers — ship it!

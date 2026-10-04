@@ -34,6 +34,10 @@ func explosion(parent: Node, pos: Vector2, big: bool = false) -> void:
 	e.big = big
 	parent.add_child(e)
 	e.global_position = pos
+	# every explosion speaks: small pop or deep boom, rumble scaled by range
+	SFX.play("explosion_large" if big else "explosion_small", 0.0, 1.0, 0.08)
+	if big:
+		SFX.rumble_at(pos)
 
 
 func popup(parent: Node, pos: Vector2, text: String, color: Color = Color.WHITE) -> void:

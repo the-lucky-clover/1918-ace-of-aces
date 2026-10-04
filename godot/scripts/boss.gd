@@ -216,6 +216,8 @@ func _die_spectacular() -> void:
 	for i in 5:
 		var off := Vector2(randf_range(-50, 50), randf_range(-40, 40))
 		FX.explosion(get_parent(), global_position + off, i == 4)
+	SFX.play("boss_defeat")
+	SFX.rumble(280, 1.0)  # triumphant long buzz: the ace is down
 	FX.add_trauma(1.0)
 	FX.hitstop(0.25, 0.25)  # the duel's final beat
 	get_tree().call_group("hud", "hide_boss")

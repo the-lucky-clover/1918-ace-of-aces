@@ -117,4 +117,5 @@ func collect(player: Area2D) -> void:
 				player.power_gasmask()
 			burst_col = Color(0.6, 0.9, 0.4)
 	FX.collect_burst(get_parent(), global_position, burst_col)
+	SFX.play("pickup")
 	queue_free()

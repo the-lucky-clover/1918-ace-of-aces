@@ -50,6 +50,8 @@ func _draw() -> void:
 func _detonate() -> void:
 	FX.explosion(get_parent(), global_position, false)
 	FX.flak_cloud(get_parent(), global_position)
+	SFX.play("flak", -3.0, 1.0, 0.1)  # sharp aerial pop over the small boom
+	SFX.rumble_at(global_position, 90)
 	var player := get_tree().get_first_node_in_group("player")
 	if player != null and is_instance_valid(player) and player.has_method("take_damage"):
 		var dist: float = player.global_position.distance_to(global_position)

@@ -36,6 +36,7 @@ func _physics_process(delta: float) -> void:
 			if phase_t >= WARN_TIME:
 				phase = "bloom"
 				phase_t = 0.0
+				SFX.play("gas", -4.0)
 				FX.popup(get_parent(), global_position + Vector2(0, -70),
 					"GAS! GAS! GAS!", Color(0.75, 0.9, 0.25))
 		"bloom":

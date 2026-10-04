@@ -14,6 +14,8 @@ var debrief_next_btn: Button
 var blink_label: Label
 var blink_t := 0.0
 var pause_obj_box: VBoxContainer
+var sound_btn: Button
+var sound_on := true
 
 
 func _ready() -> void:
@@ -55,6 +57,10 @@ func _button(text: String) -> Button:
 	b.text = text
 	b.add_theme_font_size_override("font_size", 30)
 	b.custom_minimum_size = Vector2(280, 64)
+	# every UI selection ticks (and taps the haptics, mobile only)
+	b.pressed.connect(func() -> void:
+		SFX.play("ui_tick", -4.0)
+		SFX.rumble(15, 0.3))
 	return b
 
 
@@ -87,11 +93,16 @@ func _build_title() -> void:
 	vb.add_child(_label("SIX SORTIES · SIX ACES · NO PARACHUTES", 22, Color(0.55, 0.5, 0.45)))
 	vb.add_child(_label("WASD / ARROWS — fly      SPACE / CLICK — fire", 22))
 	vb.add_child(_label("X / SHIFT — bomb      ESC — pause", 22))
+	if Global.on_touch_device():
+		vb.add_child(_label("DRAG — fly      DOUBLE-TAP — loop", 22, Color(0.9, 0.8, 0.5)))
+		vb.add_child(_label("DOUBLE-TAP + HOLD — pause", 22, Color(0.9, 0.8, 0.5)))
 	vb.add_child(_label("Complete the MANDATORY duel. Optionals earn bonus points.", 22, Color(0.9, 0.8, 0.5)))
 	blink_label = _label("— PRESS ENTER OR TAP TO FLY —", 28, Color(1.0, 0.85, 0.4))
 	vb.add_child(blink_label)
 	var b := _button("FLY")
-	b.pressed.connect(func() -> void: start_requested.emit())
+	b.pressed.connect(func() -> void:
+		SFX.play("ui_confirm")
+		start_requested.emit())
 	var bc := CenterContainer.new()
 	bc.add_child(b)
 	vb.add_child(bc)
@@ -105,10 +116,25 @@ func _build_pause() -> void:
 	vb.add_child(pause_obj_box)
 	vb.add_child(_label("ESC — resume", 26))
 	var b := _button("RESUME")
-	b.pressed.connect(func() -> void: resume_requested.emit())
+	b.pressed.connect(func() -> void:
+		SFX.play("ui_confirm")
+		resume_requested.emit())
 	var bc := CenterContainer.new()
 	bc.add_child(b)
 	vb.add_child(bc)
+	# sound toggle: mutes SFX + music together
+	sound_btn = _button("SOUND: ON")
+	sound_btn.pressed.connect(_toggle_sound)
+	var sc := CenterContainer.new()
+	sc.add_child(sound_btn)
+	vb.add_child(sc)
+
+
+func _toggle_sound() -> void:
+	sound_on = not sound_on
+	SFX.set_muted(not sound_on)
+	Music.set_muted(not sound_on)
+	sound_btn.text = "SOUND: ON" if sound_on else "SOUND: OFF"
 
 
 func _build_debrief() -> void:
@@ -119,7 +145,9 @@ func _build_debrief() -> void:
 	debrief_vbox.add_theme_constant_override("separation", 8)
 	vb.add_child(debrief_vbox)
 	debrief_next_btn = _button("NEXT SORTIE")
-	debrief_next_btn.pressed.connect(func() -> void: next_requested.emit())
+	debrief_next_btn.pressed.connect(func() -> void:
+		SFX.play("ui_confirm")
+		next_requested.emit())
 	var bc := CenterContainer.new()
 	bc.add_child(debrief_next_btn)
 	vb.add_child(bc)

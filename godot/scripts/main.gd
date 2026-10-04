@@ -29,6 +29,17 @@ var debrief_win := false
 var debrief_timer := -1.0
 var fuel_cd := 24.0             # steady fuel-pickup pressure valve
 var last_tap_t := -10.0         # double-tap -> loop-de-loop
+# --- touch gestures: double-tap = loop, double-tap-and-hold = pause,
+# relative drag = steer (mobile only). No on-screen buttons, ever. ---
+const TAP_SLOP := 28.0        # px: beyond this a touch is a drag, not a tap
+const HOLD_PAUSE_T := 0.55    # s: second-tap hold duration that opens pause
+const DOUBLE_TAP_T := 0.35    # s: max gap between the two taps
+const DRAG_FULL := 140.0      # px of drag = full stick deflection
+var _touch_anchor := {}       # touch index -> press position
+var _steer_id := -1           # touch index currently steering (mobile only)
+var _hold_armed := false      # second tap down, waiting: quick release or hold?
+var _hold_start := 0.0
+var _hold_fired := false
 var strafe_streak := 0          # consecutive trench strafes
 var strafe_window := 0.0        # streak window (seconds)
 var air_streak := 0             # consecutive air kills (kill-streak callouts)
@@ -256,6 +267,11 @@ func _on_cine_finished() -> void:
 
 func _pause() -> void:
 	state = State.PAUSED
+	# a held finger must not keep steering (or fire a loop) after resume
+	_steer_id = -1
+	_touch_anchor.clear()
+	_hold_armed = false
+	Global.touch_wish = Vector2.ZERO
 	get_tree().paused = true
 	Music.play_pause()
 	$MenuLayer.show_pause(objectives)
@@ -314,12 +330,60 @@ func _input(event: InputEvent) -> void:
 		_on_menu_start()
 	elif state == State.DEBRIEF and event.is_action_pressed("start_game"):
 		_on_menu_next()
-	elif state == State.PLAYING and _is_tap(event):
-		# double-tap (touch or mouse) triggers the loop-de-loop
+	elif state == State.PLAYING and event is InputEventMouseButton and _is_tap(event) \
+			and not Global.on_touch_device():
+		# desktop double-click -> loop-de-loop. (On touch devices the mouse
+		# branch is skipped: taps also arrive as emulated mouse events, and
+		# the real touch gesture path below owns them.)
 		var now := Time.get_ticks_msec() / 1000.0
-		if now - last_tap_t < 0.35 and player != null and is_instance_valid(player):
+		if now - last_tap_t < DOUBLE_TAP_T and player != null and is_instance_valid(player):
 			player.try_loop()
 		last_tap_t = now
+	elif state == State.PLAYING and event is InputEventScreenTouch \
+			and Global.on_touch_device():
+		# touch devices only: desktop mouse clicks arrive here as emulated
+		# touches and must not drive gestures.
+		_touch_event(event)
+	elif state == State.PLAYING and event is InputEventScreenDrag \
+			and Global.on_touch_device():
+		_touch_drag(event)
+
+
+## Touch gestures, tap-vs-drag aware:
+##  - quick double-tap -> loop-de-loop
+##  - double-tap-and-hold (>= HOLD_PAUSE_T) -> pause menu
+##  - sustained drag -> relative steering (mobile only; desktop keeps WASD)
+func _touch_event(event: InputEventScreenTouch) -> void:
+	var now := Time.get_ticks_msec() / 1000.0
+	if event.pressed:
+		_touch_anchor[event.index] = event.position
+		if _steer_id == -1 and Global.on_touch_device():
+			_steer_id = event.index
+		if now - last_tap_t < DOUBLE_TAP_T:
+			_hold_armed = true
+			_hold_fired = false
+			_hold_start = now
+		last_tap_t = now
+	else:
+		_touch_anchor.erase(event.index)
+		if event.index == _steer_id:
+			_steer_id = -1
+			Global.touch_wish = Vector2.ZERO
+		if _hold_armed and not _hold_fired:
+			# quick release of the second tap: it's a double-tap -> loop
+			_hold_armed = false
+			if player != null and is_instance_valid(player):
+				player.try_loop()
+
+
+func _touch_drag(event: InputEventScreenDrag) -> void:
+	if event.index != _steer_id or not Global.on_touch_device():
+		return
+	var anchor: Vector2 = _touch_anchor.get(event.index, event.position)
+	var drag := event.position - anchor
+	if drag.length() > TAP_SLOP:
+		_hold_armed = false  # it's a steering drag, not a tap gesture
+	Global.touch_wish = (drag / DRAG_FULL).limit_length(1.0)
 
 
 func _is_tap(event: InputEvent) -> bool:
@@ -371,6 +435,13 @@ func _process(delta: float) -> void:
 		camera.offset = Vector2.ZERO
 	if get_tree().paused or state != State.PLAYING:
 		return
+	# double-tap-and-hold -> pause menu (the second tap is still down)
+	if _hold_armed and not _hold_fired:
+		if Time.get_ticks_msec() / 1000.0 - _hold_start >= HOLD_PAUSE_T:
+			_hold_armed = false
+			_hold_fired = true
+			_pause()
+			return
 	sortie_time += delta
 	# camping punishment: holding still feeds Archie's accuracy. Moving with
 	# intent bleeds it off. Fair warning when the guns find the range.

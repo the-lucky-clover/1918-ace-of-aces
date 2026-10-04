@@ -6,7 +6,7 @@ extends Node
 const GAME_TITLE: String = "1918"
 const GAME_TAGLINE: String = "A Western Front Story"
 ## Holistic build version — bumped by bin/bump-version.sh with every work action.
-const VERSION: String = "7"
+const VERSION: String = "8"
 
 const VIEW_W: float = 720.0
 const VIEW_H: float = 1280.0
@@ -38,6 +38,16 @@ var aa_heat := 0.0
 # --- Squadron morale: set when the player breaks the sortie's squadron ---
 # Remaining fighters fly ragged (read by scripts/enemy.gd). Reset per sortie.
 var squadron_broken := false
+
+# --- Touch controls: relative-drag steering wish, set by main.gd ---
+# (0,0) when no finger is steering. Desktop input is untouched.
+var touch_wish := Vector2.ZERO
+
+
+## True on phones / mobile web — gates drag steering and haptics.
+static func on_touch_device() -> bool:
+	return OS.has_feature("mobile") or OS.has_feature("web_android") \
+		or OS.has_feature("web_ios")
 
 
 ## Attach a fresh circle collision shape to an Area2D.

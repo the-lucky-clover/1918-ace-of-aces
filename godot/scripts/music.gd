@@ -76,3 +76,19 @@ func unduck_game() -> void:
 func fuel_warning() -> void:
 	if not warn_p.playing:
 		warn_p.play()
+
+
+var muted := false
+
+
+## Mute/unmute the whole music rig (paired with SFX.set_muted).
+func set_muted(m: bool) -> void:
+	muted = m
+	for track in players.keys():
+		var p: AudioStreamPlayer = players[track]
+		var tw := create_tween()
+		var target := -80.0
+		if not muted and track == current:
+			target = float(VOLUMES[track])
+		tw.tween_property(p, "volume_db", target, 0.4)
+	warn_p.volume_db = -80.0 if muted else -6.0

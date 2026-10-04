@@ -22,6 +22,7 @@ Global="*res://scripts/global.gd"
 Sorties="*res://scripts/sortie_data.gd"
 FX="*res://scripts/effects.gd"
 Music="*res://scripts/music.gd"
+SFX="*res://scripts/sfx.gd"
 
 [display]
 
