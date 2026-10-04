@@ -295,6 +295,8 @@ func take_damage(amount: float) -> void:
 			FX.hitstop(0.09, 0.2)  # punctuation on heavy kills
 		if etype == "ammodepot":
 			_chain_detonate()
+		if etype == "parked":
+			_chain_parked()
 		_maybe_drop_pickup()
 		killed.emit(self)
 		queue_free()
@@ -309,6 +311,16 @@ func _chain_detonate() -> void:
 				and not bool(o.get("dead")):
 			if o.global_position.distance_to(global_position) < 210.0:
 				o.call_deferred("take_damage", 9999.0)
+
+
+## Parked aircraft catch fire and spread it: strafing one can torch its
+## neighbors on the flight line — satisfying chain kills at the airfield.
+func _chain_parked() -> void:
+	for o in get_tree().get_nodes_in_group("enemies"):
+		if o != self and is_instance_valid(o) and String(o.get("etype")) == "parked" \
+				and not bool(o.get("dead")):
+			if o.global_position.distance_to(global_position) < 130.0:
+				o.call_deferred("take_damage", 60.0)
 
 
 func _maybe_drop_pickup() -> void:

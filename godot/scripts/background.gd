@@ -79,9 +79,9 @@ class GroundFeatures extends Node2D:
 
 	# theme -> feature kind pool
 	const POOLS := {
-		"farmland": ["mud", "mud", "stump", "wreck", "cloudwisp"],
-		"trenches": ["mud", "crater", "crater", "stump", "wreck", "cloudwisp"],
-		"nomansland": ["crater", "crater", "mud", "stump", "wreck", "cloudwisp"],
+		"farmland": ["mud", "mud", "stump", "wreck", "road", "cloudwisp"],
+		"trenches": ["mud", "crater", "crater", "stump", "wreck", "road", "cloudwisp"],
+		"nomansland": ["crater", "crater", "mud", "stump", "wreck", "road", "cloudwisp"],
 		"uboat_flotilla": ["wave", "wave", "wake", "cloudwisp"],
 		"uboat_base": ["wave", "wake", "penblock", "crane", "cloudwisp"],
 		"zeppelin_sheds": ["shed", "mast", "mud", "cloudwisp"],
@@ -233,6 +233,17 @@ class GroundFeatures extends Node2D:
 					_ellipse(p, 120.0 * s, 44.0 * s, Color(0.75, 0.82, 0.92, 0.10), it["r"])
 					_ellipse(p + Vector2(40, 12) * s, 70.0 * s, 28.0 * s,
 						Color(0.80, 0.86, 0.95, 0.08), -it["r"])
+				"road":
+					# dirt supply road running down-screen (the trucks' road)
+					var rw := 54.0 * s
+					draw_rect(Rect2(p.x - rw / 2, p.y - 200.0 * s, rw, 400.0 * s),
+						Color(0.23, 0.19, 0.13, 0.85))
+					draw_rect(Rect2(p.x - rw / 2, p.y - 200.0 * s, rw, 400.0 * s),
+						Color(0.32, 0.27, 0.18, 0.5), false, 2.0)
+					for k in 3:
+						var wy := p.y + (float(k) - 1.0) * 130.0 * s
+						draw_line(Vector2(p.x - rw / 2 + 6, wy), Vector2(p.x + rw / 2 - 6, wy),
+							Color(0.28, 0.23, 0.15, 0.6), 2.0)
 		if furrows:
 			# faint plough lines, farmland only
 			for i in 16:

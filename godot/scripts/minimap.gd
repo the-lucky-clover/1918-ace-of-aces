@@ -33,6 +33,7 @@ const SEC_ETYPE := {
 	"depots": "ammodepot",
 	"arty": "arty",
 	"parked": "parked",
+	"trucks": "truck",
 }
 
 
@@ -100,7 +101,8 @@ func _draw() -> void:
 		var pos := _smooth(p)
 		var pr := 2.5 + 1.0 * pulse
 		draw_circle(pos, pr, col)
-	# enemies: animated triangles oriented by travel direction
+	# enemies: aircraft as direction triangles, ground/naval targets as
+	# squares (trucks, AA, parked — readable at a glance), boss as diamond
 	for e in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(e):
 			continue
@@ -111,8 +113,12 @@ func _draw() -> void:
 		var ang := d.angle() if d.length() > 0.4 else -PI * 0.5
 		if e.is_in_group("bosses"):
 			_draw_boss(pos, pulse)
-		else:
+		elif e.get("is_aircraft"):
 			_draw_tri(pos, ang, 4.2 + 0.8 * pulse, Color(1.0, 0.35, 0.3))
+		else:
+			var gs := 3.4 + 0.6 * pulse
+			draw_rect(Rect2(pos - Vector2(gs, gs), Vector2(gs, gs) * 2.0),
+				Color(1.0, 0.42, 0.30))
 	# wingmen
 	for w in get_tree().get_nodes_in_group("wingmen"):
 		if is_instance_valid(w):
@@ -274,10 +280,21 @@ func _draw_terrain() -> void:
 			_draw_rail_yard()
 		_:
 			_draw_nomansland()
-	# home aerodrome marker, all themes
-	var hp := Vector2(size.x * 0.5, size.y - 12.0)
-	draw_circle(hp, 4.0, Color(0.55, 0.75, 0.45))
-	draw_arc(hp, 7.0, 0.0, TAU, 12, Color(0.55, 0.75, 0.45, 0.7), 1.5)
+	# airfields: home aerodrome (green ring) vs enemy fields (red square +
+	# amber dot) — live positions from the "airfields" group
+	for a in get_tree().get_nodes_in_group("airfields"):
+		if not is_instance_valid(a):
+			continue
+		var pos := _wpos(a)
+		if pos.y < -12.0 or pos.y > size.y + 12.0:
+			continue
+		if String(a.get("faction")) == "home":
+			draw_circle(pos, 4.0, Color(0.55, 0.75, 0.45))
+			draw_arc(pos, 7.0, 0.0, TAU, 12, Color(0.55, 0.75, 0.45, 0.7), 1.5)
+		else:
+			draw_rect(Rect2(pos - Vector2(4.5, 4.5), Vector2(9, 9)),
+				Color(0.75, 0.28, 0.22, 0.9), false, 1.5)
+			draw_circle(pos, 2.0, Color(1.0, 0.75, 0.35))
 
 
 func _draw_farmland() -> void:
@@ -292,7 +309,8 @@ func _draw_farmland() -> void:
 
 func _draw_trenches() -> void:
 	_draw_farmland()
-	# Allied khaki line upper, German grey line lower, cratered band between
+	# Allied khaki line upper, German grey line lower, cratered band between —
+	# with thin barbed-wire lines flanking each trench
 	for zi in 2:
 		var pts := PackedVector2Array()
 		var base_y := size.y * (0.34 + zi * 0.30)
@@ -301,6 +319,11 @@ func _draw_trenches() -> void:
 			pts.append(Vector2(ix * size.x / 20.0, base_y + zig))
 		var col := Color(0.45, 0.42, 0.28) if zi == 0 else Color(0.38, 0.38, 0.42)
 		draw_polyline(pts, col, 2.0)
+		for off in [-7.0, 7.0]:
+			var wpts := PackedVector2Array()
+			for p in pts:
+				wpts.append(p + Vector2(0, off))
+			draw_polyline(wpts, Color(0.55, 0.55, 0.58, 0.55), 1.0)
 
 
 func _draw_nomansland() -> void:

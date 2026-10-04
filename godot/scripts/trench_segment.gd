@@ -104,15 +104,30 @@ func _draw() -> void:
 		var sp := p + Vector2(0, 12.0 * enemy_side)
 		for k in 3:
 			draw_circle(sp + Vector2((float(k) - 1.0) * 9.0, 0), 4.2, pal["sandbag"])
-	# barbed wire further out, crisscrossed
+	# barbed wire entanglement: posts, coil loops, crisscrossed strands —
+	# kept muted so strafing targets stay readable
 	var wire_y := 48.0 * enemy_side
+	var post_col: Color = pal["wire"].darkened(0.35)
 	var x := -30.0
 	var prev := Vector2(x, wire_y + randf_range(-6.0, 6.0))
+	var coil_x := -4.0
+	var span := 0
 	x += 34.0
 	while x < 750.0:
 		var cur := Vector2(x, wire_y + randf_range(-6.0, 6.0))
 		draw_line(prev, cur, pal["wire"], 2.0)
 		draw_line(prev + Vector2(0, -7), cur + Vector2(0, 7), pal["wire"], 1.5)
+		# wire posts every other span
+		if span % 2 == 0:
+			var px := (prev.x + cur.x) * 0.5
+			var py := (prev.y + cur.y) * 0.5
+			draw_line(Vector2(px, py - 9), Vector2(px, py + 9), post_col, 3.0)
+		# concertina coils between the posts
+		while coil_x < x:
+			draw_arc(Vector2(coil_x, wire_y + 4.0), 5.0, 0.0, TAU, 8,
+				pal["wire"], 1.5)
+			coil_x += 51.0
+		span += 1
 		prev = cur
 		x += 34.0
 	# MG nests not replaced by live targets

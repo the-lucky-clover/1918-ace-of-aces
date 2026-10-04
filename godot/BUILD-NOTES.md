@@ -349,6 +349,49 @@ turbulence 26–80 px/s nudges every 0.45–0.9 s · lightning every 3.5–8 s.
 - Headless-validated: clean import, 30 s smoke, boss-rush full loop,
   all 6 sorties exercised — zero script errors.
 
+## Ground war expansion — 2026-10-03 (v5)
+
+Historically accurate (or at worst plausible), 194x-spirited: everything
+just shows up, no intro popups, game stays readable at full speed.
+
+- **TROOP TRUCKS** (`scripts/truck.gd` new): canvas-covered-bed lorries
+  drive down toward the front (outpacing the scroll), STOP near the lines
+  ("UNLOADING!"), and three feldgrau infantry shuffle out and MARCH
+  up-screen toward the trenches, then dig in as live strafe targets
+  (etype "trench" — they join the existing strafe pool + streaks).
+  Bombable/strafeable (70 HP, 250 pts); empty trucks rattle off unharmed
+  (no kill). New secondary **"Interdict %d reinforcement trucks"**
+  (+550) on S1 and S4 (2 trucks each). Procedurally drawn (canvas ribs
+  flutter, cab, wheels) — no Blender render needed; noted.
+- **ENEMY AIRFIELD** (`scripts/airfield.gd` new): forward-airfield
+  cluster — canvas hangar tents, runway strip, windsock, sandbag
+  revetments (visual) + live targets spawned into the world: 3 parked
+  aircraft in the revetments and 1 light AA gun. Parked aircraft now
+  **chain-kill**: one torching sets off neighbors within 130 px (60 dmg).
+  Folded into S1 (t=38.5) and S4 (t=44) as "airfield" waves. Just appears —
+  194x rule honored, zero ceremony.
+- **HOME AIRFIELD** (same script, "home" flavor): Allied aerodrome
+  dressing scrolls past after takeoff on non-naval sorties — tents,
+  windsock, parked SPADs with roundels, milling ground crew. Visual only.
+- **BARBED WIRE** (`trench_segment.gd`): entanglements upgraded — posts
+  every other span + concertina coil loops between them, muted palette so
+  strafing readability is untouched. Minimap draws thin wire lines flanking
+  each trench line.
+- **BACKGROUND**: new "road" ground feature (dirt supply roads) in the
+  farmland/trenches/nomansland pools — the trucks' road.
+- **MINIMAP** (`minimap.gd`): ground/naval targets now draw as red
+  squares (aircraft stay direction triangles — instant read); truck blips
+  included; airfield icons from the "airfields" group (home = green ring,
+  enemy = red square + amber dot; the old static home marker is retired);
+  "trucks" wired into SEC_ETYPE objective markers.
+- Sortie changes (`sortie_data.gd`): S1 + S4 each gain trucks(2) waves,
+  one airfield wave, and the trucks secondary (now 3 secondaries on those
+  sorties — HUD/debrief handle N objectives generically). Squadron goals
+  untouched (trucks/airfields aren't squadron types).
+
+Tuning: truck 70 HP / 250 pts · stops at y 520–860 · unload after 1.2 s ·
+infantry march 34 px/s up-screen for 3.5–5 s · parked chain 130 px / 60 dmg.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

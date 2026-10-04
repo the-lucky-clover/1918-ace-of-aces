@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v5 — 2026-10-04
+
+v5: troop trucks roll to the front — canvas-covered lorries what halt and spill their feldgrau cargo toward the lines, and a sharp interdiction bonus fer sendin' 'em to Davy Jones' locker. Enemy forward airfields rise behind the lines — strafe their parked crates and watch the fire spread wing to wing — while our own aerodrome waves farewell below. Barbed wire grows posts and coils, dirt roads scar the fields, and the minimap learns new tricks: red squares fer ground pounders, airfield marks, and wire lines. No popups, no parades — the way Capcom intended, arrr.
+
+
 ## v4 — 2026-10-04
 
 Squadron shoot-down goals hoisted up the mast, me hearties! Every sortie now counts its fighter flock with a prize for breakin' their spirit — the HUD keeps the tally and the debrief sings yer kills. Survivors fly ragged and shoot sloppy once ye break 'em. No popups, no parades — the Cap'n says new foes just fly in like proper 194x gents. Also swabbed the decks: no more flickerin' tweens fightin' over the same paint, every death finds its way to the debrief, and never a black screen to strand a sailor. Arrr!

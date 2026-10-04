@@ -14,6 +14,7 @@ const SECONDARY_DEFS: Dictionary = {
 	"depots": {"text": "Detonate %d munitions depots", "bonus": 650},
 	"arty": {"text": "Silence %d artillery batteries", "bonus": 550},
 	"parked": {"text": "Strafe %d parked aircraft", "bonus": 450},
+	"trucks": {"text": "Interdict %d reinforcement trucks", "bonus": 550},
 }
 
 # Boss callsigns are fictional — duel-worthy aces, not historical figures.
@@ -60,6 +61,7 @@ const SORTIES: Array = [
 		"secondaries": [
 			{"id": "balloons", "target": 3},
 			{"id": "trenches", "target": 5},
+			{"id": "trucks", "target": 2},
 		],
 		# Orchestration: build-tension-release. Light intro, escalating fighter
 		# waves, the secondary target at ~75% of the route, the ace at 100%.
@@ -67,7 +69,9 @@ const SORTIES: Array = [
 			{"t": 2.0, "type": "scout", "count": 4, "gap": 1.2},
 			{"t": 12.0, "type": "triplane", "count": 4, "gap": 1.4},
 			{"t": 24.0, "type": "fighter", "count": 5, "gap": 1.2},
+			{"t": 30.0, "type": "truck", "count": 2, "gap": 7.0},
 			{"t": 34.0, "type": "triplane", "count": 5, "gap": 1.1},
+			{"t": 38.5, "type": "airfield", "count": 1, "gap": 1.0},
 			{"t": 43.5, "type": "balloon", "count": 3, "gap": 3.0},
 			{"t": 47.0, "type": "trench", "count": 5, "gap": 2.0},
 		],
@@ -122,12 +126,15 @@ const SORTIES: Array = [
 		"secondaries": [
 			{"id": "depots", "target": 4},
 			{"id": "trenches", "target": 5},
+			{"id": "trucks", "target": 2},
 		],
 		"waves": [
 			{"t": 2.0, "type": "triplane", "count": 5, "gap": 1.2},
 			{"t": 14.0, "type": "aagun", "count": 3, "gap": 4.0},
 			{"t": 26.0, "type": "fighter", "count": 5, "gap": 1.0},
+			{"t": 32.0, "type": "truck", "count": 2, "gap": 7.0},
 			{"t": 38.0, "type": "triplane", "count": 6, "gap": 1.0},
+			{"t": 44.0, "type": "airfield", "count": 1, "gap": 1.0},
 			{"t": 49.5, "type": "ammodepot", "count": 4, "gap": 3.0},
 			{"t": 53.0, "type": "trench", "count": 5, "gap": 1.8},
 		],

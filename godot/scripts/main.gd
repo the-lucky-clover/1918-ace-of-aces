@@ -8,6 +8,8 @@ const PlayerScene := preload("res://scenes/player.tscn")
 const EnemyScene := preload("res://scenes/enemy.tscn")
 const BossScene := preload("res://scenes/boss.tscn")
 const PickupScene := preload("res://scenes/pickup.tscn")
+const TruckScript := preload("res://scripts/truck.gd")
+const AirfieldScript := preload("res://scripts/airfield.gd")
 const CinematicScript := preload("res://scripts/cinematic.gd")
 const WeatherScript := preload("res://scripts/weather.gd")
 
@@ -160,6 +162,13 @@ func start_sortie(i: int) -> void:
 	$Background.setup(String(s["theme"]))
 	$GroundWar.setup(String(s["theme"]))
 	Global.scroll_speed = 90.0
+	# home aerodrome dressing scrolls past right after takeoff (takeoff
+	# continuity) — not at sea, naturally
+	if not String(s["theme"]) in ["uboat_flotilla", "uboat_base"]:
+		var home := AirfieldScript.new()
+		home.setup("home")
+		world.add_child(home)
+		home.global_position = Vector2(Global.VIEW_W * 0.5, Global.VIEW_H + 220.0)
 	# weather rig: per-sortie seeded conditions (wind vector, rain, storm)
 	_weather.setup(sortie_index)
 	# Archie starts cold every sortie
@@ -384,6 +393,27 @@ func _process(delta: float) -> void:
 
 
 func _spawn_enemy(etype: String) -> void:
+	# troop trucks are their own script (drive → stop → unload infantry)
+	if etype == "truck":
+		var t := TruckScript.new()
+		world.add_child(t)
+		t.global_position = Vector2(randf_range(120.0, Global.VIEW_W - 120.0), -90.0)
+		t.killed.connect(_on_enemy_killed)
+		return
+	# enemy airfield: a visual cluster; its parked aircraft + light AA gun
+	# spawn into the world at the revetment offsets
+	if etype == "airfield":
+		var af := AirfieldScript.new()
+		af.setup("german")
+		world.add_child(af)
+		af.global_position = Vector2(randf_range(190.0, Global.VIEW_W - 190.0), -170.0)
+		for sp in af.escort_spots():
+			var e := EnemyScene.instantiate()
+			e.configure(String(sp["type"]))
+			world.add_child(e)
+			e.global_position = af.global_position + sp["pos"]
+			e.killed.connect(_on_enemy_killed)
+		return
 	var e := EnemyScene.instantiate()
 	e.configure(etype)
 	world.add_child(e)
@@ -447,6 +477,8 @@ func _on_enemy_killed(e: Area2D) -> void:
 			sec_id = "arty"
 		"parked":
 			sec_id = "parked"
+		"truck":
+			sec_id = "trucks"
 	if sec_id != "" and objectives.has(sec_id):
 		var o: Dictionary = objectives[sec_id]
 		if not bool(o["done"]):

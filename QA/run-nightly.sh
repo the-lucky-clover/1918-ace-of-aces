@@ -153,6 +153,26 @@ elif check == 'squadron-goals-sane':
     s = read('sortie_data.gd')
     if 'SQUADRON_TYPES' not in s or 'squadron_goal' not in s:
         sys.exit('squadron goal helpers missing from sortie_data.gd')
+elif check == 'truck-secondary-sane':
+    s = read('sortie_data.gd')
+    if '"trucks"' not in s:
+        sys.exit('trucks secondary missing from SECONDARY_DEFS')
+    mm = read('minimap.gd')
+    if '"trucks": "truck"' not in mm:
+        sys.exit('minimap SEC_ETYPE missing trucks->truck')
+    m = read('main.gd')
+    i = m.find('sec_id = "trucks"')
+    if i < 0 or '"truck":' not in m[max(0, i - 200):i]:
+        sys.exit('main.gd kill-match missing "truck" -> "trucks"')
+elif check == 'airfield-spawn':
+    import os
+    if not os.path.exists(P + 'airfield.gd') or not os.path.exists(P + 'truck.gd'):
+        sys.exit('airfield.gd or truck.gd missing')
+    m = read('main.gd')
+    if 'etype == "airfield"' not in m or 'etype == "truck"' not in m:
+        sys.exit('main.gd missing airfield/truck wave branches')
+    if 'escort_spots()' not in m:
+        sys.exit('main.gd does not spawn airfield escort via escort_spots()')
 PYEOF
         record "$name" "PASS"
     else
@@ -176,6 +196,8 @@ gdscript_check "gdscript-debrief-paths"  debrief-paths
 gdscript_check "gdscript-tween-guards"   tween-guards
 gdscript_check "gdscript-pool-guard"     pool-guard
 gdscript_check "gdscript-squadron-goals" squadron-goals-sane
+gdscript_check "gdscript-truck-secondary" truck-secondary-sane
+gdscript_check "gdscript-airfield-spawn"  airfield-spawn
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"

@@ -10,8 +10,11 @@ var score_value := 50
 var kind := "mg"          # "mg" or "infantry"
 var hp := 30.0
 var dead := false
-var seg: Node2D = null   # owning TrenchSegment
+var seg: Node2D = null   # owning TrenchSegment (null for dismounts)
 var nest_index := -1
+var world_owned := false  # dismounted infantry: scroll + march on our own
+var march_vel := Vector2.ZERO
+var march_time := 0.0
 
 
 func configure(p_kind: String, p_seg: Node2D, p_nest: int = -1) -> void:
@@ -31,6 +34,19 @@ func _ready() -> void:
 	collision_layer = Global.L_ENEMY
 	collision_mask = 0
 	Global.make_circle(self, 20.0)
+
+
+func _process(delta: float) -> void:
+	# dismounted infantry (from troop trucks): ride the world scroll, march
+	# toward the lines, then dig in as static strafe targets
+	if world_owned and not dead:
+		position += (Vector2(0, Global.scroll_speed) + march_vel) * delta
+		if march_time > 0.0:
+			march_time -= delta
+			if march_time <= 0.0:
+				march_vel = Vector2.ZERO  # dug in
+		if position.y > Global.VIEW_H + 120.0 or position.y < -160.0:
+			queue_free()
 
 
 func take_damage(amount: float) -> void:
