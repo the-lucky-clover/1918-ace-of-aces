@@ -37,13 +37,15 @@ func _ready() -> void:
 	z_index = -4  # above the ground war, below the aircraft
 
 
-## Live-target layout for a German field: parked aircraft in revetments +
-## one light AA gun. main.gd spawns these into the world at these offsets.
+## Live-target layout for a German field: parked German aircraft in
+## revetments + one light AA gun. main.gd spawns these into the world at
+## these offsets. v15: the parked machines are Fokkers and Albatrosen now,
+## not generic scouts.
 func escort_spots() -> Array:
 	return [
-		{"type": "parked", "pos": Vector2(-92, -30)},
-		{"type": "parked", "pos": Vector2(0, -62)},
-		{"type": "parked", "pos": Vector2(92, -30)},
+		{"type": "parked_ger", "pos": Vector2(-92, -30)},
+		{"type": "parked_ger", "pos": Vector2(0, -62)},
+		{"type": "parked_ger", "pos": Vector2(92, -30)},
 		{"type": "aagun", "pos": Vector2(0, 66)},
 	]
 
@@ -181,16 +183,66 @@ func _draw_tender(p: Vector2) -> void:
 
 
 func _draw_german() -> void:
+	# v15: a Luftstreitkräfte Jasta field — deliberately NOT the Allied look.
+	# Dark timber hangars (long, low, gabled — the German standard was
+	# stained wood, not French canvas), grey-green tents, Balkenkreuz
+	# windsock markings, and parked German machines (the live "parked_ger"
+	# enemies) with cross-marked wings in the revetments. "Inspired by"
+	# period Jasta field photos — never a claimed reproduction.
 	_draw_runway()
-	var canvas := Color(0.30, 0.30, 0.27)
-	var trim := Color(0.16, 0.16, 0.14)
-	_draw_tent(Vector2(-80, -60), 1.0, canvas, trim)
-	_draw_tent(Vector2(80, -60), 1.0, canvas, trim)
+	_draw_timber_hangar(Vector2(-85, -70), 1.0)
+	_draw_timber_hangar(Vector2(75, -75), 1.15)
+	var canvas := Color(0.32, 0.33, 0.28)
+	var trim := Color(0.18, 0.18, 0.15)
+	_draw_tent(Vector2(-10, 30), 0.85, canvas, trim)
 	_draw_windsock(Vector2(120, 40))
 	for sp in escort_spots():
-		if String(sp["type"]) == "parked":
+		if String(sp["type"]) == "parked_ger":
 			_draw_revetment(sp["pos"])
-	# parked enemy aircraft silhouettes are the live "parked" enemies
+			_draw_parked_german(sp["pos"])
+	# German ground crew: feldgrau dots
+	for i in 6:
+		var a := _phase * (0.4 + 0.1 * float(i)) + float(i) * 2.1
+		var cp := Vector2(75, -20) + Vector2(cos(a), sin(a) * 0.7) * (16.0 + 3.0 * float(i % 3))
+		draw_circle(cp, 3.0, Color(0.36, 0.36, 0.30))
+		draw_circle(cp + Vector2(0, -1.5), 1.6, Color(0.24, 0.24, 0.22))
+
+
+func _draw_timber_hangar(p: Vector2, s: float) -> void:
+	# long low gabled timber hangar, dark-stained wood — the German Jasta
+	# field signature, distinct from the Allied Bessonneau canvas arch.
+	var w := 120.0 * s
+	var h := 56.0 * s
+	var wood := Color(0.23, 0.18, 0.12)
+	var wood_d := Color(0.15, 0.11, 0.07)
+	draw_rect(Rect2(p.x - w * 0.5, p.y - h * 0.5, w, h), wood)
+	# gable ridge line + plank seams
+	draw_line(Vector2(p.x - w * 0.5, p.y), Vector2(p.x + w * 0.5, p.y), wood_d, 2.0)
+	for i in 6:
+		var x := p.x - w * 0.5 + w * float(i) / 5.0
+		draw_line(Vector2(x, p.y - h * 0.5), Vector2(x, p.y + h * 0.5), wood_d, 1.5)
+	# big open doors facing the strip (dark mouth)
+	draw_rect(Rect2(p.x - w * 0.28, p.y - h * 0.5, w * 0.56, h * 0.9), Color(0.06, 0.05, 0.04))
+	# rim light on the sun side (true-north sun rig)
+	var ldir: Vector2 = Sun.current.get("light_dir", Vector2(0, -1))
+	var la := ldir.angle()
+	var lcol: Color = Sun.current.get("light_color", Color(1, 1, 1))
+	draw_arc(p, w * 0.5 + 3.0 * s, la - 0.85, la + 0.85, 14,
+		Color(lcol.r, lcol.g, lcol.b, 0.35), 2.5 * s)
+
+
+func _draw_parked_german(p: Vector2) -> void:
+	# parked Luftstreitkräfte machine at rest: feldgrau silhouette with
+	# Balkenkreuz wing crosses (white border, black cross)
+	var fg := Color(0.36, 0.36, 0.30)
+	draw_rect(Rect2(p.x - 5, p.y - 26, 10, 52), fg)          # fuselage
+	draw_rect(Rect2(p.x - 24, p.y - 12, 48, 12), fg)         # wings
+	draw_rect(Rect2(p.x - 14, p.y + 16, 28, 7), fg)          # tailplane
+	for wx in [-14.0, 14.0]:
+		var cp := p + Vector2(wx, -6)
+		draw_rect(Rect2(cp.x - 4.5, cp.y - 4.5, 9, 9), Color(0.85, 0.85, 0.82))
+		draw_rect(Rect2(cp.x - 3.2, cp.y - 1.6, 6.4, 3.2), Color(0.08, 0.08, 0.08))
+		draw_rect(Rect2(cp.x - 1.6, cp.y - 3.2, 3.2, 6.4), Color(0.08, 0.08, 0.08))
 
 
 func _draw_spad(p: Vector2) -> void:

@@ -123,7 +123,9 @@ func _draw() -> void:
 		for i in 8:
 			var a := TAU * float(i) / 8.0
 			draw_circle(Vector2(cos(a), sin(a)) * 15.0, 5.0, Color(0.36, 0.36, 0.32))
-		# MG on its mount, trained toward the enemy (down-screen)
+		# v15: MG08 on its sled mount with the armored gun shield — the
+		# German nest signature, trained toward the enemy (down-screen)
+		draw_arc(Vector2(0, -4), 10.0, PI * 1.15, PI * 1.85, 8, Color(0.25, 0.26, 0.24), 4.0)
 		draw_rect(Rect2(-3, -2, 6, 18), Color(0.08, 0.08, 0.09))
 		draw_rect(Rect2(-8, 6, 16, 5), Color(0.16, 0.14, 0.12))
 	else:

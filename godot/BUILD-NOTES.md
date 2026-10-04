@@ -1088,6 +1088,74 @@ forgottenairfields.com (Toul-Croix de Metz), airandspaceforces.com
   Wave-stall itself stays covered by `_check_wave_stall`, so no real spawn
   failure can hide behind this. The detector was wrong, not the game.
 
+## Heed the Imperial Germans — Luftstreitkräfte depth pass — 2026-10-04 (v15)
+
+### NAMING RULE (ironclad)
+- WWI Imperial Germany = **Deutsches Heer** (army) / **Luftstreitkräfte**
+  (air service). **"Wehrmacht" is the WWII name and must NEVER appear**
+  in-game or in docs. Enforced by the nightly `gdscript-no-wehrmacht`
+  check (case-insensitive sweep of scripts/, tools/, research/).
+
+### 1. German aircraft roster (research + Blender)
+Research (web, 2026-10-04): **Fokker Dr.I** — span 7.19m / length 5.77m,
+stubby triplane, 320 built, spring-1918 service, twin Spandau
+(migflug.com, aeropedia.com.au, avstop.com). **Fokker D.VII** — span
+~8.9m / length ~6.95m, chunky, ~3,300 built from Feb 1918, lozenge camo;
+the Armistice specifically required Germany to surrender all D.VIIs
+(en.wikipedia.org/wiki/Fokker_D.VII, wingnutwings.com). **Albatros D.V**
+— span 9.05m / length 7.33m, oval varnished-plywood shell fuselage,
+900 D.V + 1662 D.Va built Apr 1917–early 1918
+(en.wikipedia.org/wiki/Albatros_D.V, wingnutwings.com).
+- New models in `blender/build_models.py` via the standard `aircraft()`
+  builder + a new `kreuz=True` option: the **straight-armed Balkenkreuz**
+  (black cross, white border — the correct spring-1918 form) on the top
+  wing instead of roundels. A historical military marking used as a game
+  asset; tasteful, not glorifying. Gotcha fixed in-build: the black bars
+  sat only 0.005 above the white plate and z-fought invisibly — now
+  raised a full 0.03.
+- `enemy-fokker-dr1` (stubby triplane, feldgrau): tight aggressive weaver
+  (`wfreq` 3.0, `wamp` 1.0), hp 34, speed 195. `enemy-fokker-d7` (chunky,
+  lozenge tones): fast diver, hp 48, speed 245. `enemy-albatros`
+  (plywood fuselage): balanced weaver, hp 40, speed 210. All rendered
+  bank-left/level/bank-right through the standard pipeline (9 sprites,
+  ~490 tris each) and verified visually. They relight through the v14
+  sun rig like every other sprite.
+- Wired into the v10 pass model (per-type weave character via new
+  `wfreq`/`wamp` type keys), `SQUADRON_TYPES`, and waves across S1–S7
+  (escalating German identity; Dr.I in spring-1918 sorties).
+
+### 2. Kette doctrine (German AI personality)
+- Wave dicts accept `"kette": 3` → a disciplined Vic: leader + two
+  wingmen stepped back/out, sharing one weave phase and one fire rhythm.
+  They fly as one body and volley together — readable, fair (same total
+  firepower, just synchronized), and **never go ragged** when the
+  squadron breaks; they tighten up instead. Kette waves in S1/S2/S4/S5/S6.
+
+### 3. German ground forces
+- **A7V** (`tank_duel.gd`): Germany's own tank — 20 built, 30-tonne
+  armored box (warhistoryonline.com, en.wikipedia.org/wiki/A7V). Rare:
+  max one per duel, ~18% of German slots. hp 150, slow 57mm (30–48 dmg,
+  big boom + trauma), tall casemate hull, no turret, Balkenkreuz marking,
+  bigger burning wreck.
+- Infantry: the German palette entries are now documented as **feldgrau**
+  (`trench_segment.gd`); MG nests gained the **MG08 gun shield**
+  (`trench_target.gd`) — the German nest signature.
+- The v9 two-way combat is unchanged; the Germans just look German now.
+
+### 4. German airfield rebuild (`airfield.gd`)
+- Deliberately NOT the Allied look: **dark timber hangars** (long, low,
+  gabled — stained wood, not French canvas), grey-green tents, feldgrau
+  ground crew, parked German machines with cross-marked wings
+  (`_draw_parked_german`). The live escorts are now `parked_ger`
+  (Fokker D.VII sprites) instead of generic scouts. "Inspired by" period
+  Jasta field photos — never a claimed reproduction.
+
+### Tuning numbers (v15)
+- Dr.I: hp 34 / spd 195 / wfreq 3.0 / wamp 1.0 / score 120. D.VII: hp 48 /
+  spd 245 / dive / score 170. Albatros: hp 40 / spd 210 / score 140.
+- Kette: Vic offsets (±58, +40), shared phase + fire_cd.
+- A7V: hp 150, fire cd 3.5–5.5s, 57mm 30–48 dmg, ~18% spawn, max 1/duel.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

@@ -19,6 +19,22 @@ const TYPES: Dictionary = {
 	"bomber": {"hp": 130.0, "speed": 92.0, "score": 300, "fire": 1.1, "dmg": 12.0,
 		"behavior": "heavy", "aircraft": true, "radius": 30.0,
 		"sprites": ["enemy-bomber-bank-left", "enemy-bomber-level", "enemy-bomber-bank-right"]},
+	# --- v15: Luftstreitkräfte roster. Real spring-1918 identities, original
+	# renders. Dr.I = tight aggressive weaver; D.VII = fast diver; Albatros =
+	# balanced fighter. Balkenkreuz markings baked into the sprites.
+	"fokker_dr1": {"hp": 34.0, "speed": 195.0, "score": 120, "fire": 1.6, "dmg": 10.0,
+		"behavior": "weave", "aircraft": true, "radius": 20.0,
+		"wfreq": 3.0, "wamp": 1.0,
+		"sprites": ["enemy-fokker-dr1-bank-left", "enemy-fokker-dr1-level", "enemy-fokker-dr1-bank-right"]},
+	"fokker_d7": {"hp": 48.0, "speed": 245.0, "score": 170, "fire": 1.5, "dmg": 11.0,
+		"behavior": "dive", "aircraft": true, "radius": 20.0,
+		"sprites": ["enemy-fokker-d7-bank-left", "enemy-fokker-d7-level", "enemy-fokker-d7-bank-right"]},
+	"albatros": {"hp": 40.0, "speed": 210.0, "score": 140, "fire": 1.7, "dmg": 9.0,
+		"behavior": "weave", "aircraft": true, "radius": 20.0,
+		"sprites": ["enemy-albatros-bank-left", "enemy-albatros-level", "enemy-albatros-bank-right"]},
+	"parked_ger": {"hp": 40.0, "speed": 0.0, "score": 150, "fire": 0.0, "dmg": 0.0,
+		"behavior": "ground", "aircraft": false, "radius": 22.0,
+		"sprites": ["enemy-fokker-d7-level"]},
 	"balloon": {"hp": 95.0, "speed": 32.0, "score": 250, "fire": 0.0, "dmg": 0.0,
 		"behavior": "drift", "aircraft": true, "radius": 34.0,
 		"sprites": ["enemy-balloon-bank-left", "enemy-balloon-level", "enemy-balloon-bank-right"]},
@@ -81,6 +97,10 @@ var submerge_t := 0.0
 var volley_left := 0     # Archie conga-line volley: shells still to fire
 var volley_t := 0.0      # timer between volley shells (~0.4s apart)
 var _cur_frame := -1  # cache: avoid reloading the texture every frame
+# --- v15: per-type weave character + Kette doctrine ---
+var wfreq := 2.2   # weave frequency (Dr.I weaves tighter)
+var wamp := 0.8    # weave amplitude multiplier
+var kette := false  # flying in a disciplined Kette (shared weave phase/fire)
 
 # --- 1942 pass model (v10): aircraft make PASSES, not residences ---
 const PASS_ENTER := 0
@@ -103,7 +123,7 @@ var flak_scene := preload("res://scenes/flak_shell.tscn")
 var pickup_scene := preload("res://scenes/pickup.tscn")
 
 
-func configure(p_etype: String) -> void:
+func configure(p_etype: String, p_kette: bool = false, p_kette_phase: float = 0.0) -> void:
 	etype = p_etype
 	var t: Dictionary = TYPES[etype]
 	hp = t["hp"]
@@ -116,8 +136,19 @@ func configure(p_etype: String) -> void:
 	is_aircraft = t["aircraft"]
 	sprite_keys = t["sprites"]
 	pass_mode = is_aircraft  # flying types make 1942 passes; ground rides the scroll
-	weave_phase = randf() * TAU
-	fire_cd = randf_range(0.6, fire_interval)
+	wfreq = float(t.get("wfreq", 2.2))
+	wamp = float(t.get("wamp", 0.8))
+	kette = p_kette
+	if kette:
+		# Kette doctrine: the whole flight weaves as one body and opens fire
+		# together — disciplined, readable, fair. Same total firepower, just
+		# synchronized. Kette members don't fly ragged when the squadron
+		# breaks; they tighten up and see it through.
+		weave_phase = p_kette_phase
+		fire_cd = 0.6 + fire_interval * 0.5
+	else:
+		weave_phase = randf() * TAU
+		fire_cd = randf_range(0.6, fire_interval)
 
 
 func _ready() -> void:
@@ -150,7 +181,8 @@ func _physics_process(delta: float) -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	# morale break: a broken squadron flies ragged — wider weaves, earlier
 	# break-offs, sloppier gunnery. Subtle; the fight stays winnable.
-	var ragged := Global.squadron_broken and etype in ["triplane", "scout", "fighter", "bomber"]
+	# Kette flights hold their discipline instead of going ragged.
+	var ragged := Global.squadron_broken and not kette and etype in ["triplane", "scout", "fighter", "bomber", "fokker_dr1", "fokker_d7", "albatros"]
 
 	# 1942 pass model: flying aircraft make passes (top → 7/8 down → 180°
 	# bank into the wind → out the top, gone for good). Ground/naval targets
@@ -248,7 +280,7 @@ func _pass_move(delta: float, player: Node2D, ragged: bool) -> bool:
 func _attack_run(player: Node2D, ragged: bool) -> void:
 	match behavior:
 		"weave":
-			vel = Vector2(sin(age * 2.2 + weave_phase) * speed * (1.08 if ragged else 0.8), speed * 0.55)
+			vel = Vector2(sin(age * wfreq + weave_phase) * speed * (1.08 if ragged else wamp), speed * 0.55)
 		"dive":
 			if not diving and player and global_position.y > 120.0:
 				diving = true
@@ -296,7 +328,7 @@ func _begin_turn() -> void:
 func _legacy_move(delta: float, player: Node2D, ragged: bool) -> void:
 	match behavior:
 		"weave":
-			vel = Vector2(sin(age * 2.2 + weave_phase) * speed * (1.08 if ragged else 0.8), speed * 0.55)
+			vel = Vector2(sin(age * wfreq + weave_phase) * speed * (1.08 if ragged else wamp), speed * 0.55)
 		"dive":
 			if not diving and player and global_position.y > 120.0:
 				diving = true

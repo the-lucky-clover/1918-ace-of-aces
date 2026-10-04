@@ -364,6 +364,64 @@ elif check == 'lighting-schedule':
     sn = read('sun.gd')
     if 'LAT_DEG' not in sn or 'screen-up IS North' not in sn:
         sys.exit('sun.gd missing true-north documentation')
+elif check == 'german-roster':
+    # v15: the Luftstreitkräfte roster — three German aircraft with real
+    # identities, Balkenkreuz sprites, squadron membership, Kette doctrine,
+    # A7V armor, German airfield flavor, German parked aircraft.
+    import os
+    e = read('enemy.gd')
+    for t in ('fokker_dr1', 'fokker_d7', 'albatros', 'parked_ger'):
+        if '"%s"' % t not in e:
+            sys.exit('enemy.gd missing Luftstreitkräfte type: %s' % t)
+    for pat in ('wfreq', 'wamp', 'kette', 'p_kette_phase'):
+        if pat not in e:
+            sys.exit('enemy.gd missing v15 piece: %s' % pat)
+    A = '/home/hatch/workspace/1918-godot/assets/sprites/'
+    for t in ('enemy-fokker-dr1', 'enemy-fokker-d7', 'enemy-albatros'):
+        for fr in ('bank-left', 'level', 'bank-right'):
+            p = A + '%s-%s.png' % (t, fr)
+            if not os.path.exists(p) or os.path.getsize(p) < 1000:
+                sys.exit('missing/small German sprite: %s' % p)
+    sd = read('sortie_data.gd')
+    for t in ('fokker_dr1', 'fokker_d7', 'albatros'):
+        if t not in sd:
+            sys.exit('sortie_data.gd never fields %s' % t)
+    if '"kette": 3' not in sd:
+        sys.exit('sortie_data.gd has no Kette formation waves')
+    m = read('main.gd')
+    if '_spawn_enemy' not in m or 'kette_n' not in m or '"kette"' not in m:
+        sys.exit('main.gd missing Kette spawn path')
+    td = read('tank_duel.gd')
+    if 'a7v' not in td or '_draw_a7v' not in td:
+        sys.exit('tank_duel.gd missing the A7V')
+    af = read('airfield.gd')
+    if '_draw_timber_hangar' not in af or '_draw_parked_german' not in af \
+            or 'parked_ger' not in af:
+        sys.exit('airfield.gd missing German field rebuild')
+elif check == 'no-wehrmacht':
+    # v15 naming rule: WWI Imperial Germany = Deutsches Heer /
+    # Luftstreitkräfte. "Wehrmacht" is the WWII name — it must never appear
+    # in-game or in docs.
+    import os
+    roots = ['/home/hatch/workspace/1918-godot/scripts',
+             '/home/hatch/workspace/1918-godot/tools',
+             '/home/hatch/workspace/1918-godot/research']
+    hits = []
+    for r in roots:
+        if not os.path.isdir(r):
+            continue
+        for dp, dn, fn in os.walk(r):
+            for f in fn:
+                if f.endswith(('.gd', '.md', '.txt', '.cfg')):
+                    p = os.path.join(dp, f)
+                    with open(p, encoding='utf-8', errors='ignore') as fh:
+                        if 'wehrmacht' in fh.read().lower():
+                            hits.append(p)
+    if hits:
+        sys.exit('FORBIDDEN term "Wehrmacht" found in: %s' % ', '.join(hits))
+    e = read('enemy.gd')
+    if 'Luftstreitkr' not in e:
+        sys.exit('enemy.gd missing period-correct Luftstreitkräfte naming')
 elif check == 'ghost-baron-duel':
     # v11: the mythic Thunderhead Duel — spectral boss, storm arena, unlock flow
     import os
@@ -585,6 +643,8 @@ gdscript_check "gdscript-ads-no-real-ids" ads-no-real-ids
 gdscript_check "gdscript-ads-state" ads-state
 gdscript_check "gdscript-bot-skeptic-sane" bot-skeptic-sane
 gdscript_check "gdscript-lighting-schedule" lighting-schedule
+gdscript_check "gdscript-german-roster" german-roster
+gdscript_check "gdscript-no-wehrmacht" no-wehrmacht
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"

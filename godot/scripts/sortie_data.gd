@@ -34,7 +34,9 @@ const BOSS_NAMES: Array = [
 # Fighter-wave aircraft that count as the enemy squadron for shoot-down
 # goals (194x-style: the duel in the sky; balloons/zeppelins/ground targets
 # belong to the secondary objectives instead).
-const SQUADRON_TYPES: Array = ["triplane", "scout", "fighter", "bomber"]
+# v15: the Luftstreitkräfte roster joins the squadron count.
+const SQUADRON_TYPES: Array = ["triplane", "scout", "fighter", "bomber",
+	"fokker_dr1", "fokker_d7", "albatros"]
 
 
 ## Nominal squadron strength: total fighter-wave aircraft in the sortie.
@@ -73,9 +75,10 @@ const SORTIES: Array = [
 		# waves, the secondary target at ~75% of the route, the ace at 100%.
 		"waves": [
 			{"t": 2.0, "type": "scout", "count": 4, "gap": 1.2},
-			{"t": 12.0, "type": "triplane", "count": 4, "gap": 1.4},
+			{"t": 12.0, "type": "fokker_dr1", "count": 4, "gap": 1.4},
 			{"t": 20.0, "type": "gasstrike", "count": 1, "gap": 1.0},
 			{"t": 24.0, "type": "fighter", "count": 5, "gap": 1.2},
+			{"t": 27.0, "type": "albatros", "count": 1, "gap": 1.0, "kette": 3},
 			{"t": 30.0, "type": "truck", "count": 2, "gap": 7.0},
 			{"t": 34.0, "type": "triplane", "count": 5, "gap": 1.1},
 			{"t": 38.5, "type": "airfield", "count": 1, "gap": 1.0},
@@ -98,8 +101,9 @@ const SORTIES: Array = [
 		"waves": [
 			{"t": 2.0, "type": "scout", "count": 4, "gap": 1.2},
 			{"t": 12.0, "type": "fighter", "count": 5, "gap": 1.1},
-			{"t": 24.0, "type": "triplane", "count": 4, "gap": 1.2},
+			{"t": 24.0, "type": "fokker_dr1", "count": 4, "gap": 1.2},
 			{"t": 36.0, "type": "fighter", "count": 6, "gap": 1.0},
+			{"t": 40.0, "type": "fokker_d7", "count": 1, "gap": 1.0, "kette": 3},
 			{"t": 46.5, "type": "uboat", "count": 4, "gap": 4.0},
 			{"t": 50.0, "type": "bomber", "count": 3, "gap": 2.5},
 		],
@@ -119,10 +123,10 @@ const SORTIES: Array = [
 		"waves": [
 			{"t": 2.0, "type": "fighter", "count": 5, "gap": 1.1},
 			{"t": 14.0, "type": "scout", "count": 6, "gap": 0.9},
-			{"t": 26.0, "type": "triplane", "count": 5, "gap": 1.0},
-			{"t": 38.0, "type": "fighter", "count": 6, "gap": 1.0},
+			{"t": 26.0, "type": "fokker_dr1", "count": 5, "gap": 1.0},
+			{"t": 38.0, "type": "fokker_d7", "count": 6, "gap": 1.0},
 			{"t": 48.0, "type": "zeppelin", "count": 2, "gap": 9.0},
-			{"t": 52.0, "type": "parked", "count": 4, "gap": 2.0},
+			{"t": 52.0, "type": "parked_ger", "count": 4, "gap": 2.0},
 		],
 		"takeoff": "12:00",
 		"boss_at": 64.0,
@@ -140,12 +144,13 @@ const SORTIES: Array = [
 			{"id": "flak", "target": 2},
 		],
 		"waves": [
-			{"t": 2.0, "type": "triplane", "count": 5, "gap": 1.2},
+			{"t": 2.0, "type": "fokker_dr1", "count": 5, "gap": 1.2},
 			{"t": 14.0, "type": "aagun", "count": 3, "gap": 4.0},
-			{"t": 26.0, "type": "fighter", "count": 5, "gap": 1.0},
+			{"t": 26.0, "type": "albatros", "count": 5, "gap": 1.0},
 			{"t": 28.0, "type": "gasstrike", "count": 1, "gap": 1.0},
 			{"t": 32.0, "type": "truck", "count": 2, "gap": 7.0},
-			{"t": 38.0, "type": "triplane", "count": 6, "gap": 1.0},
+			{"t": 34.0, "type": "fokker_dr1", "count": 1, "gap": 1.0, "kette": 3},
+			{"t": 38.0, "type": "fokker_d7", "count": 6, "gap": 1.0},
 			{"t": 44.0, "type": "airfield", "count": 1, "gap": 1.0},
 			{"t": 49.5, "type": "ammodepot", "count": 4, "gap": 3.0},
 			{"t": 53.0, "type": "trench", "count": 5, "gap": 1.8},
@@ -167,8 +172,9 @@ const SORTIES: Array = [
 		"waves": [
 			{"t": 2.0, "type": "aagun", "count": 4, "gap": 3.5},
 			{"t": 16.0, "type": "fighter", "count": 5, "gap": 1.1},
-			{"t": 30.0, "type": "triplane", "count": 5, "gap": 1.0},
-			{"t": 42.0, "type": "fighter", "count": 6, "gap": 1.0},
+			{"t": 30.0, "type": "albatros", "count": 5, "gap": 1.0},
+			{"t": 42.0, "type": "fokker_d7", "count": 6, "gap": 1.0},
+			{"t": 46.0, "type": "fokker_d7", "count": 1, "gap": 1.0, "kette": 3},
 			{"t": 49.5, "type": "subpen", "count": 3, "gap": 6.0},
 			{"t": 54.0, "type": "uboat", "count": 2, "gap": 5.0},
 		],
@@ -188,8 +194,9 @@ const SORTIES: Array = [
 		"waves": [
 			{"t": 2.0, "type": "train", "count": 3, "gap": 4.0},
 			{"t": 16.0, "type": "arty", "count": 4, "gap": 3.0},
-			{"t": 30.0, "type": "fighter", "count": 6, "gap": 1.0},
-			{"t": 44.0, "type": "triplane", "count": 6, "gap": 0.9},
+			{"t": 30.0, "type": "fokker_d7", "count": 6, "gap": 1.0},
+			{"t": 44.0, "type": "fokker_dr1", "count": 6, "gap": 0.9},
+			{"t": 50.0, "type": "albatros", "count": 2, "gap": 6.0, "kette": 3},
 			{"t": 57.0, "type": "railwaygun", "count": 1, "gap": 1.0},
 		],
 		"takeoff": "17:30",
@@ -209,7 +216,7 @@ const SORTIES: Array = [
 		"waves": [
 			{"t": 2.0, "type": "scout", "count": 4, "gap": 1.2},
 			{"t": 12.0, "type": "fighter", "count": 5, "gap": 1.1},
-			{"t": 24.0, "type": "triplane", "count": 5, "gap": 1.0},
+			{"t": 24.0, "type": "fokker_dr1", "count": 5, "gap": 1.0},
 			{"t": 36.0, "type": "fighter", "count": 6, "gap": 1.0},
 			{"t": 44.0, "type": "bomber", "count": 3, "gap": 2.5},
 		],

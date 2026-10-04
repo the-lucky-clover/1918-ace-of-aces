@@ -1,7 +1,9 @@
 {"date":"2026-10-04","seedfault":"","sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","type":"meta","version":"14"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":230,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":10.0284173333332,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":75.0,"kills":5,"kpm":14.0,"score":920,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":20.0276173333329,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":50.0,"kills":5,"kpm":10.0,"score":920,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":30.0268173333345,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":35.0,"dmg_per_min":52.0,"kills":6,"kpm":8.0,"score":1070,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":40.0329133333321,"touch_path":true,"type":"snapshot"}
-{"deaths":0,"dmg":67.0,"kills":7,"run_s":50.0,"score":1320,"seedfault":false,"sortie":0,"t":50.0224589333288,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":18.0,"score":410,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":10.0322396666666,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":8.0,"score":410,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":20.0314396666666,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":6,"kpm":12.0,"score":1000,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":30.0306396666682,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":43.0,"dmg_per_min":64.0,"kills":10,"kpm":14.0,"score":1700,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":40.0271916666663,"touch_path":true,"type":"snapshot"}
+{"detail":"bot ran the tank dry and lawn-darted","kind":"fuel_death","sortie":0,"t":41.9994476666656,"type":"event"}
+{"detail":"\"explosion_small\" fired 7x in one second — the mix is shouting","kind":"sfx_spam","seedfault":false,"sev":"MED","sortie":0,"t":42.3911404666656,"type":"anomaly"}
+{"deaths":1,"dmg":113.0,"kills":16,"run_s":50.0,"score":3620,"seedfault":false,"sortie":0,"t":47.6389964666637,"type":"run_end"}

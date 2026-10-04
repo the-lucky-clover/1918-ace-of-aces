@@ -1,10 +1,8 @@
 {"date":"2026-10-04","seedfault":"","sortie":4,"sortie_name":"Sortie 5 — The Pens","type":"meta","version":"14"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":70.0,"dmg_per_min":419.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":10.0342350666665,"touch_path":true,"type":"snapshot"}
-{"detail":"\"explosion_small\" fired 8x in one second — the mix is shouting","kind":"sfx_spam","seedfault":false,"sev":"MED","sortie":4,"t":13.9718510666661,"type":"anomaly"}
-{"detail":"\"flak\" fired 8x in one second — the mix is shouting","kind":"sfx_spam","seedfault":false,"sev":"MED","sortie":4,"t":13.9718510666661,"type":"anomaly"}
-{"boss_spawned":false,"deaths":0,"dmg":83.0,"dmg_per_min":249.0,"kills":1,"kpm":2.0,"score":260,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":20.0334350666664,"touch_path":true,"type":"snapshot"}
-{"detail":"killed by flak shell (6px)","kind":"death","sortie":4,"t":25.8331630666673,"type":"event"}
-{"boss_spawned":false,"deaths":1,"dmg":159.5,"dmg_per_min":319.0,"kills":4,"kpm":8.0,"score":1384,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":30.042481466668,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":1,"dmg":159.5,"dmg_per_min":239.0,"kills":4,"kpm":6.0,"score":1384,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":40.0416814666655,"touch_path":true,"type":"snapshot"}
-{"deaths":1,"dmg":169.0,"kills":5,"run_s":50.0,"score":1554,"seedfault":false,"sortie":4,"t":47.6272814666628,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":31.5,"dmg_per_min":189.0,"kills":1,"kpm":6.0,"score":200,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":10.0270213333332,"touch_path":true,"type":"snapshot"}
+{"detail":"\"explosion_small\" fired 7x in one second — the mix is shouting","kind":"sfx_spam","seedfault":false,"sev":"MED","sortie":4,"t":15.0156733333328,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":51.0,"dmg_per_min":153.0,"kills":2,"kpm":6.0,"score":350,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":20.0290653333333,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":57.5,"dmg_per_min":115.0,"kills":4,"kpm":8.0,"score":1337,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":30.0282653333346,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":57.5,"dmg_per_min":86.0,"kills":5,"kpm":8.0,"score":1487,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":40.0274653333322,"touch_path":true,"type":"snapshot"}
+{"deaths":0,"dmg":67.0,"kills":6,"run_s":50.0,"score":1647,"seedfault":false,"sortie":4,"t":50.0326453333293,"type":"run_end"}

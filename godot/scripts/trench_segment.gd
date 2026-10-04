@@ -13,7 +13,9 @@ var pts := PackedVector2Array()
 var nests: Array = []      # {x, flash, dead, taken}
 var infantry: Array = []   # {x, yoff, ph}
 
-# faction palettes — simple, geometric, readable
+# faction palettes — simple, geometric, readable.
+# v15: the German "man"/"helmet" entries are feldgrau — the field-grey of
+# the Deutsches Heer — distinct from Allied khaki at a glance.
 const ALLIED := {
 	"trench": Color(0.15, 0.13, 0.095),
 	"trench_in": Color(0.09, 0.08, 0.06),

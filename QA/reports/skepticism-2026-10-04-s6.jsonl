@@ -1,15 +1,15 @@
 {"date":"2026-10-04","seedfault":"","sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","type":"meta","version":"14"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":150.0,"kills":3,"kpm":18.0,"score":420,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":10.0296943333333,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":75.0,"kills":4,"kpm":12.0,"score":600,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":20.0311223333334,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":50.0,"kills":5,"kpm":10.0,"score":735,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":30.0281883333345,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":50.0,"dmg_per_min":75.0,"kills":8,"kpm":12.0,"score":1335,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":40.0273883333321,"touch_path":true,"type":"snapshot"}
-{"detail":"bot ran the tank dry and lawn-darted","kind":"fuel_death","sortie":6,"t":47.9439963333295,"type":"event"}
-{"boss_spawned":false,"deaths":1,"dmg":100.0,"dmg_per_min":120.0,"kills":9,"kpm":10.0,"score":1565,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":50.0334843333288,"touch_path":true,"type":"snapshot"}
-{"detail":"boss entered the arena","kind":"boss_spawned","sortie":6,"t":58.0121563333261,"type":"event"}
-{"boss_spawned":true,"deaths":1,"dmg":100.0,"dmg_per_min":100.0,"kills":9,"kpm":8.0,"score":1585,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":60.0326843333254,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":true,"deaths":1,"dmg":100.0,"dmg_per_min":86.0,"kills":10,"kpm":8.0,"score":1885,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":70.0222299333221,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":true,"deaths":1,"dmg":100.0,"dmg_per_min":75.0,"kills":10,"kpm":8.0,"score":1895,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":80.0264759333187,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":true,"deaths":1,"dmg":111.0,"dmg_per_min":74.0,"kills":10,"kpm":6.0,"score":1905,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":90.0248089333153,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":true,"deaths":1,"dmg":111.0,"dmg_per_min":67.0,"kills":10,"kpm":6.0,"score":1915,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":100.024008933312,"touch_path":true,"type":"snapshot"}
-{"deaths":1,"dmg":111.0,"kills":10,"run_s":110.0,"score":1925,"seedfault":false,"sortie":6,"t":107.623658933309,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":210,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":10.0295681111112,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":8.0,"score":397,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":20.0293049999998,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":10.0,"dmg_per_min":20.0,"kills":4,"kpm":8.0,"score":654,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":30.0287700000009,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":45.0,"dmg_per_min":67.0,"kills":5,"kpm":8.0,"score":824,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":40.0270326666653,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":80.0,"dmg_per_min":96.0,"kills":6,"kpm":8.0,"score":1004,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":50.0271699999953,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by rammed by fighter (30px)","kind":"death","sortie":6,"t":50.6133299999951,"type":"event"}
+{"detail":"boss entered the arena","kind":"boss_spawned","sortie":6,"t":58.0087166666592,"type":"event"}
+{"boss_spawned":true,"deaths":1,"dmg":105.0,"dmg_per_min":105.0,"kills":7,"kpm":6.0,"score":1204,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":60.0335219999921,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":true,"deaths":1,"dmg":130.0,"dmg_per_min":111.0,"kills":8,"kpm":6.0,"score":1579,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":70.0221815999896,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":true,"deaths":1,"dmg":130.0,"dmg_per_min":97.0,"kills":8,"kpm":6.0,"score":1579,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":80.028277599986,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":true,"deaths":1,"dmg":141.0,"dmg_per_min":94.0,"kills":8,"kpm":6.0,"score":1589,"seedfault":false,"sortie":6,"sortie_name":"Sortie 7 — The Thunderhead Duel","t":90.0274775999826,"touch_path":true,"type":"snapshot"}
+{"detail":"bot ran the tank dry and lawn-darted","kind":"fuel_death","sortie":6,"t":96.9924375999802,"type":"event"}
+{"deaths":2,"dmg":174.0,"kills":8,"run_s":110.0,"score":1619,"seedfault":false,"sortie":6,"t":98.9925275999796,"type":"run_end"}

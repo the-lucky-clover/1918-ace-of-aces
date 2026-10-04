@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v15 — 2026-10-04
+
+The Imperial German war machine gets its due, ye scurvy dogs! Three new Luftstreitkräfte birds — the stubby Fokker Dr.I, the chunky D.VII, an' the wooden Albatros — all wearin' the Balkenkreuz proud. They fly in disciplined Ketten now, no ragged rabble. The A7V land-ship lumbers onto the field (only twenty ever built, an' she's a rare sight!), Jerry's trenches sport feldgrau an' MG08 shields, an' their Jasta fields rise in dark timber. Mind the namin', lads — 'tis Deutsches Heer an' Luftstreitkräfte; the W-word be banned from these waters on pain o' the nightly's wrath. Arrr!
+
+
 ## v14 — 2026-10-04
 
 Avast, the sun itself be pressed into service! This here v14 teaches the sky true North — screen-up be the pole star, an' every shadow, glint, an' rim o' light now steers by one honest sun-vector, reckoned from real solar figures for Toul in May of 1918. No fakery in the riggin': the renderer can't do true HDR, so we paints the "HDR look" with grades, glows, an' directional sheen, an' says so plain. The home aerodrome be rebuilt from the 94th Aero Squadron's own digs at Gengault — Bessonneau canvas hangars, a grass strip, the Hat-in-the-Ring proud on the SPADs, April mud underfoot, an' flare-pots burnin' after dark. An' mark the watch-bill: some sorties now launch by moonlight with stars an' searchlights sweepin', while others fly at blazin' high noon — two different worlds, same war. Arrr, the light itself be a crewman now!

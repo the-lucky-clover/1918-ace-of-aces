@@ -257,7 +257,8 @@ func start_sortie(i: int) -> void:
 	schedule.clear()
 	for w in s["waves"]:
 		for n in int(w["count"]):
-			schedule.append({"at": float(w["t"]) + n * float(w["gap"]), "type": String(w["type"])})
+			schedule.append({"at": float(w["t"]) + n * float(w["gap"]), "type": String(w["type"]),
+				"kette": int(w.get("kette", 0))})
 	schedule.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["at"]) < float(b["at"]))
 	sortie_time = 0.0
 	strafe_streak = 0
@@ -548,7 +549,7 @@ func _process(delta: float) -> void:
 	var s: Dictionary = Sorties.SORTIES[sortie_index]
 	while not schedule.is_empty() and float(schedule[0]["at"]) <= sortie_time:
 		var item: Dictionary = schedule.pop_front()
-		_spawn_enemy(String(item["type"]))
+		_spawn_enemy(String(item["type"]), int(item.get("kette", 0)))
 	if not boss_spawned and sortie_time >= float(s["boss_at"]):
 		boss_spawned = true
 		_spawn_boss(int(s["boss"]))
@@ -581,7 +582,22 @@ func _process(delta: float) -> void:
 				_show_debrief()
 
 
-func _spawn_enemy(etype: String) -> void:
+func _spawn_enemy(etype: String, kette_n: int = 0) -> void:
+	# v15 Kette: a disciplined German Vic — leader plus wingmen stepped back
+	# and out, sharing one weave phase and one fire rhythm. They fly as one
+	# body, hit as one volley, and never go ragged. Fair: same total
+	# firepower, just synchronized.
+	if kette_n >= 3 and etype in ["fokker_dr1", "fokker_d7", "albatros", "fighter", "triplane", "scout"]:
+		var phase := randf() * TAU
+		var cx := randf_range(140.0, Global.VIEW_W - 140.0)
+		var offs := [Vector2(0, 0), Vector2(-58, 40), Vector2(58, 40)]
+		for o in offs:
+			var ke := EnemyScene.instantiate()
+			ke.configure(etype, true, phase)
+			world.add_child(ke)
+			ke.global_position = Vector2(clampf(cx + o.x, 70.0, Global.VIEW_W - 70.0), -90.0 + o.y)
+			ke.killed.connect(_on_enemy_killed)
+		return
 	# mustard gas strike: three blooming fog banks in a loose diagonal —
 	# telegraphed, drifting with the wind, dodge or mask up
 	if etype == "gasstrike":

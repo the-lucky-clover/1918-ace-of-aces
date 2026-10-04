@@ -6,7 +6,7 @@ extends Node
 const GAME_TITLE: String = "1918"
 const GAME_TAGLINE: String = "A Western Front Story"
 ## Holistic build version — bumped by bin/bump-version.sh with every work action.
-const VERSION: String = "14"
+const VERSION: String = "15"
 
 const VIEW_W: float = 720.0
 const VIEW_H: float = 1280.0
