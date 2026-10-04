@@ -277,6 +277,30 @@ elif check == 'graze-streak-sane':
     bo = read('boss.gd')
     if 'TAUNTS' not in bo:
         sys.exit('boss.gd missing taunt table')
+elif check == 'ground-war-two-way':
+    tt = read('trench_target.gd')
+    for pat in ('_open_fire', 'BulletScene', 'mg_chatter', 'rifle_pop',
+                'windup = 0.35', 'bool(player.get("alive"))'):
+        if pat not in tt:
+            sys.exit('trench_target.gd missing pot-shot wiring: %s' % pat)
+    td = read('tank_duel.gd')
+    for pat in ('_aa_potshot', 'rumble_at', 'tank_boom', '"french"', '"uk"',
+                'n_allied = 2', 'n_german = 2'):
+        if pat not in td:
+            sys.exit('tank_duel.gd missing v9 tank-war wiring: %s' % pat)
+    gw = read('ground_war.gd')
+    if '_dirt_kick' not in gw or 'rifle pops' not in gw:
+        sys.exit('ground_war.gd missing infantry-battle iteration')
+    s = read('sfx.gd')
+    for pat in ('tank_boom', 'mg_chatter', 'rifle_pop'):
+        if pat not in s:
+            sys.exit('sfx.gd missing v9 sound: %s' % pat)
+    sd = read('sortie_data.gd')
+    if sd.count('"lore"') != 6:
+        sys.exit('sortie_data.gd: expected 6 lore lines, found %d' % sd.count('"lore"'))
+    m = read('main.gd')
+    if 'brief_txt' not in m or 's.has("lore")' not in m:
+        sys.exit('main.gd missing lore brief wiring')
 PYEOF
         record "$name" "PASS"
     else
@@ -309,6 +333,7 @@ gdscript_check "gdscript-gas-system" gas-system-sane
 gdscript_check "gdscript-chateau-roads" chateau-roads-sane
 gdscript_check "gdscript-flak-secondary" flak-secondary-sane
 gdscript_check "gdscript-graze-streak" graze-streak-sane
+gdscript_check "gdscript-ground-war-two-way" ground-war-two-way
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"

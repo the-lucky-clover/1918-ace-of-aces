@@ -648,6 +648,54 @@ The full dozen:
 - Camera iron rule untouched — the loop is a sprite swap, zero camera
   movement. Nightly `camera-iron-rule` check still green.
 
+## Ground war gets teeth — 2026-10-03 (v9)
+
+### 1. Infantry pot-shots at the player (`trench_target.gd`)
+- Live German MG nests and infantry squads now take opportunistic shots at
+  the player's aircraft "just because they can": MG nests fire 3-round
+  bursts (6 dmg, 420 px/s tracers, every 3.2–4.5 s, range 480 px); infantry
+  squads loose single rifle rounds (3 dmg, 380 px/s, every 5–7.5 s, range
+  400 px). Every shot runs the same 0.35 s telegraph blink as air enemies,
+  plus a muzzle flash and a warning ring — readable, dodgeable, fair.
+- New SFX: `mg_chatter` (5-round burst), `rifle_pop` (single crack).
+
+### 2. Ground forces as two-way combatants
+- MG nests, infantry, tanks, arty, sub pens, and AA all shoot back now;
+  the player already strafes them. Tuning is MILD by design — spectacle
+  plus light pressure, never a bullet-hell ("it ain't nothing to a boss").
+- Ground fire punishes lazy loitering (short ranges, slow tracers), not flying.
+
+### 3. Tank war (`tank_duel.gd` rewritten)
+- Battles are now 1v1 (50%), lopsided 2v1 (30%), or full 2v2 (20%).
+- Three factions on the field: German field-grey (dark-red square), French
+  horizon-blue (tricolor roundel), British khaki (blue-grey diamond).
+- Live tanks take AA pot-shots at the player: slow 400 px/s shells, 10 dmg,
+  7–12 s cooldown, only when the player is genuinely overhead and in range.
+- Brewing-up kills thump through the new `tank_boom` SFX plus
+  `SFX.rumble_at` proximity haptics; wrecks persist as before.
+
+### 4. Infantry-vs-infantry iteration (`ground_war.gd`)
+- Volleys grew from 3 to 5 exchanges per side, dirt kicks up where rounds
+  land on the lines, and single rifle "pops" mix in with the MG bursts.
+- The BIG PUSH now lands a deep rolling `tank_boom` and a deck rumble.
+
+### 5. Memoir lore (`sortie_data.gd`, `main.gd`)
+- Every sortie carries a one-line `lore` flavor line under the brief,
+  loosely echoing the era and spirit of Rickenbacker's "Fighting the
+  Flying Circus." LOOSE and HONEST — arcade first, history as seasoning;
+  no specific historical claims anywhere in-game. Tone: respect the
+  fallen, celebrate the win.
+
+### Tuning numbers (v9)
+- MG nest: 6 dmg × 3, 420 px/s, 3.2–4.5 s cd, 480 px range.
+- Infantry: 3 dmg, 380 px/s, 5–7.5 s cd, 400 px range.
+- Tank AA: 10 dmg, 400 px/s, 7–12 s cd per tank, 520 px range, overhead only.
+- Telegraph: 0.35 s blink before every ground shot.
+
+### Readability guardrails (unchanged)
+- Every new projectile is a slow readable tracer with a telegraph; camera
+  iron rule untouched (nightly `camera-iron-rule` still green).
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

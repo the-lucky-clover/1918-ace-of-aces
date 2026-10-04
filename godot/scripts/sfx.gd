@@ -16,6 +16,9 @@ const FILES := {
 	"loop": "res://assets/sfx/loop_whoosh.wav",
 	"flak": "res://assets/sfx/flak_pop.wav",
 	"gas": "res://assets/sfx/gas_hiss.wav",
+	"tank_boom": "res://assets/sfx/tank_boom.wav",
+	"mg_chatter": "res://assets/sfx/mg_chatter.wav",
+	"rifle_pop": "res://assets/sfx/rifle_pop.wav",
 }
 
 const POOL := 10

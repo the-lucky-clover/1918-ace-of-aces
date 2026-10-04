@@ -252,7 +252,11 @@ func _begin_play() -> void:
 	_fade_to(0.0, 0.6)
 	Music.play_game()
 	Music.unduck_game()  # in case a previous boss left it ducked
-	$HUDLayer.show_brief(String(s["name"]) + "\n" + String(s["brief"]))
+	# memoir flavor: a loose line from the era rides under the brief
+	var brief_txt := String(s["name"]) + "\n" + String(s["brief"])
+	if s.has("lore"):
+		brief_txt += "\n" + String(s["lore"])
+	$HUDLayer.show_brief(brief_txt)
 	# tally-ho: the sortie opens with a cry
 	FX.popup(world, Vector2(Global.VIEW_W * 0.5, Global.VIEW_H * 0.45),
 		"TALLY-HO!", Color(1.0, 0.85, 0.4))

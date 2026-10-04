@@ -56,6 +56,7 @@ static func squadron_bonus(sortie_index: int) -> int:
 const SORTIES: Array = [
 	{
 		"name": "Sortie 1 — Dawn Patrol",
+		"lore": "Spring 1918 — the Flying Circus prowls these skies. Send them home smoking.",
 		"theme": "farmland",
 		"brief": "Patrol the lines at dawn. An enemy ace prowls these skies — send him down in flames.",
 		"boss": 0,
@@ -83,6 +84,7 @@ const SORTIES: Array = [
 	},
 	{
 		"name": "Sortie 2 — Wolfpack",
+		"lore": "The wolfpack hunts below; above, the aces circle like hawks.",
 		"theme": "uboat_flotilla",
 		"brief": "A U-boat flotilla rides at anchor off the coast. Catch them surfaced — sink them before they crash-dive.",
 		"boss": 1,
@@ -103,6 +105,7 @@ const SORTIES: Array = [
 	},
 	{
 		"name": "Sortie 3 — The Zeppelin Sheds",
+		"lore": "The Kaiser's gasbags cast long shadows. Burn them out of the sky.",
 		"theme": "zeppelin_sheds",
 		"brief": "Giant sheds house the Kaiser's zeppelins. Bring the gasbags down and strafe their parked guards.",
 		"boss": 2,
@@ -123,6 +126,7 @@ const SORTIES: Array = [
 	},
 	{
 		"name": "Sortie 4 — Powder Keg",
+		"lore": "Their guns thunder for the big push. Starve the guns — torch the powder.",
 		"theme": "munitions_depot",
 		"brief": "Ammo dumps feed the whole sector. One spark sets off the chain — give them the spark.",
 		"boss": 3,
@@ -148,6 +152,7 @@ const SORTIES: Array = [
 	},
 	{
 		"name": "Sortie 5 — The Pens",
+		"lore": "Concrete and steel can't hide the wolfpack forever. Crack the pens.",
 		"theme": "uboat_base",
 		"brief": "Concrete pens shelter the wolfpack under heavy flak. Smash the pens and scatter the boats.",
 		"boss": 4,
@@ -169,6 +174,7 @@ const SORTIES: Array = [
 	},
 	{
 		"name": "Sortie 6 — Iron Harvest",
+		"lore": "The last duel. Their greatest ace waits at the end of the line.",
 		"theme": "rail_yard",
 		"brief": "The railway gun's home turf — marshaling yards feeding the front. Wreck it all, then duel their greatest ace.",
 		"boss": 5,

@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v9 — 2026-10-04
+
+v9: the ground war grows teeth, me hearties! Infantry an' MG nests now fire pot-shots at yer crate just fer the sport of it, German/French/British tanks duel beneath ye AND take the occasional crack at yer altitude, with fresh tank-boom thunder an' deck-rumblin' haptics. The lads below fight livelier amongst themselves, an' each sortie now carries a line o' Flying Circus flavor — loose as a sailor's yarn, respectful o' the fallen, celebratin' the win.
+
+
 ## v8 — 2026-10-04
 
 v8: ten fresh-synthesized boom-boxes be thund'rin' in the SFX locker, the ship herself buzzes yer palm on every hit (mobile haptics, tasteful-like), touch pilots can now steer by drag, double-tap summons a TRUE Blender-built Immelmann loop (no more flat-spin fakery!), an' double-tap-and-hold calls the pause parley. Sound off be a button's tap away, mateys!

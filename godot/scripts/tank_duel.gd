@@ -1,26 +1,51 @@
 extends Node2D
-## A tank duel on the front: one Allied (khaki, blue-grey diamond) and one
-## German (field-grey, dark-red square) tank trade shells until one — or
-## both — brew up. Burning wrecks persist as they scroll down the screen.
-## Visual-only ground theater; cannot hurt the player.
+## A tank battle on the front: German armor vs French and British tanks trade
+## shells until one side brews up. Burning wrecks persist as they scroll.
+## v9: the armor has TEETH — live tanks take opportunistic pot-shots at the
+## player's aircraft (slow, telegraphed shells, light damage), and brewing
+## kills thump through the SFX bus + mobile haptics.
 
-const ALLIED_COL := Color(0.55, 0.52, 0.38)
 const GERMAN_COL := Color(0.36, 0.37, 0.34)
+const FRENCH_COL := Color(0.44, 0.52, 0.62)  # horizon blue
+const UK_COL := Color(0.52, 0.46, 0.33)      # khaki drab
 const WRECK_COL := Color(0.12, 0.11, 0.10)
 
-var allied := {"x": 200.0, "hp": 60.0, "alive": true, "cd": 1.5, "flash": 0.0}
-var german := {"x": 500.0, "hp": 60.0, "alive": true, "cd": 2.5, "flash": 0.0}
-var shells: Array = []  # {ax, ay, bx, by, t, dur, from}
+const BulletScene := preload("res://scenes/bullet.tscn")
+
+var tanks: Array = []  # {side, nation, x, hp, alive, cd, flash, aa_cd, foe_x}
+var shells: Array = []  # {ax, ay, bx, by, t, dur, foe}
 var age := 0.0
-var dead := false
+
+
+func _make_tank(side: String, nation: String, x: float) -> Dictionary:
+	return {"side": side, "nation": nation, "x": x, "hp": 60.0,
+		"alive": true, "cd": randf_range(0.8, 2.0),
+		"flash": 0.0, "aa_cd": randf_range(4.0, 9.0), "foe_x": x}
 
 
 func setup() -> void:
-	allied["x"] = randf_range(110.0, 290.0)
-	german["x"] = randf_range(430.0, 610.0)
-	# randomize who fires first
-	allied["cd"] = randf_range(0.8, 2.0)
-	german["cd"] = randf_range(0.8, 2.0)
+	# battle composition: 1v1 most often, sometimes a lopsided brawl, rarely 2v2
+	var roll := randf()
+	var n_allied := 1
+	var n_german := 1
+	if roll < 0.20:
+		n_allied = 2
+		n_german = 2
+	elif roll < 0.35:
+		n_german = 2
+	for i in n_allied:
+		var nation := "french" if randf() < 0.5 else "uk"
+		tanks.append(_make_tank("allied", nation, randf_range(90.0, 300.0)))
+	for i in n_german:
+		tanks.append(_make_tank("german", "german", randf_range(420.0, 630.0)))
+
+
+func _live(side: String) -> Array:
+	var out: Array = []
+	for t in tanks:
+		if String(t["side"]) == side and bool(t["alive"]):
+			out.append(t)
+	return out
 
 
 func _tank_pos(t: Dictionary) -> Vector2:
@@ -33,21 +58,25 @@ func _process(delta: float) -> void:
 	if position.y > 1500.0:
 		queue_free()
 		return
-	# each live tank fires at the other
-	for pair in [[allied, german], [german, allied]]:
-		var me: Dictionary = pair[0]
-		var foe: Dictionary = pair[1]
-		if not bool(me["alive"]):
+	var player := get_tree().get_first_node_in_group("player")
+	var player_alive := player != null and is_instance_valid(player) \
+		and bool(player.get("alive"))
+	for t in tanks:
+		if not bool(t["alive"]):
 			continue
-		me["cd"] = float(me["cd"]) - delta
-		me["flash"] = maxf(0.0, float(me["flash"]) - delta)
-		if float(me["cd"]) <= 0.0:
-			me["cd"] = randf_range(2.2, 4.2)
-			me["flash"] = 0.18
-			var a := _tank_pos(me)
-			var b := _tank_pos(foe) + Vector2(randf_range(-14, 14), randf_range(-10, 10))
-			shells.append({"ax": a.x, "ay": a.y, "bx": b.x, "by": b.y,
-				"t": 0.0, "dur": 0.55, "foe": foe})
+		t["cd"] = float(t["cd"]) - delta
+		t["flash"] = maxf(0.0, float(t["flash"]) - delta)
+		# tank-vs-tank fire
+		if float(t["cd"]) <= 0.0:
+			t["cd"] = randf_range(2.2, 4.2)
+			_fire_at_foe(t)
+		# v9: opportunistic pot-shot at the player — slow shell, long
+		# cooldown, only when the player is overhead and in range
+		t["aa_cd"] = float(t["aa_cd"]) - delta
+		if float(t["aa_cd"]) <= 0.0:
+			t["aa_cd"] = randf_range(7.0, 12.0)
+			if player_alive:
+				_aa_potshot(t, player)
 	# shells in flight
 	for i in range(shells.size() - 1, -1, -1):
 		var s: Dictionary = shells[i]
@@ -56,6 +85,40 @@ func _process(delta: float) -> void:
 			_resolve_shell(s)
 			shells.remove_at(i)
 	queue_redraw()
+
+
+func _fire_at_foe(t: Dictionary) -> void:
+	var foe_side := "german" if String(t["side"]) == "allied" else "allied"
+	var foes := _live(foe_side)
+	if foes.is_empty():
+		return
+	var foe: Dictionary = foes[randi() % foes.size()]
+	t["foe_x"] = float(foe["x"])
+	t["flash"] = 0.18
+	var a := _tank_pos(t)
+	var b := _tank_pos(foe) + Vector2(randf_range(-14, 14), randf_range(-10, 10))
+	shells.append({"ax": a.x, "ay": a.y, "bx": b.x, "by": b.y,
+		"t": 0.0, "dur": 0.55, "foe": foe})
+	SFX.play("tank_boom", -12.0, 1.0, 0.06)
+
+
+func _aa_potshot(t: Dictionary, player: Node2D) -> void:
+	# fair: only when the player is genuinely overhead and close enough to
+	# read the muzzle flash — no sniping from off-screen
+	var gp := to_global(_tank_pos(t))
+	if player.global_position.y > gp.y - 80.0:
+		return
+	if gp.distance_to(player.global_position) > 520.0:
+		return
+	var dir := (player.global_position - gp).normalized()
+	var b := BulletScene.instantiate()
+	b.setup(dir * 400.0, 10.0, false)
+	get_parent().add_child(b)
+	b.global_position = gp + dir * 26.0
+	t["flash"] = 0.25
+	t["foe_x"] = float(t["x"]) + signf(dir.x) * 60.0  # barrel swings skyward-ish
+	FX.muzzle(get_parent(), gp + dir * 26.0, true)
+	SFX.play("tank_boom", -6.0, 0.9, 0.05)
 
 
 func _resolve_shell(s: Dictionary) -> void:
@@ -68,14 +131,24 @@ func _resolve_shell(s: Dictionary) -> void:
 			foe["alive"] = false
 			FX.explosion(get_parent(), hit_pos, true)
 			FX.add_trauma(0.15)
+			SFX.play("tank_boom", -4.0)
+			SFX.rumble_at(hit_pos, 150, 700)  # brewing armor thumps the deck
 	else:
 		# miss: dirt puff
 		FX.explosion(get_parent(), hit_pos, false)
 
 
-func _draw_tank(t: Dictionary, allied_side: bool) -> void:
+func _draw_tank(t: Dictionary) -> void:
 	var p := _tank_pos(t)
-	var body := ALLIED_COL if allied_side else GERMAN_COL
+	var allied_side := String(t["side"]) == "allied"
+	var body: Color
+	match String(t["nation"]):
+		"french":
+			body = FRENCH_COL
+		"uk":
+			body = UK_COL
+		_:
+			body = GERMAN_COL
 	if not bool(t["alive"]):
 		# burning wreck: blackened hull, fire flicker, smoke wisps
 		draw_rect(Rect2(p.x - 16, p.y - 11, 32, 22), WRECK_COL)
@@ -92,8 +165,9 @@ func _draw_tank(t: Dictionary, allied_side: bool) -> void:
 	draw_rect(Rect2(p.x - 17, p.y - 12, 34, 24), body.darkened(0.35))
 	draw_rect(Rect2(p.x - 13, p.y - 9, 26, 18), body)
 	# turret + barrel trained on the foe
-	var foe_x: float = float(german["x"]) if allied_side else float(allied["x"])
-	var bdir := signf(foe_x - p.x)
+	var bdir := signf(float(t["foe_x"]) - p.x)
+	if bdir == 0.0:
+		bdir = 1.0
 	draw_circle(p, 8.0, body.darkened(0.15))
 	draw_rect(Rect2(p.x + (8.0 if bdir > 0.0 else -26.0), p.y - 2, 18, 4), Color(0.1, 0.1, 0.1))
 	# muzzle flash on firing
@@ -101,18 +175,23 @@ func _draw_tank(t: Dictionary, allied_side: bool) -> void:
 		var mp := p + Vector2(30.0 * bdir, 0)
 		draw_circle(mp, 10.0, Color(1.0, 0.75, 0.3, 0.9))
 		draw_circle(mp, 5.0, Color(1.0, 0.95, 0.7, 0.95))
-	# faction marking: diamond (Allied) vs square (German), simple geometry
-	if allied_side:
-		var d := PackedVector2Array([p + Vector2(0, -14), p + Vector2(5, -9),
-			p + Vector2(0, -4), p + Vector2(-5, -9)])
-		draw_colored_polygon(d, Color(0.45, 0.55, 0.7))
-	else:
-		draw_rect(Rect2(p.x - 5, p.y + 4, 10, 10), Color(0.5, 0.12, 0.12))
+	# faction markings: French tricolor roundel, UK diamond, German square
+	match String(t["nation"]):
+		"french":
+			draw_circle(p + Vector2(0, -16), 6.0, Color(0.2, 0.3, 0.6))
+			draw_circle(p + Vector2(0, -16), 4.0, Color(0.9, 0.9, 0.9))
+			draw_circle(p + Vector2(0, -16), 2.0, Color(0.7, 0.15, 0.15))
+		"uk":
+			var d := PackedVector2Array([p + Vector2(0, -20), p + Vector2(5, -15),
+				p + Vector2(0, -10), p + Vector2(-5, -15)])
+			draw_colored_polygon(d, Color(0.45, 0.55, 0.7))
+		_:
+			draw_rect(Rect2(p.x - 5, p.y + 4, 10, 10), Color(0.5, 0.12, 0.12))
 
 
 func _draw() -> void:
-	_draw_tank(allied, true)
-	_draw_tank(german, false)
+	for t in tanks:
+		_draw_tank(t)
 	# shells arcing between the tanks
 	for s in shells:
 		var k := clampf(float(s["t"]) / float(s["dur"]), 0.0, 1.0)

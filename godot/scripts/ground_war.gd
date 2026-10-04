@@ -96,6 +96,8 @@ func _bez(a: Vector2, m: Vector2, b: Vector2, u: float) -> Vector2:
 
 
 ## One ambient MG volley: tracers arc between the lines, muzzles blink.
+## v9: a livelier exchange — more guns in the fight, dirt kicking up where
+## the rounds land, and single rifle "pops" mixed in with the MG bursts.
 func _fire_volley() -> void:
 	var germans: Array = []
 	var allies: Array = []
@@ -114,18 +116,32 @@ func _fire_volley() -> void:
 	var apos: Array = al.live_nest_world_pos()
 	if gpos.is_empty() or apos.is_empty():
 		return
-	# both directions: a short brutal exchange
-	for i in 3:
+	# both directions: a rolling exchange, MG bursts plus rifle pops
+	for i in 5:
 		var a: Vector2 = gpos[randi() % gpos.size()]
 		var b: Vector2 = apos[randi() % apos.size()] + Vector2(randf_range(-30, 30), 0)
 		tracers.append({"a": a, "b": b, "t": 0.0, "dur": 0.4,
 			"col": Color(1.0, 0.45, 0.15)})
 		_flash_nest(gs, a)
+		_dirt_kick(b)
 		var c: Vector2 = apos[randi() % apos.size()]
 		var d: Vector2 = gpos[randi() % gpos.size()] + Vector2(randf_range(-30, 30), 0)
 		tracers.append({"a": c, "b": d, "t": 0.0, "dur": 0.4,
 			"col": Color(1.0, 0.85, 0.4)})
 		_flash_nest(al, c)
+		_dirt_kick(d)
+	# rifle pops: short straight cracks between the lines
+	for i in 2:
+		var ra: Vector2 = gpos[randi() % gpos.size()]
+		var rb: Vector2 = apos[randi() % apos.size()]
+		tracers.append({"a": ra, "b": rb, "t": 0.0, "dur": 0.22,
+			"col": Color(1.0, 0.95, 0.75)})
+
+
+## Dirt kicked up where incoming rounds land on a trench line.
+func _dirt_kick(p: Vector2) -> void:
+	bursts.append({"p": p + Vector2(randf_range(-8, 8), randf_range(-6, 6)),
+		"age": 0.0, "life": 0.45})
 
 
 func _flash_nest(seg: Node2D, world_pos: Vector2) -> void:
@@ -143,6 +159,9 @@ func _big_push() -> void:
 		_shell_burst()
 	FX.popup(get_parent(), Vector2(360.0, 640.0), "BIG PUSH!", Color(1.0, 0.6, 0.2))
 	FX.add_trauma(0.35)
+	# the whole front opens up: a deep rolling thump you feel in the deck
+	SFX.play("tank_boom", -10.0, 0.7, 0.1)
+	SFX.rumble_at(Vector2(360.0, 640.0), 120, 900.0)
 
 
 ## Ambient shell burst thumping into a trench line — visual only.

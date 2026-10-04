@@ -157,4 +157,25 @@ n = int(1.2 * SR)
 hiss = highpass(noise(n, 97), 1800.0) * env_ar(n, 0.45, 0.55) * 0.42
 write_wav("gas_hiss.wav", hiss)
 
+# tank gun: long-barreled boom — deeper sub, longer rolling tail
+write_wav("tank_boom.wav", blast(0.7, 113, sub_f0=48.0, sub_f1=22.0,
+                                 noise_vol=0.6, sub_vol=0.8))
+
+# MG chatter: short 5-round burst of pops, for nest fire
+n = int(0.55 * SR)
+chatter = np.zeros(n)
+for i in range(5):
+    s = int(i * 0.1 * SR)
+    p = (highpass(noise(int(0.12 * SR), 200 + i), 900.0)
+         * env_exp(int(0.12 * SR), 26.0) * 0.4)
+    e = min(n, s + len(p))
+    chatter[s:e] += p[:e - s]
+write_wav("mg_chatter.wav", chatter)
+
+# rifle pop: single sharp crack — infantry pot-shots
+n = int(0.22 * SR)
+rp = (highpass(noise(n, 311), 1400.0) * env_exp(n, 30.0) * 0.5
+      + np.sin(2.0 * np.pi * 480.0 * np.arange(n) / SR) * env_exp(n, 32.0) * 0.2)
+write_wav("rifle_pop.wav", rp)
+
 print("ALL SFX DONE")
