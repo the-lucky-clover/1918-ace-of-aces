@@ -27,14 +27,15 @@ Sprites verified on disk: 42/42
 | boss-4-tiger | 472 | yes | yes |
 | boss-5-jester | 688 | yes | yes |
 | boss-6-ghost | 544 | yes | yes |
+| boss-7-baron | 508 | yes | yes |
 | setpiece-trench | 2740 | yes | yes |
 | setpiece-aerodrome | 336 | yes | yes |
 | setpiece-farm | 120 | yes | yes |
 | setpiece-nomansland | 748 | yes | yes |
 
-**Total: 20 models, 11868 tris**
+**Total: 21 models, 12376 tris**
 
-## Sprites (42)
+## Sprites (45)
 
 Aircraft + balloon: 3 frames each (bank-left / level / bank-right).
 Guns, items, set pieces: single frame each.
@@ -57,6 +58,9 @@ Guns, items, set pieces: single frame each.
 - boss-6-ghost-bank-left.png
 - boss-6-ghost-bank-right.png
 - boss-6-ghost-level.png
+- boss-7-baron-bank-left.png
+- boss-7-baron-bank-right.png
+- boss-7-baron-level.png
 - enemy-aagun.png
 - enemy-balloon-bank-left.png
 - enemy-balloon-bank-right.png

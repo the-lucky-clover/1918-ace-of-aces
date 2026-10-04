@@ -20,6 +20,8 @@ const FILES := {
 	"mg_chatter": "res://assets/sfx/mg_chatter.wav",
 	"rifle_pop": "res://assets/sfx/rifle_pop.wav",
 	"bank_whoosh": "res://assets/sfx/bank_whoosh.wav",
+	"ghost_wail": "res://assets/sfx/ghost_wail.wav",
+	"thunder": "res://assets/sfx/thunder.wav",
 }
 
 const POOL := 10

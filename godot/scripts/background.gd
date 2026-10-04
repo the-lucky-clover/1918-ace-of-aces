@@ -64,6 +64,13 @@ const THEMES: Dictionary = {
 		"pieces": [],
 		"furrows": false,
 	},
+	"storm": {
+		# the thunderhead duel: bruised storm-cloud dark, no ground pieces —
+		# the arena is the sky itself
+		"c": Color(0.13, 0.14, 0.20),
+		"pieces": [],
+		"furrows": false,
+	},
 }
 
 

@@ -19,6 +19,8 @@ const SECONDARY_DEFS: Dictionary = {
 }
 
 # Boss callsigns are fictional — duel-worthy aces, not historical figures.
+# Index 6 is the mythic exception: the Ghost of the Red Baron, framed
+# in-game as a ghost story, never a history claim.
 const BOSS_NAMES: Array = [
 	"CRIMSON LEADER",
 	"CHECKER ACE",
@@ -26,6 +28,7 @@ const BOSS_NAMES: Array = [
 	"TIGER OF THE EAST",
 	"THE JESTER",
 	"THE GHOST",
+	"THE RED BARON",
 ]
 
 # Fighter-wave aircraft that count as the enemy squadron for shoot-down
@@ -191,6 +194,27 @@ const SORTIES: Array = [
 		],
 		"takeoff": "17:30",
 		"boss_at": 76.0,
+	},
+	{
+		"name": "Sortie 7 — The Thunderhead Duel",
+		"lore": "They say he never left the sky over the Somme. Tonight the thunderheads gather, and a crimson triplane rides the storm. One last duel — a ghost story, not a history book.",
+		"theme": "storm",
+		"brief": "A spectral Fokker Dr.I haunts the thunderheads. Face the Ghost of the Red Baron in single combat — and lay him to rest.",
+		"boss": 6,
+		"mythic": true,
+		"secondaries": [
+			{"id": "bombers", "target": 3},
+		],
+		# Orchestration: a short storm approach, ghost escorts, then the duel.
+		"waves": [
+			{"t": 2.0, "type": "scout", "count": 4, "gap": 1.2},
+			{"t": 12.0, "type": "fighter", "count": 5, "gap": 1.1},
+			{"t": 24.0, "type": "triplane", "count": 5, "gap": 1.0},
+			{"t": 36.0, "type": "fighter", "count": 6, "gap": 1.0},
+			{"t": 44.0, "type": "bomber", "count": 3, "gap": 2.5},
+		],
+		"takeoff": "18:45",
+		"boss_at": 58.0,
 	},
 ]
 

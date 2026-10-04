@@ -193,4 +193,26 @@ for i in range(n):
     y[i] = acc
 write_wav("bank_whoosh.wav", y * swell * 0.6)
 
+# ghost wail: a spectral descending cry — sine with slow vibrato, long tail.
+# The Baron's entrance and phase-change voice. Eerie, never cheesy.
+n = int(2.2 * SR)
+t = np.arange(n) / SR
+vib = 1.0 + 0.06 * np.sin(2.0 * np.pi * 5.5 * t)
+f = 620.0 * np.exp(-t * 0.55) * vib
+ph = 2.0 * np.pi * np.cumsum(f) / SR
+wail = (np.sin(ph) * 0.5 + np.sin(ph * 1.5) * 0.22 + np.sin(ph * 0.5) * 0.28)
+wail = wail * env_ar(n, 0.25, 1.1) * 0.55
+write_wav("ghost_wail.wav", wail)
+
+# thunder: deep rolling storm rumble — brown-ish noise, slow swell.
+# Paired with lightning strikes (weather.gd used to stub this).
+n = int(2.6 * SR)
+r = noise(n, 555)
+# integrate noise toward brown for a deep rolling body
+brown = np.cumsum(r)
+brown = brown / max(1e-6, np.max(np.abs(brown)))
+thunder = lowpass(brown, 160.0) * env_ar(n, 0.08, 1.8) * 0.9
+thunder += lowpass(noise(n, 556), 500.0) * env_exp(n, 2.2) * 0.25
+write_wav("thunder.wav", thunder)
+
 print("ALL SFX DONE")

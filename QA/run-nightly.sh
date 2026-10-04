@@ -297,8 +297,8 @@ elif check == 'ground-war-two-way':
         if pat not in s:
             sys.exit('sfx.gd missing v9 sound: %s' % pat)
     sd = read('sortie_data.gd')
-    if sd.count('"lore"') != 6:
-        sys.exit('sortie_data.gd: expected 6 lore lines, found %d' % sd.count('"lore"'))
+    if sd.count('"lore"') != 7:
+        sys.exit('sortie_data.gd: expected 7 lore lines, found %d' % sd.count('"lore"'))
 elif check == 'enemy-pass-model':
     # v10: the 1942 pass — ENTER → ATTACK (guns live) → TURN (180° bank into
     # the wind) → EXIT (off the top, despawned). Ground/naval targets exempt.
@@ -322,6 +322,46 @@ elif check == 'enemy-pass-model':
     m = read('main.gd')
     if 'brief_txt' not in m or 's.has("lore")' not in m:
         sys.exit('main.gd missing lore brief wiring')
+elif check == 'ghost-baron-duel':
+    # v11: the mythic Thunderhead Duel — spectral boss, storm arena, unlock flow
+    import os
+    A = '/home/hatch/workspace/1918-godot/assets'
+    sd = read('sortie_data.gd')
+    for pat in ('"THE RED BARON"', '"mythic": true', '"theme": "storm"',
+                'Sortie 7', '"boss": 6'):
+        if pat not in sd:
+            sys.exit('sortie_data.gd missing mythic duel piece: %s' % pat)
+    bo = read('boss.gd')
+    for pat in ('spectral', 'BARON_TAUNTS', '_spawn_afterimage', 'ghost_wail',
+                '"baron"', 'var max_hp'):
+        if pat not in bo:
+            sys.exit('boss.gd missing ghost-baron piece: %s' % pat)
+    for suffix in ('level', 'bank-left', 'bank-right'):
+        p = A + '/sprites/boss-7-baron-%s.png' % suffix
+        if not os.path.exists(p):
+            sys.exit('missing sprite asset: %s' % p)
+    w = read('weather.gd')
+    if '"storm"]' not in w:
+        sys.exit('weather.gd KIND_BY_SORTIE missing storm for the duel')
+    if 'SFX.play("thunder"' not in w:
+        sys.exit('weather.gd lightning missing thunder SFX')
+    bg = read('background.gd')
+    if '"storm": {' not in bg:
+        sys.exit('background.gd missing storm theme')
+    m = read('main.gd')
+    for pat in ('CAMPAIGN_LAST', 'MYTHIC_SORTIE', '_ghost_unlocked',
+                'duel_requested', 'ghost_offer'):
+        if pat not in m:
+            sys.exit('main.gd missing mythic flow piece: %s' % pat)
+    if 'FACE THE GHOST' not in read('menus.gd'):
+        sys.exit('menus.gd missing FACE THE GHOST button')
+    s = read('sfx.gd')
+    for pat in ('ghost_wail', 'thunder'):
+        if pat not in s:
+            sys.exit('sfx.gd missing v11 sound: %s' % pat)
+    for wav in ('ghost_wail.wav', 'thunder.wav'):
+        if not os.path.exists(A + '/sfx/' + wav):
+            sys.exit('assets/sfx/%s missing' % wav)
 PYEOF
         record "$name" "PASS"
     else
@@ -334,7 +374,7 @@ godot_check "godot-import"      "$GODOT" --headless --path "$PROJECT" --import
 godot_check "godot-smoke-30s"   "$GODOT" --headless --path "$PROJECT" --quit-after 1800 -- --autostart
 godot_check "godot-boss-rush"   "$GODOT" --headless --path "$PROJECT" --quit-after 3600 -- --autostart --autoboss
 # sortie sweep: every sortie's weather, waves, and flak paths must run clean
-for s in 0 1 2 3 4 5; do
+for s in 0 1 2 3 4 5 6; do
     godot_check "godot-sortie-$((s+1))" "$GODOT" --headless --path "$PROJECT" --quit-after 1500 -- --autostart --sortie="$s"
 done
 web_check   "web-photo-keyframes" photo-keyframes
@@ -356,6 +396,7 @@ gdscript_check "gdscript-flak-secondary" flak-secondary-sane
 gdscript_check "gdscript-graze-streak" graze-streak-sane
 gdscript_check "gdscript-ground-war-two-way" ground-war-two-way
 gdscript_check "gdscript-enemy-pass-model" enemy-pass-model
+gdscript_check "gdscript-ghost-baron-duel" ghost-baron-duel
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"

@@ -742,6 +742,112 @@ The full dozen:
 - The 180 reads in under a second: banked frame + puff + whoosh. Camera
   iron rule untouched — the turn is sprite + velocity, zero camera motion.
 
+## 1942 research — what we homage, what we borrow next, what we never copy
+
+Researched Capcom's 1942 (arcade, Nov 1984, designed by Yoshiki Okamoto —
+sources: Wikipedia's 1942 article, the GameFAQs PC-88 review, Eurogamer's
+retrospective, the Capcom Database wiki). Mechanics distilled:
+
+- **Pass structure**: enemies arrive in formations, make their runs, and fly
+  OFF the screen — "the cowardly enemy pilots give in surprisingly quickly,
+  flying off the sides of the screen and back to base" (Eurogamer). You can
+  finish levels without firing a shot.
+- **Loop-the-loop**: a limited-use special roll button — brief invulnerability,
+  the panic button. Refilled by power-up items.
+- **POW carriers**: red fighter squadrons — wipe the WHOLE squadron and the
+  last plane drops a color-coded POW icon: double firepower, Tip Tow wingmen
+  (two side planes that fire with you and can take a hit), screen-clear,
+  points, extra loops, rare extra plane.
+- **Percentage high score**: a separate score tracking kill ratio — enemies
+  shot down vs. encountered.
+- **Yashichi point item**: special fighters drop a valuable point pickup.
+- **Structure**: 32 stages counting down 32→1, continuous scroll with no
+  breaks (like Xevious), each ending with a carrier landing + debriefing and
+  briefing for the next. Stage-end "Mother Bomber" must be shot down.
+- **One-hit deaths**, flat power curve ("your plane will never get much
+  stronger than it was the moment you start out" — GameFAQs), Pacific theater
+  P-38 "Super Ace", designed for Western accessibility.
+
+### What 1918 already homages well
+- v10's pass model IS the 1942 pass DNA: enter → attack run → 180° bank →
+  exit off the top, never lingering.
+- The loop-de-loop with i-frames (v8 gave it a real Blender Immelmann).
+- Squadron break-points ~55% (v4) ≈ the percentage high score.
+- Takeoff reel → waves → boss → landing reel → typed debrief ≈ the carrier
+  landing + debriefing/briefing rhythm.
+- Carrier drops/pickups ≈ POW items; the screen bomb ≈ the panic button.
+
+### What to borrow next (as our own original implementations)
+- **Debrief kill-rating %**: 1942's percentage score as a letter/percentage
+  grade — we already track squad_kills/strength; surface "KILL RATING 87%".
+- **Wiped-squadron bonus drop**: downing an entire squadron earns a bonus
+  POW-style drop — fits the v4 squadron system like a glove.
+- Keep the "NAME INBOUND" boss presentation — our answer to the Mother Bomber.
+
+### What we deliberately NEVER copy (1918's identity)
+- The 32-stage marathon — 1918 is six tight sorties plus one mythic duel.
+- One-hit deaths — hull/HP + repair keeps it beatable by an average human.
+- Pacific/P-38 — our war is the Western Front, 1918, SPAD XIII.
+- Power creep — flat, recoverable power curve forever.
+
+## The Ghost of the Red Baron — 2026-10-03 (v11)
+
+### 1. Mythic boss: spectral Fokker Dr.I duel (scripts/boss.gd)
+- New boss index 6, "THE RED BARON" — `spectral = true` in `configure()`.
+- New sprites `assets/sprites/boss-7-baron-{level,bank-left,bank-right}.png`:
+  crimson triplane with black-banded wings, rendered from the new
+  `boss-7-baron` Blender model (508 tris) via `blender/render_sprites.py`
+  pipeline. BONUS FIX: `boss-6-ghost-*` sprites were never rendered — S6's
+  "THE GHOST" boss was loading null textures. Rendered in the same run.
+- Spectral presentation: translucency breathes (alpha 0.74–0.92, applied
+  AFTER the charge telegraph so the red flash keeps its color); afterimage
+  echoes smear across hard maneuvers (0.07s throttle, 0.5s fade).
+- Fair duel, same 3-phase framework: P1 aimed bursts, P2 aimed bursts with
+  honest spread, P3 spiral at 200px/s (vs 240) so an average human threads
+  it. Telegraphed charges unchanged.
+- `BARON_TAUNTS`: a duelist's respect, not a villain's rant ("One last
+  dance, Herr Pilot!", "The thunder keeps my score!"). Ghost wail on
+  entrance ("I never left."), phase changes, and death ("THE GHOST IS LAID
+  TO REST"). NO gods or deities anywhere — the thunderheads are atmosphere.
+- Boss-bar fix (adjacent): `show_boss`/`update_boss` passed const MAX_HP
+  while hp scaled per boss — bars for bosses 1-6 read wrong. Now a real
+  `max_hp` member set in `configure()`.
+- HP: 900 × 2.5 = 2250 (toughest duel, fair guns). Haptics: the standard
+  280ms triumphant rumble + boss_defeat fanfare on the kill.
+
+### 2. The Thunderhead Duel — mythic sortie 7 (scripts/sortie_data.gd)
+- `SORTIES[6]`: "Sortie 7 — The Thunderhead Duel", theme "storm", boss 6,
+  short storm approach (scouts/fighters/triplanes/bombers), duel at t=58.
+- Lore framing is a ghost story, never a history claim.
+- Placement: SECRET. After beating S6 the debrief offers "FACE THE GHOST";
+  the unlock persists in `user://1918.cfg`, and the title screen gains a
+  "THUNDERHEAD DUEL" button. Never reached via NEXT SORTIE
+  (`CAMPAIGN_LAST = 5`, `MYTHIC_SORTIE = 6` in main.gd); mythic win →
+  "LEGEND COMPLETE" → title. Debrief credits the kill (+2000) as usual.
+
+### 3. Storm arena (scripts/weather.gd, scripts/background.gd)
+- `KIND_BY_SORTIE` gains index 6 = "storm": full lightning rig, rain sheet,
+  storm cells, seeded wind — the duel's arena.
+- Lightning strikes now play the new `thunder` SFX (was stubbed: "no audio
+  yet"). New `ghost_wail` SFX: 2.2s spectral descending cry with vibrato.
+- New "storm" background theme: bruised thunderhead dark, no ground pieces —
+  the arena is the sky itself. Ground war falls through to its default
+  front-line battle below (fitting).
+
+### 4. Autotest
+- `--autoboss` now accepts `--autoboss=N` (was boss 0 only). Headless
+  verified: boss 6 spawns, phases at the right thresholds, dies, debrief
+  wins — zero script errors. Mythic sortie smoke (storm weather) clean.
+
+### Tuning numbers (v11)
+- Baron HP 2250; spiral 200px/s; wail 2.2s; thunder 2.6s at -8dB with
+  ±10% pitch wobble; afterimage 0.07s cadence / 0.5s fade; translucency
+  0.74 + 0.18·sin(2.6·age).
+
+### Readability guardrails (unchanged)
+- Camera iron rule untouched. The ghost reads in under a second: crimson
+  triplane, translucency pulse, wail on entrance.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render
@@ -763,6 +869,7 @@ The full dozen:
 - **No export presets**: iOS/Android/desktop export still needs configuring
   in the editor (export templates + presets).
 - **Difficulty balance**: tuned for "beatable" but not playtested by a human.
-- **Debug flags** (kept intentionally): `-- --autostart` and
-  `-- --autoboss` headless smoke-test hooks in `main.gd`; harmless in normal
+- **Debug flags** (kept intentionally): `-- --autostart`, `-- --autoboss[=N]`
+  (N selects the boss index; `--autoboss=6` rushes the ghost duel), and
+  `-- --sortie=N` headless smoke-test hooks in `main.gd`; harmless in normal
   play.

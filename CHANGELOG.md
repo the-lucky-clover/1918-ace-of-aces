@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v11 — 2026-10-04
+
+v11: the Ghost o' the Red Baron rises from the thunderheads, me hearties! A secret seventh duel fer them what conquers all six sorties — a spectral crimson triplane what breathes like a haunt, smears afterimages across the sky, an' wails like the storm itself. Three fair phases, honest guns, no bullet-hell bilge. The arena be a proper thunderhead tempest, lightning crackin' with real thunder at last. researched the old Capcom 1942 scrolls too — we borrow the pass, the loop, an' the kill-ratio glory, but the 32-stage marathon an' one-hit deaths stay buried at sea. Respect the fallen, celebrate the win — WE WON, arrr!
+
+
 ## v10 — 2026-10-04
 
 v10: the sky learns the 1942 pass, me hearties! Enemy crates now scream in from the top, fight ye down seven-eighths o' the sky, then bank a hard 180 with wings rolled into the wind an' vanish off the top — ne'er to be seen till the next wave delivers 'em fresh. No lingerin', no hoverin', no kamikaze tomfoolery (save what's designed fer it). A contrail puff an' an airy whoosh mark the turn, bosses keep their arenas, an' the ground-pounders hold their scroll as always. Pure Capcom thunder, arrr!

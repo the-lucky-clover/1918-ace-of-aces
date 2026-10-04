@@ -1,7 +1,8 @@
 extends Node2D
 ## Dynamic weather: per-sortie randomized conditions over a seamless sky.
 ## Kinds: clear / windy / storm / rain — seeded per sortie so every sortie
-## has its own stable weather, varied across the six.
+## has its own stable weather, varied across the campaign (plus the mythic
+## storm duel, which is always a storm).
 ##
 ## Effects (all MILD by design — fun and replayable beats punishing):
 ## - WIND: a per-sortie vector. Drifts the player (and lightly, bullets);
@@ -13,8 +14,9 @@ extends Node2D
 ##   intensity.
 ## The minimap reads Global.wind (wind arrow) and Global.storm_cells.
 
-# sortie index -> weather kind (varied across the six, fixed per sortie)
-const KIND_BY_SORTIE := ["clear", "windy", "rain", "storm", "windy", "clear"]
+# sortie index -> weather kind (varied across the six, fixed per sortie).
+# Index 6 is the mythic Thunderhead Duel — always a storm.
+const KIND_BY_SORTIE := ["clear", "windy", "rain", "storm", "windy", "clear", "storm"]
 
 var kind := "clear"
 var intensity := 0.0        # 0 = calm .. 1 = rough (mild ceiling)
@@ -161,8 +163,9 @@ class LightningFx extends Node2D:
 			y += randf_range(60.0, 130.0)
 			bolt.append(Vector2(x, y))
 		bolt_age = BOLT_LIFE
-		# restrained white flash of light (no audio yet — SFX stubbed)
+		# restrained white flash of light, paired with a deep thunder roll
 		get_tree().call_group("game", "flash_white")
+		SFX.play("thunder", -8.0, randf_range(0.85, 1.1), 0.05)
 
 	func _draw() -> void:
 		if bolt_age > 0.0 and bolt.size() > 1:

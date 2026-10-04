@@ -486,6 +486,9 @@ def build_all():
     aircraft("boss-6-ghost", span=6.0, wings=2, length=5.8,
              body=WHITE, wing_col=WHITE, accent=RED,
              livery_wing='striped', chunky=True)                         # red-striped wings
+    aircraft("boss-7-baron", span=6.2, wings=3, length=5.6,
+             body=RED, wing_col=RED, accent=BLACK,
+             livery_wing='banded', chunky=True)                          # the Baron's ghost: crimson triplane, black bands
 
     # SORTIE SET PIECES
     set_trench("setpiece-trench")

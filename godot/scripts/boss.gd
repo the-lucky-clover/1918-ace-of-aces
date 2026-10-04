@@ -11,8 +11,15 @@ const MAX_HP := 900.0
 var boss_index: int = 0
 var boss_name: String = "ACE"
 var hp := MAX_HP
+var max_hp := MAX_HP
 var phase := 1
 var dead := false
+## Spectral mode (v11): the Ghost of the Red Baron — translucent crimson
+## triplane, afterimage trails, ghost wail, baron taunts. Same fair
+## three-phase duel framework; the thunderheads are atmosphere, not gods.
+var spectral := false
+var _hailed := false
+var _after_cd := 0.0
 
 var vel := Vector2.ZERO
 var age := 0.0
@@ -40,6 +47,19 @@ const TAUNTS: Array = [
 	"Watch the master at work!",
 ]
 
+# The Baron's voice: a duelist's respect, not a villain's rant. A ghost
+# story, not a history claim — the thunder keeps his score.
+const BARON_TAUNTS: Array = [
+	"One last dance, Herr Pilot!",
+	"The clouds remember me.",
+	"Eighty victories... shall we make it eighty-one?",
+	"April 1918 — I never left!",
+	"Fly well, young eagle.",
+	"The thunder keeps my score!",
+	"Come, let us finish it properly!",
+	"Your SPAD sings. Mine answers.",
+]
+
 var sprite: Sprite2D
 var bullet_scene := preload("res://scenes/bullet.tscn")
 
@@ -48,7 +68,10 @@ func configure(idx: int, pname: String) -> void:
 	boss_index = idx
 	boss_name = pname
 	# Later bosses are tougher.
-	hp = MAX_HP * (1.0 + idx * 0.25)
+	max_hp = MAX_HP * (1.0 + idx * 0.25)
+	hp = max_hp
+	# Index 6 is the mythic duel: the Ghost of the Red Baron.
+	spectral = (idx == 6)
 
 
 func _ready() -> void:
@@ -59,11 +82,11 @@ func _ready() -> void:
 	Global.make_circle(self, 34.0)
 	sprite = $Sprite2D
 	_set_sprite(1)
-	get_tree().call_group("hud", "show_boss", boss_name, hp, MAX_HP)
+	get_tree().call_group("hud", "show_boss", boss_name, hp, max_hp)
 
 
 func _boss_sprite(frame: int) -> String:
-	var names := ["red", "checker", "stripes", "tiger", "jester", "ghost"]
+	var names := ["red", "checker", "stripes", "tiger", "jester", "ghost", "baron"]
 	var frames := ["bank-left", "level", "bank-right"]
 	return "res://assets/sprites/boss-%d-%s-%s.png" % [boss_index + 1, names[boss_index], frames[frame]]
 
@@ -74,6 +97,20 @@ func _set_sprite(frame: int) -> void:
 		return
 	_cur_frame = frame
 	sprite.texture = load(_boss_sprite(frame))
+
+
+func _spawn_afterimage() -> void:
+	# a fading echo of the ghost, smeared across its maneuver
+	var g := Sprite2D.new()
+	g.texture = sprite.texture
+	g.global_position = global_position
+	g.rotation = sprite.rotation
+	g.z_index = sprite.z_index - 1
+	g.modulate = Color(1.0, 0.3, 0.3, 0.4)
+	get_parent().add_child(g)
+	var tw := g.create_tween()
+	tw.tween_property(g, "modulate:a", 0.0, 0.5)
+	tw.tween_callback(g.queue_free)
 
 
 func _physics_process(delta: float) -> void:
@@ -90,6 +127,13 @@ func _physics_process(delta: float) -> void:
 		vel = Vector2(0, 170)
 		if global_position.y >= 300.0:
 			entering = false
+			if spectral and not _hailed:
+				# the ghost announces itself: a wail out of the thunderheads
+				_hailed = true
+				SFX.play("ghost_wail")
+				FX.add_trauma(0.35)
+				FX.popup(get_parent(), global_position + Vector2(0, -78),
+					"I never left.", Color(1.0, 0.35, 0.35))
 	elif charging:
 		vel = charge_vel
 		if charge_telegraph > 0.0:
@@ -115,8 +159,12 @@ func _physics_process(delta: float) -> void:
 		taunt_cd -= delta
 		if taunt_cd <= 0.0:
 			taunt_cd = randf_range(11.0, 16.0)
-			FX.popup(get_parent(), global_position + Vector2(0, -78),
-				TAUNTS[randi() % TAUNTS.size()], Color(1.0, 0.62, 0.5))
+			if spectral:
+				FX.popup(get_parent(), global_position + Vector2(0, -78),
+					BARON_TAUNTS[randi() % BARON_TAUNTS.size()], Color(1.0, 0.38, 0.38))
+			else:
+				FX.popup(get_parent(), global_position + Vector2(0, -78),
+					TAUNTS[randi() % TAUNTS.size()], Color(1.0, 0.62, 0.5))
 
 	# banking frames
 	if vel.x < -40.0:
@@ -125,6 +173,18 @@ func _physics_process(delta: float) -> void:
 		_set_sprite(2)
 	else:
 		_set_sprite(1)
+
+	if spectral:
+		# the ghost breathes: translucency pulses, never fully solid.
+		# Applied after the charge telegraph so the red flash keeps its color.
+		var m := sprite.modulate
+		m.a = 0.74 + 0.18 * sin(age * 2.6)
+		sprite.modulate = m
+		# afterimage trails on hard maneuvers — the ghost smears the sky
+		_after_cd -= delta
+		if _after_cd <= 0.0 and (charging or vel.length() > 320.0):
+			_after_cd = 0.07
+			_spawn_afterimage()
 
 	# --- attacks ---
 	fire_cd -= delta
@@ -141,6 +201,20 @@ func _physics_process(delta: float) -> void:
 
 func _match_phase_fire(player: Node2D) -> void:
 	var rate := 0.75 if enraged else 1.0  # last stand: faster guns
+	if spectral:
+		# the ghost duels fair: aimed bursts, honest spreads; the phase-3
+		# spiral flies slower so an average human can thread it
+		match phase:
+			1:
+				fire_cd = 1.6 * rate
+				_aimed_burst(player, 3, 0.0)
+			2:
+				fire_cd = 1.35 * rate
+				_aimed_burst(player, 3, 0.22)
+			3:
+				fire_cd = 1.0 * rate
+				_spiral_volley(200.0)
+		return
 	match phase:
 		1:
 			fire_cd = 1.5 * rate
@@ -165,11 +239,11 @@ func _aimed_burst(player: Node2D, count: int, spread: float) -> void:
 		b.global_position = global_position + base * 36.0
 
 
-func _spiral_volley() -> void:
+func _spiral_volley(speed: float = 240.0) -> void:
 	for k in 3:
 		var a := spiral_a + k * TAU / 3.0
 		var b := bullet_scene.instantiate()
-		b.setup(Vector2(cos(a), sin(a)) * 240.0, 10.0, false)
+		b.setup(Vector2(cos(a), sin(a)) * speed, 10.0, false)
 		get_parent().add_child(b)
 		b.global_position = global_position
 	spiral_a += 0.55
@@ -180,11 +254,11 @@ func take_damage(amount: float) -> void:
 		return
 	hp -= amount
 	FX.hit_flash(sprite)
-	get_tree().call_group("hud", "update_boss", hp, MAX_HP)
+	get_tree().call_group("hud", "update_boss", hp, max_hp)
 	var new_phase := 1
-	if hp <= MAX_HP * 0.33:
+	if hp <= max_hp * 0.33:
 		new_phase = 3
-	elif hp <= MAX_HP * 0.66:
+	elif hp <= max_hp * 0.66:
 		new_phase = 2
 	if new_phase > phase:
 		phase = new_phase
@@ -200,8 +274,10 @@ func take_damage(amount: float) -> void:
 			"%s — PHASE %d" % [boss_name, phase], Color.ORANGE)
 		FX.add_trauma(0.4)
 		FX.hitstop(0.35, 0.3)  # duel drama: the world holds its breath
+		if spectral:
+			SFX.play("ghost_wail", -6.0)
 	# last stand: under 15% HP the ace fights desperate and fast
-	if not enraged and hp > 0.0 and hp <= MAX_HP * 0.15:
+	if not enraged and hp > 0.0 and hp <= max_hp * 0.15:
 		enraged = true
 		FX.popup(get_parent(), global_position + Vector2(0, -80),
 			"%s ENRAGED" % boss_name, Color.RED)
@@ -217,6 +293,11 @@ func _die_spectacular() -> void:
 		var off := Vector2(randf_range(-50, 50), randf_range(-40, 40))
 		FX.explosion(get_parent(), global_position + off, i == 4)
 	SFX.play("boss_defeat")
+	if spectral:
+		# the ghost is laid to rest: one last wail under the fanfare
+		SFX.play("ghost_wail", -4.0)
+		FX.popup(get_parent(), global_position + Vector2(0, -80),
+			"THE GHOST IS LAID TO REST", Color(1.0, 0.75, 0.4))
 	SFX.rumble(280, 1.0)  # triumphant long buzz: the ace is down
 	FX.add_trauma(1.0)
 	FX.hitstop(0.25, 0.25)  # the duel's final beat

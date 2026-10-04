@@ -17,6 +17,11 @@ const GasCloudScript := preload("res://scripts/gas_cloud.gd")
 
 var state: int = State.TITLE
 var sortie_index := 0
+## Campaign structure: sorties 0-5 are the campaign; index 6 is the mythic
+## Thunderhead Duel — a secret boss, never reached via NEXT SORTIE.
+const CAMPAIGN_LAST := 5
+const MYTHIC_SORTIE := 6
+const SAVE_PATH := "user://1918.cfg"
 var score := 0
 var sortie_time := 0.0
 var schedule: Array = []        # {at: float, type: String}, sorted by time
@@ -102,8 +107,9 @@ func _ready() -> void:
 	# dynamic weather rig: wind, turbulence, rain, lightning (per-sortie)
 	_weather = WeatherScript.new()
 	add_child(_weather)
-	$MenuLayer.show_title()
+	$MenuLayer.show_title(_ghost_unlocked())
 	$MenuLayer.start_requested.connect(_on_menu_start)
+	$MenuLayer.duel_requested.connect(_on_menu_duel)
 	$MenuLayer.resume_requested.connect(_on_menu_resume)
 	$MenuLayer.next_requested.connect(_on_menu_next)
 	fade.color = Color(0, 0, 0, 1)
@@ -131,11 +137,15 @@ func _debug_autostart() -> void:
 		player.power_rapid()
 		player.fuel = 20.0  # low-fuel warning: beep + flashing gauge
 		player.try_loop()
-		if "--autoboss" in OS.get_cmdline_user_args():
-			print("[AUTOTEST] boss-rush: waves cleared, boss 0 inbound, 8x damage")
-			schedule.clear()
-			player.debug_dmg_mult = 8.0
-			_spawn_boss(0)
+		for a in OS.get_cmdline_user_args():
+			if a.begins_with("--autoboss"):
+				var bi := 0
+				if "=" in a:
+					bi = clampi(int(a.get_slice("=", 1)), 0, Sorties.BOSS_NAMES.size() - 1)
+				print("[AUTOTEST] boss-rush: waves cleared, boss %d inbound, 8x damage" % bi)
+				schedule.clear()
+				player.debug_dmg_mult = 8.0
+				_spawn_boss(bi)
 
 
 func _fade_to(alpha: float, dur: float) -> void:
@@ -293,7 +303,8 @@ func _show_debrief() -> void:
 	if debug_autotest:
 		print("[AUTOTEST] debrief: win=%s primary=%s score=%d t=%.1f" % [debrief_win, primary_done, score, sortie_time])
 	var s: Dictionary = Sorties.SORTIES[sortie_index]
-	var last := sortie_index >= Sorties.SORTIES.size() - 1
+	var last := sortie_index == CAMPAIGN_LAST
+	var mythic := sortie_index == MYTHIC_SORTIE
 	$MenuLayer.show_debrief({
 		"win": debrief_win,
 		"sortie_name": String(s["name"]),
@@ -302,6 +313,9 @@ func _show_debrief() -> void:
 		"objectives": objectives,
 		"score": score,
 		"campaign_done": debrief_win and last,
+		"mythic": mythic,
+		"mythic_win": debrief_win and mythic,
+		"ghost_offer": debrief_win and last,
 		"squad_kills": squad_kills,
 		"squad_goal": squad_goal,
 		"squad_strength": squad_strength,
@@ -316,7 +330,7 @@ func _to_title() -> void:
 		c.queue_free()
 	$HUDLayer.hide_boss()
 	Music.play_splash()
-	$MenuLayer.show_title()
+	$MenuLayer.show_title(_ghost_unlocked())
 
 
 # ---------------------------------------------------------------- input ---
@@ -409,6 +423,29 @@ func _on_menu_start() -> void:
 		start_sortie(0)
 
 
+## The mythic duel: only from the title's duel button (unlocked) or the
+## S6 debrief's FACE THE GHOST offer — never from NEXT SORTIE.
+func _on_menu_duel() -> void:
+	if state == State.TITLE and _ghost_unlocked():
+		_fade_to(1.0, 0.25)
+		start_sortie(MYTHIC_SORTIE)
+
+
+## Persistent unlock: beating S6 opens the Thunderhead Duel for good.
+func _ghost_unlocked() -> bool:
+	var cfg := ConfigFile.new()
+	if cfg.load(SAVE_PATH) != OK:
+		return false
+	return bool(cfg.get_value("progress", "ghost_unlocked", false))
+
+
+func _set_ghost_unlocked() -> void:
+	var cfg := ConfigFile.new()
+	cfg.load(SAVE_PATH)  # keep any other keys
+	cfg.set_value("progress", "ghost_unlocked", true)
+	cfg.save(SAVE_PATH)
+
+
 func _on_menu_resume() -> void:
 	if state == State.PAUSED:
 		_resume()
@@ -417,11 +454,15 @@ func _on_menu_resume() -> void:
 func _on_menu_next() -> void:
 	if state != State.DEBRIEF:
 		return
-	var last := sortie_index >= Sorties.SORTIES.size() - 1
-	if debrief_win and not last:
-		start_sortie(sortie_index + 1)
-	elif debrief_win and last:
+	if debrief_win and sortie_index == CAMPAIGN_LAST:
+		# the campaign is won — the thunderheads gather: FACE THE GHOST
+		_set_ghost_unlocked()
+		start_sortie(MYTHIC_SORTIE)
+	elif debrief_win and sortie_index == MYTHIC_SORTIE:
+		# legend complete — the ghost is laid to rest
 		_to_title()
+	elif debrief_win:
+		start_sortie(sortie_index + 1)
 	else:
 		start_sortie(sortie_index)  # retry
 

@@ -26,6 +26,7 @@ MANIFEST = [
     ("boss-1-red", "air3"), ("boss-2-checker", "air3"),
     ("boss-3-stripes", "air3"), ("boss-4-tiger", "air3"),
     ("boss-5-jester", "air3"), ("boss-6-ghost", "air3"),
+    ("boss-7-baron", "air3"),
     ("enemy-aagun", "single"), ("enemy-railwaygun", "single"),
     ("item-ammo", "single"), ("item-repair", "single"),
     ("item-bomb", "single"),
