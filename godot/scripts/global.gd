@@ -6,7 +6,7 @@ extends Node
 const GAME_TITLE: String = "1918"
 const GAME_TAGLINE: String = "A Western Front Story"
 ## Holistic build version — bumped by bin/bump-version.sh with every work action.
-const VERSION: String = "2"
+const VERSION: String = "3"
 
 const VIEW_W: float = 720.0
 const VIEW_H: float = 1280.0
@@ -24,6 +24,16 @@ var scroll_speed: float = 90.0
 # Pity counter: guarantees a pickup drop after this many dry kills.
 var kills_since_drop := 0
 const PITY_KILLS := 22
+
+# --- Dynamic weather (scripts/weather.gd, per-sortie, seeded) ---
+var wind := Vector2.ZERO          # per-sortie wind vector (px/s drift)
+var weather_kind := "clear"       # clear | windy | rain | storm
+var weather_intensity := 0.0      # 0 = calm .. 1 = rough (mild ceiling)
+var storm_cells: Array = []       # Vector2s where lightning is active
+
+# --- Archie camping heat: 0 = cold, 1 = the guns have your range ---
+# Rises while the player holds still, decays with purposeful movement.
+var aa_heat := 0.0
 
 
 ## Attach a fresh circle collision shape to an Area2D.

@@ -78,6 +78,8 @@ var spawn_age := 0.0   # fade-in on entry
 var windup := 0.0      # attack telegraph: brief flash before firing
 var submerging := false  # U-boat crash-dive in progress
 var submerge_t := 0.0
+var volley_left := 0     # Archie conga-line volley: shells still to fire
+var volley_t := 0.0      # timer between volley shells (~0.4s apart)
 var _cur_frame := -1  # cache: avoid reloading the texture every frame
 
 var sprite: Sprite2D
@@ -200,6 +202,15 @@ func _physics_process(delta: float) -> void:
 		spawn_age += delta
 		sprite.modulate.a = minf(1.0, spawn_age / 0.4)
 
+	# Archie conga-line volley: fused shells march out ~0.4s apart along the
+	# trajectory toward the player's area (denser when the guns are hot)
+	if volley_left > 0:
+		volley_t -= delta
+		if volley_t <= 0.0:
+			volley_t = 0.4
+			volley_left -= 1
+			_fire_flak_shell(player)
+
 	# despawn off the bottom
 	if position.y > Global.VIEW_H + 120.0:
 		queue_free()
@@ -223,12 +234,29 @@ func _fire(player: Node2D) -> void:
 
 
 func _fire_flak(player: Node2D) -> void:
-	# Flak shell bursts near the player's position at fire time.
+	# Archie opens a conga-line volley: 4 shells, up to 6 when the guns have
+	# the player's range (camping heat). The windup flash already telegraphed
+	# the shot — fair, not cheap.
+	if volley_left > 0:
+		return
+	volley_left = 4 + int(round(2.0 * Global.aa_heat))
+	volley_t = 0.0
+
+
+func _fire_flak_shell(player: Node2D) -> void:
+	# Timed shell, fused to burst near the player's position with a slight
+	# lead on velocity. Camping tightens the lead and shrinks the error.
+	var heat := Global.aa_heat
+	var lead := 0.45 + 0.45 * heat
+	var err := 46.0 * (1.0 - 0.65 * heat)
 	var aim := Vector2(Global.VIEW_W * 0.5, Global.VIEW_H * 0.7)
-	if player and is_instance_valid(player):
-		aim = player.global_position + Vector2(randf_range(-40, 40), randf_range(-30, 30))
+	if player != null and is_instance_valid(player):
+		var fuse := (player.global_position - global_position).length() / 560.0
+		var pvel: Vector2 = player.velocity if "velocity" in player else Vector2.ZERO
+		aim = player.global_position + pvel * fuse * lead
+		aim += Vector2.RIGHT.rotated(randf() * TAU) * randf_range(0.0, err)
 	var s := flak_scene.instantiate()
-	s.setup(global_position, aim, 14.0, 70.0)
+	s.setup(global_position, aim, 6.5, 40.0)
 	get_parent().add_child(s)
 	FX.muzzle(get_parent(), global_position + Vector2(0, -20), true)
 

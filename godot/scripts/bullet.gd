@@ -33,6 +33,7 @@ func setup(v: Vector2, dmg: float, is_player: bool) -> void:
 
 func _physics_process(delta: float) -> void:
 	position += vel * delta
+	position += Global.wind * delta * 0.25  # tracers bend lightly in the wind
 	life -= delta
 	if life <= 0.0 or position.y < -60.0 or position.y > Global.VIEW_H + 60.0 \
 			or position.x < -60.0 or position.x > Global.VIEW_W + 60.0:

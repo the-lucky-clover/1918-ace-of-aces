@@ -266,6 +266,52 @@ ammodepot, train, arty — all <400 tris, original. Ground/naval targets don't
 drop pickups; zeppelin/subpen/train get heavy-kill FX. Considered but cut:
 artillery park, enemy forward airfield, balloon park (staged candidates).
 
+## Flak / weather / orchestration pass — 2026-10-03 (v3)
+
+All tuned MILD by design — fun and replayable beats punishing. Headless-validated:
+clean import, 30 s smoke, boss-rush full loop, plus all 6 sorties exercised
+headless (new `--sortie=N` autotest hook) — zero script errors. The sweep caught
+two pre-existing bugs (fixed): `_spawn_piece` modulo-by-zero on empty `pieces`
+arrays (naval/rear-area locales) and `secondary_text` formatting the railgun's
+`%d`-less text with a target arg.
+
+- **FLAK / ARCHIE REWORK** (`flak_shell.gd`, `enemy.gd`, `main.gd`):
+  - AA batteries fire TIMED shells fused to burst near the player with a
+    slight lead on velocity (lead 0.45, shell speed 560 px/s).
+  - CONGA LINES: each firing opens a volley of 4–6 shells ~0.4 s apart
+    marching along the trajectory toward the player's area.
+  - Every burst leaves the persistent small black puff (~5.5 s, visual-only).
+  - Damage: splash within 40 px = LIGHT (6.5 hull); DIRECT hit within 12 px
+    of the plane = devastating (70 hull, can destroy the airframe — "DIRECT
+    HIT!" callout + hit-stop beat).
+  - CAMPING PUNISHMENT: stillness (speed < 70 px/s) feeds `Global.aa_heat`
+    0→1 over 2.5 s; movement bleeds it off. Hot guns: tighter lead (up to
+    0.9), error radius shrinks 46→16 px, volleys grow 4→6 shells. One fair
+    warning — "ARCHIE'S GOT YOUR RANGE!" — when the guns find you. The 0.35 s
+    muzzle windup flash telegraphs every volley.
+- **ORCHESTRATION** (`sortie_data.gd`, `minimap.gd`): all 6 wave timelines
+  rebuilt on a build-tension-release rhythm — light intro, escalating fighter
+  waves, the secondary target at ~75% of the route, the ace at 100% (end).
+  Minimap telegraphs it: a route rail with a gold tick at 75% and a pulsing
+  red boss diamond at 100%, plus a live progress pip.
+- **DYNAMIC WEATHER** (`scripts/weather.gd` new, `player.gd`, `bullet.gd`,
+  `background.gd`, `minimap.gd`): per-sortie seeded conditions — S1 clear,
+  S2 windy, S3 rain, S4 storm, S5 windy, S6 clear. Wind vector (34–72 px/s)
+  drifts the player (0.55×), pushes crosswind laterally (0.35×) and makes
+  turns slightly sluggish (grip −10% × intensity); tracers bend lightly
+  (0.25×). Turbulence: gentle periodic airframe nudges, scaled by intensity.
+  NO weather damage, ever. Storm: jagged lightning bolts + restrained white
+  screen flash (SFX still stubbed). Rain: slanted particle sheet streaks
+  angled by wind, density by intensity. Minimap: wind arrow (dir + strength)
+  and pulsing storm-cell icons where lightning is active.
+- **SKY** (`background.gd`): palette shifted blue-sky-friendly through
+  altitude haze (still dark enough for readability); high cloud-wisp features
+  added to every locale pool; feature wrapping verified seamless.
+
+Tuning numbers: splash 6.5/40px · direct 70/12px · conga 4–6 @ 0.4s ·
+camping threshold 70 px/s, 2.5 s to full heat · wind 34–72 px/s ·
+turbulence 26–80 px/s nudges every 0.45–0.9 s · lightning every 3.5–8 s.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

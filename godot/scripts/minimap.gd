@@ -84,6 +84,12 @@ func _draw() -> void:
 	draw_rect(r, Color(0.02, 0.02, 0.03, 0.72))
 	_draw_terrain()
 	var pulse := 0.5 + 0.5 * sin(_time * 5.0)
+	# route progress: the sortie's road — gold tick at the 75% secondary,
+	# red diamond at the 100% boss. Telegraphs the orchestration.
+	_draw_route(pulse)
+	# wind arrow + storm cells from the weather rig
+	_draw_wind()
+	_draw_storm_cells(pulse)
 	# objective markers under the icons: pulsing rings on live targets
 	_draw_objective_markers(pulse)
 	# pickups
@@ -167,6 +173,66 @@ func _draw_reticle(pos: Vector2, pulse: float) -> void:
 			var c := pos + Vector2(sx * h, sy * h)
 			draw_line(c, c - Vector2(sx * l, 0), col, 2.0)
 			draw_line(c, c - Vector2(0, sy * l), col, 2.0)
+
+
+## Route rail: sortie progress toward the boss. Gold tick at 75% (the
+## secondary objective), red diamond at 100% (the ace). The orchestration,
+## telegraphed.
+func _draw_route(pulse: float) -> void:
+	var game := get_tree().get_first_node_in_group("game")
+	if game == null:
+		return
+	var si := int(game.get("sortie_index"))
+	if si < 0 or si >= Sorties.SORTIES.size():
+		return
+	var boss_at := float(Sorties.SORTIES[si]["boss_at"])
+	if boss_at <= 0.0:
+		return
+	var st := float(game.get("sortie_time"))
+	var x0 := 9.0
+	var y0 := 12.0
+	var h := size.y - 24.0
+	draw_line(Vector2(x0, y0), Vector2(x0, y0 + h), Color(0.5, 0.5, 0.55, 0.45), 2.0)
+	# secondary tick at 75%
+	var y75 := y0 + h * 0.75
+	draw_line(Vector2(x0 - 4.5, y75), Vector2(x0 + 4.5, y75), Color(1.0, 0.85, 0.3, 0.95), 2.5)
+	# boss diamond at 100%
+	var bs := 5.0 + 1.2 * pulse
+	var yb := y0 + h
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(x0, yb - bs), Vector2(x0 + bs, yb),
+		Vector2(x0, yb + bs), Vector2(x0 - bs, yb)]), Color(1.0, 0.2, 0.2, 0.9))
+	# progress pip
+	var yp := y0 + h * clampf(st / boss_at, 0.0, 1.0)
+	draw_circle(Vector2(x0, yp), 3.5, Color(0.4, 1.0, 0.5))
+
+
+## Wind arrow (top-left): direction + strength of the sortie's wind.
+func _draw_wind() -> void:
+	var w: Vector2 = Global.wind
+	if w.length() < 1.0:
+		return
+	var c := Vector2(24.0, 24.0)
+	var d := w.normalized()
+	var L := 10.0 + minf(w.length(), 72.0) / 72.0 * 8.0
+	var col := Color(0.6, 0.85, 1.0, 0.9)
+	draw_line(c - d * L, c + d * L, col, 2.5)
+	var tip := c + d * L
+	var side := Vector2(-d.y, d.x)
+	draw_colored_polygon(PackedVector2Array([
+		tip, tip - d * 6.0 + side * 3.5, tip - d * 6.0 - side * 3.5]), col)
+
+
+## Storm cells: little lightning zigzags where bolts are falling.
+func _draw_storm_cells(pulse: float) -> void:
+	for cell in Global.storm_cells:
+		var c: Vector2 = cell
+		var pos := Vector2(c.x * _sx(), c.y * _sy())
+		var s := 4.0 + 1.5 * pulse
+		var pts := PackedVector2Array([
+			pos + Vector2(0, -s), pos + Vector2(-s * 0.4, -s * 0.15),
+			pos + Vector2(s * 0.35, s * 0.35), pos + Vector2(0, s)])
+		draw_polyline(pts, Color(0.85, 0.9, 1.0, 0.85), 1.8)
 
 
 func _draw_objective_markers(pulse: float) -> void:

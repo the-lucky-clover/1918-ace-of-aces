@@ -19,45 +19,48 @@ var flicker := 0.0
 const VIEW_W := 720.0
 const VIEW_H := 1280.0
 
-# Grim, desaturated, smoke-hazed — horror of war, not cartoon war.
+# Blue-sky friendly, seen through altitude haze: bluer and a touch
+# lighter than the old grim palette, but still dark enough that enemies,
+# bullets, and the player read clearly. Features wrap seamlessly —
+# nothing pops at the edges.
 const THEMES: Dictionary = {
 	"farmland": {
-		"c": Color(0.20, 0.185, 0.115),
+		"c": Color(0.21, 0.24, 0.19),
 		"pieces": ["setpiece-farm", "setpiece-farm", "setpiece-aerodrome"],
 		"furrows": true,
 	},
 	"trenches": {
-		"c": Color(0.185, 0.145, 0.105),
+		"c": Color(0.20, 0.20, 0.22),
 		"pieces": ["setpiece-trench", "setpiece-trench", "setpiece-nomansland"],
 		"furrows": false,
 	},
 	"nomansland": {
-		"c": Color(0.135, 0.135, 0.145),
+		"c": Color(0.17, 0.18, 0.22),
 		"pieces": ["setpiece-nomansland", "setpiece-trench"],
 		"furrows": false,
 	},
 	"uboat_flotilla": {
-		"c": Color(0.05, 0.10, 0.18),
+		"c": Color(0.10, 0.22, 0.34),
 		"pieces": [],
 		"furrows": false,
 	},
 	"uboat_base": {
-		"c": Color(0.07, 0.12, 0.17),
+		"c": Color(0.11, 0.22, 0.32),
 		"pieces": [],
 		"furrows": false,
 	},
 	"zeppelin_sheds": {
-		"c": Color(0.19, 0.18, 0.12),
+		"c": Color(0.22, 0.23, 0.20),
 		"pieces": [],
 		"furrows": false,
 	},
 	"munitions_depot": {
-		"c": Color(0.17, 0.14, 0.10),
+		"c": Color(0.20, 0.20, 0.20),
 		"pieces": [],
 		"furrows": false,
 	},
 	"rail_yard": {
-		"c": Color(0.16, 0.14, 0.11),
+		"c": Color(0.20, 0.20, 0.21),
 		"pieces": [],
 		"furrows": false,
 	},
@@ -76,14 +79,14 @@ class GroundFeatures extends Node2D:
 
 	# theme -> feature kind pool
 	const POOLS := {
-		"farmland": ["mud", "mud", "stump", "wreck"],
-		"trenches": ["mud", "crater", "crater", "stump", "wreck"],
-		"nomansland": ["crater", "crater", "mud", "stump", "wreck"],
-		"uboat_flotilla": ["wave", "wave", "wake"],
-		"uboat_base": ["wave", "wake", "penblock", "crane"],
-		"zeppelin_sheds": ["shed", "mast", "mud"],
-		"munitions_depot": ["dump", "dump", "sandbag", "mud"],
-		"rail_yard": ["railtrack", "railtrack", "freight", "mud"],
+		"farmland": ["mud", "mud", "stump", "wreck", "cloudwisp"],
+		"trenches": ["mud", "crater", "crater", "stump", "wreck", "cloudwisp"],
+		"nomansland": ["crater", "crater", "mud", "stump", "wreck", "cloudwisp"],
+		"uboat_flotilla": ["wave", "wave", "wake", "cloudwisp"],
+		"uboat_base": ["wave", "wake", "penblock", "crane", "cloudwisp"],
+		"zeppelin_sheds": ["shed", "mast", "mud", "cloudwisp"],
+		"munitions_depot": ["dump", "dump", "sandbag", "mud", "cloudwisp"],
+		"rail_yard": ["railtrack", "railtrack", "freight", "mud", "cloudwisp"],
 	}
 
 	func generate(furrow_rows: bool, theme_name: String = "") -> void:
@@ -223,6 +226,11 @@ class GroundFeatures extends Node2D:
 						Color(0.30, 0.20, 0.12, 0.92))
 					draw_rect(Rect2(p - Vector2(14, 30) * s, Vector2(28, 60) * s),
 						Color(0.50, 0.40, 0.26, 0.5), false, 2.0)
+				"cloudwisp":
+					# high cloud shadow wisp: soft, low-alpha, seamless sky feel
+					_ellipse(p, 120.0 * s, 44.0 * s, Color(0.75, 0.82, 0.92, 0.10), it["r"])
+					_ellipse(p + Vector2(40, 12) * s, 70.0 * s, 28.0 * s,
+						Color(0.80, 0.86, 0.95, 0.08), -it["r"])
 		if furrows:
 			# faint plough lines, farmland only
 			for i in 16:
@@ -362,6 +370,8 @@ func _process(delta: float) -> void:
 func _spawn_piece() -> void:
 	var t: Dictionary = THEMES[theme]
 	var keys: Array = t["pieces"]
+	if keys.is_empty():
+		return  # naval / rear-area locales: no set-piece sprites
 	var key: String = keys[randi() % keys.size()]
 	var s := Sprite2D.new()
 	s.texture = load("res://assets/sprites/" + key + ".png")

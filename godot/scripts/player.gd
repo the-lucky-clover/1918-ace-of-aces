@@ -82,17 +82,27 @@ func _physics_process(delta: float) -> void:
 			warn_cd = 1.6
 			Music.fuel_warning()
 	# --- inertia-based flight (dead engine: no thrust, heavy drag, sinking glide) ---
+	# wind: the sortie's weather drifts the airframe and makes crosswind
+	# turns slightly sluggish — felt, mild, never unfair (no weather damage)
+	var wnd := Global.wind
+	var grip := 1.0 - 0.10 * Global.weather_intensity
 	var wish := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if engine_dead:
 		wish = Vector2.ZERO
 		velocity *= exp(-5.5 * delta)
 		velocity.y += 260.0 * delta  # sinking glide
 	else:
-		velocity += wish * ACCEL * delta
+		velocity += wish * ACCEL * grip * delta
 		velocity *= exp(-DRAG * delta)  # drag bleeds speed; release stick to drift
+		if wnd.length() > 1.0 and velocity.length() > 40.0:
+			# crosswind: lateral push off the flight path
+			var fwd := velocity.normalized()
+			var cross := wnd - fwd * wnd.dot(fwd)
+			velocity += cross * delta * 0.35
 	if velocity.length() > MAX_SPEED:
 		velocity = velocity.normalized() * MAX_SPEED
 	position += velocity * delta
+	position += wnd * delta * 0.55  # steady wind drift
 	position = Global.clamp_playfield(position, 44.0)
 	# --- dead-stick crash: glide into the deck ---
 	if engine_dead and position.y >= Global.VIEW_H - 70.0:

@@ -9,6 +9,7 @@ const EnemyScene := preload("res://scenes/enemy.tscn")
 const BossScene := preload("res://scenes/boss.tscn")
 const PickupScene := preload("res://scenes/pickup.tscn")
 const CinematicScript := preload("res://scripts/cinematic.gd")
+const WeatherScript := preload("res://scripts/weather.gd")
 
 var state: int = State.TITLE
 var sortie_index := 0
@@ -34,6 +35,8 @@ var fade: ColorRect
 var debug_autotest := false  # set by --autostart; enables test logging
 var _cine: Control = null    # cinematic sequencer (takeoff / landing reels)
 var _cine_mode := ""         # "takeoff" | "landing"
+var _weather: Node2D = null  # per-sortie dynamic weather (wind/rain/storm)
+var still_t := 0.0           # camping clock: stillness feeds Archie's accuracy
 
 
 func _ready() -> void:
@@ -61,6 +64,9 @@ func _ready() -> void:
 	_cine.set_anchors_preset(Control.PRESET_FULL_RECT)
 	cine_layer.add_child(_cine)
 	_cine.finished.connect(_on_cine_finished)
+	# dynamic weather rig: wind, turbulence, rain, lightning (per-sortie)
+	_weather = WeatherScript.new()
+	add_child(_weather)
 	$MenuLayer.show_title()
 	$MenuLayer.start_requested.connect(_on_menu_start)
 	$MenuLayer.resume_requested.connect(_on_menu_resume)
@@ -76,8 +82,12 @@ func _ready() -> void:
 
 func _debug_autostart() -> void:
 	debug_autotest = true
-	print("[AUTOTEST] starting sortie 1 with godmode player")
-	start_sortie(0)
+	var si := 0
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--sortie="):
+			si = clampi(int(a.get_slice("=", 1)), 0, Sorties.SORTIES.size() - 1)
+	print("[AUTOTEST] starting sortie %d with godmode player" % (si + 1))
+	start_sortie(si)
 	if player:
 		player.debug_godmode = true
 		# exercise the new feature paths every validation run
@@ -102,6 +112,11 @@ func _flash_white() -> void:
 	fade.color = Color(1, 1, 1, 0.55)
 	var tw := create_tween()
 	tw.tween_property(fade, "color:a", 0.0, 0.45)
+
+
+## Public wrapper so the weather rig can call the lightning flash.
+func flash_white() -> void:
+	_flash_white()
 
 
 # ---------------------------------------------------------------- states ---
@@ -135,6 +150,11 @@ func start_sortie(i: int) -> void:
 	$Background.setup(String(s["theme"]))
 	$GroundWar.setup(String(s["theme"]))
 	Global.scroll_speed = 90.0
+	# weather rig: per-sortie seeded conditions (wind vector, rain, storm)
+	_weather.setup(sortie_index)
+	# Archie starts cold every sortie
+	still_t = 0.0
+	Global.aa_heat = 0.0
 	# sun rig: shadows follow the sortie's takeoff time
 	Sun.shadow_offset = Sun.shadow_for_takeoff(String(s.get("takeoff", "12:00")))
 	mood_rect.color = Sun.mood_tint(String(s.get("takeoff", "12:00")))
@@ -299,6 +319,18 @@ func _process(delta: float) -> void:
 	if get_tree().paused or state != State.PLAYING:
 		return
 	sortie_time += delta
+	# camping punishment: holding still feeds Archie's accuracy. Moving with
+	# intent bleeds it off. Fair warning when the guns find the range.
+	if player != null and is_instance_valid(player) and player.get("alive"):
+		if player.velocity.length() < 70.0:
+			still_t += delta
+		else:
+			still_t = maxf(0.0, still_t - 2.0 * delta)
+		var heat := clampf(still_t / 2.5, 0.0, 1.0)
+		if heat >= 1.0 and Global.aa_heat < 1.0:
+			FX.popup(world, player.global_position + Vector2(0, -70),
+				"ARCHIE'S GOT YOUR RANGE!", Color(1.0, 0.4, 0.2))
+		Global.aa_heat = heat
 	var s: Dictionary = Sorties.SORTIES[sortie_index]
 	while not schedule.is_empty() and float(schedule[0]["at"]) <= sortie_time:
 		var item: Dictionary = schedule.pop_front()

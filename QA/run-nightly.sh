@@ -105,6 +105,10 @@ PYEOF
 godot_check "godot-import"      "$GODOT" --headless --path "$PROJECT" --import
 godot_check "godot-smoke-30s"   "$GODOT" --headless --path "$PROJECT" --quit-after 1800 -- --autostart
 godot_check "godot-boss-rush"   "$GODOT" --headless --path "$PROJECT" --quit-after 3600 -- --autostart --autoboss
+# sortie sweep: every sortie's weather, waves, and flak paths must run clean
+for s in 0 1 2 3 4 5; do
+    godot_check "godot-sortie-$((s+1))" "$GODOT" --headless --path "$PROJECT" --quit-after 1500 -- --autostart --sortie="$s"
+done
 web_check   "web-photo-keyframes" photo-keyframes
 web_check   "web-intro-timeout"   intro-timeout
 web_check   "web-version-sync"    version-sync

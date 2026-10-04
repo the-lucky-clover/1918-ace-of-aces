@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v3 — 2026-10-04
+
+Archie be re-armed! Timed flak now marches in conga lines o' burstin' shells, leavin' black puffs in their wake — a near miss stings, a direct hit sends ye to Davy Jones. Hold still too long and the guns find yer range, so keep dancin', pilot. The skies themselves turned moody: each sortie brews its own weather — fair winds, drivin's rain, and lightning over the front — but gentle as a sea breeze, never sinkin' no honest airframe. Waves now march in proper rhythm: the secondary prize at three-quarter mark, the enemy ace waitin' at journey's end, all telegraphed on the minimap. Two stowaway bugs keelhauled along the way (empty set-piece pools, a railgun count with no number). Tally-ho!
+
+
 ## v2 — 2026-10-03
 
 The quartermaster's ledger be open! This here version-countin' apparatus, the QA crow's-nest, and the very changelog ye be readin' — all shipshape and Bristol fashion. From this day forth, every nail hammered bumps the number by one. Arrr.

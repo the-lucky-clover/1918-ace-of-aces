@@ -1,20 +1,28 @@
 extends Area2D
-## AA flak shell: flies to a fixed target point, then DETONATES.
-## Damage applies ONLY within blast_radius at the detonation instant.
-## The lingering black cloud afterward is visual-only (per design spec).
+## AA flak shell: flies to a fused burst point near the player (slight lead
+## on the player's velocity), then DETONATES.
+##
+## Damage model (per the Archie rework):
+## - DIRECT HIT (within 12 px of the plane at detonation): devastating,
+##   60-80 hull — can destroy the airframe outright.
+## - SPLASH (within 40 px): light damage, 5-8 hull. A near miss stings;
+##   it doesn't kill.
+## The lingering black puff cloud afterward is visual-only (per spec).
 
 var target := Vector2.ZERO
 var speed := 560.0
-var blast_radius := 70.0
-var damage := 14.0
+var splash_radius := 40.0
+var splash_damage := 6.5
+var direct_radius := 12.0
+var direct_damage := 70.0
 var dir := Vector2(0, 1)
 
 
-func setup(from: Vector2, to: Vector2, dmg: float = 14.0, radius: float = 70.0) -> void:
+func setup(from: Vector2, to: Vector2, dmg: float = 6.5, radius: float = 40.0) -> void:
 	position = from
 	target = to
-	damage = dmg
-	blast_radius = radius
+	splash_damage = dmg
+	splash_radius = radius
 
 
 func _ready() -> void:
@@ -42,9 +50,18 @@ func _draw() -> void:
 func _detonate() -> void:
 	FX.explosion(get_parent(), global_position, false)
 	FX.flak_cloud(get_parent(), global_position)
-	FX.add_trauma(0.18)
 	var player := get_tree().get_first_node_in_group("player")
 	if player != null and is_instance_valid(player) and player.has_method("take_damage"):
-		if player.global_position.distance_to(global_position) <= blast_radius:
-			player.take_damage(damage)
+		var dist: float = player.global_position.distance_to(global_position)
+		if dist <= direct_radius:
+			# direct hit: the shell finds the airframe — devastating
+			FX.popup(get_parent(), global_position + Vector2(0, -40),
+				"DIRECT HIT!", Color(1.0, 0.25, 0.15))
+			FX.add_trauma(0.45)
+			FX.hitstop(0.12, 0.2)
+			player.take_damage(direct_damage)
+		elif dist <= splash_radius:
+			# near miss: light splash only
+			FX.add_trauma(0.18)
+			player.take_damage(splash_damage)
 	queue_free()

@@ -36,12 +36,15 @@ const SORTIES: Array = [
 			{"id": "balloons", "target": 3},
 			{"id": "trenches", "target": 5},
 		],
+		# Orchestration: build-tension-release. Light intro, escalating fighter
+		# waves, the secondary target at ~75% of the route, the ace at 100%.
 		"waves": [
 			{"t": 2.0, "type": "scout", "count": 4, "gap": 1.2},
-			{"t": 10.0, "type": "triplane", "count": 4, "gap": 1.4},
-			{"t": 20.0, "type": "balloon", "count": 3, "gap": 3.0},
-			{"t": 30.0, "type": "trench", "count": 5, "gap": 2.0},
-			{"t": 44.0, "type": "fighter", "count": 5, "gap": 1.2},
+			{"t": 12.0, "type": "triplane", "count": 4, "gap": 1.4},
+			{"t": 24.0, "type": "fighter", "count": 5, "gap": 1.2},
+			{"t": 34.0, "type": "triplane", "count": 5, "gap": 1.1},
+			{"t": 43.5, "type": "balloon", "count": 3, "gap": 3.0},
+			{"t": 47.0, "type": "trench", "count": 5, "gap": 2.0},
 		],
 		"takeoff": "05:40",
 		"boss_at": 58.0,
@@ -57,10 +60,11 @@ const SORTIES: Array = [
 		],
 		"waves": [
 			{"t": 2.0, "type": "scout", "count": 4, "gap": 1.2},
-			{"t": 10.0, "type": "uboat", "count": 4, "gap": 4.0},
-			{"t": 24.0, "type": "fighter", "count": 5, "gap": 1.1},
-			{"t": 36.0, "type": "bomber", "count": 3, "gap": 2.5},
-			{"t": 48.0, "type": "triplane", "count": 4, "gap": 1.2},
+			{"t": 12.0, "type": "fighter", "count": 5, "gap": 1.1},
+			{"t": 24.0, "type": "triplane", "count": 4, "gap": 1.2},
+			{"t": 36.0, "type": "fighter", "count": 6, "gap": 1.0},
+			{"t": 46.5, "type": "uboat", "count": 4, "gap": 4.0},
+			{"t": 50.0, "type": "bomber", "count": 3, "gap": 2.5},
 		],
 		"takeoff": "06:15",
 		"boss_at": 62.0,
@@ -76,10 +80,11 @@ const SORTIES: Array = [
 		],
 		"waves": [
 			{"t": 2.0, "type": "fighter", "count": 5, "gap": 1.1},
-			{"t": 12.0, "type": "zeppelin", "count": 2, "gap": 9.0},
-			{"t": 26.0, "type": "parked", "count": 4, "gap": 2.0},
-			{"t": 38.0, "type": "scout", "count": 6, "gap": 0.9},
-			{"t": 50.0, "type": "triplane", "count": 5, "gap": 1.0},
+			{"t": 14.0, "type": "scout", "count": 6, "gap": 0.9},
+			{"t": 26.0, "type": "triplane", "count": 5, "gap": 1.0},
+			{"t": 38.0, "type": "fighter", "count": 6, "gap": 1.0},
+			{"t": 48.0, "type": "zeppelin", "count": 2, "gap": 9.0},
+			{"t": 52.0, "type": "parked", "count": 4, "gap": 2.0},
 		],
 		"takeoff": "10:30",
 		"boss_at": 64.0,
@@ -95,10 +100,11 @@ const SORTIES: Array = [
 		],
 		"waves": [
 			{"t": 2.0, "type": "triplane", "count": 5, "gap": 1.2},
-			{"t": 12.0, "type": "ammodepot", "count": 4, "gap": 3.0},
-			{"t": 26.0, "type": "trench", "count": 5, "gap": 1.8},
-			{"t": 40.0, "type": "fighter", "count": 5, "gap": 1.0},
-			{"t": 52.0, "type": "aagun", "count": 3, "gap": 4.0},
+			{"t": 14.0, "type": "aagun", "count": 3, "gap": 4.0},
+			{"t": 26.0, "type": "fighter", "count": 5, "gap": 1.0},
+			{"t": 38.0, "type": "triplane", "count": 6, "gap": 1.0},
+			{"t": 49.5, "type": "ammodepot", "count": 4, "gap": 3.0},
+			{"t": 53.0, "type": "trench", "count": 5, "gap": 1.8},
 		],
 		"takeoff": "14:00",
 		"boss_at": 66.0,
@@ -114,10 +120,11 @@ const SORTIES: Array = [
 		],
 		"waves": [
 			{"t": 2.0, "type": "aagun", "count": 4, "gap": 3.5},
-			{"t": 14.0, "type": "subpen", "count": 3, "gap": 6.0},
-			{"t": 30.0, "type": "fighter", "count": 6, "gap": 1.0},
-			{"t": 44.0, "type": "uboat", "count": 2, "gap": 5.0},
-			{"t": 54.0, "type": "triplane", "count": 5, "gap": 1.0},
+			{"t": 16.0, "type": "fighter", "count": 5, "gap": 1.1},
+			{"t": 30.0, "type": "triplane", "count": 5, "gap": 1.0},
+			{"t": 42.0, "type": "fighter", "count": 6, "gap": 1.0},
+			{"t": 49.5, "type": "subpen", "count": 3, "gap": 6.0},
+			{"t": 54.0, "type": "uboat", "count": 2, "gap": 5.0},
 		],
 		"takeoff": "09:45",
 		"boss_at": 66.0,
@@ -133,10 +140,10 @@ const SORTIES: Array = [
 		],
 		"waves": [
 			{"t": 2.0, "type": "train", "count": 3, "gap": 4.0},
-			{"t": 14.0, "type": "arty", "count": 4, "gap": 3.0},
-			{"t": 28.0, "type": "railwaygun", "count": 1, "gap": 1.0},
-			{"t": 40.0, "type": "fighter", "count": 6, "gap": 1.0},
-			{"t": 54.0, "type": "triplane", "count": 5, "gap": 0.9},
+			{"t": 16.0, "type": "arty", "count": 4, "gap": 3.0},
+			{"t": 30.0, "type": "fighter", "count": 6, "gap": 1.0},
+			{"t": 44.0, "type": "triplane", "count": 6, "gap": 0.9},
+			{"t": 57.0, "type": "railwaygun", "count": 1, "gap": 1.0},
 		],
 		"takeoff": "17:30",
 		"boss_at": 76.0,
@@ -147,7 +154,10 @@ const SORTIES: Array = [
 ## Human-readable text for a secondary objective, given its def and target.
 static func secondary_text(sec: Dictionary) -> String:
 	var def: Dictionary = SECONDARY_DEFS[sec["id"]]
-	return def["text"] % sec["target"]
+	var text: String = def["text"]
+	if "%d" in text:
+		return text % int(sec["target"])
+	return text  # e.g. the railway gun: no count in the wording
 
 
 ## Bonus points for a secondary objective id.
