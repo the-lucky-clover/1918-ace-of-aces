@@ -26,6 +26,31 @@ const BOSS_NAMES: Array = [
 	"THE GHOST",
 ]
 
+# Fighter-wave aircraft that count as the enemy squadron for shoot-down
+# goals (194x-style: the duel in the sky; balloons/zeppelins/ground targets
+# belong to the secondary objectives instead).
+const SQUADRON_TYPES: Array = ["triplane", "scout", "fighter", "bomber"]
+
+
+## Nominal squadron strength: total fighter-wave aircraft in the sortie.
+static func squadron_strength(sortie: Dictionary) -> int:
+	var n := 0
+	for w in sortie["waves"]:
+		if String(w["type"]) in SQUADRON_TYPES:
+			n += int(w["count"])
+	return n
+
+
+## Break-point goal: an attainable ~55% of the squadron. A decent run hits
+## it; a great run exceeds it.
+static func squadron_goal(sortie: Dictionary) -> int:
+	return int(ceil(squadron_strength(sortie) * 0.55))
+
+
+## Squadron-break bonus, escalating by sortie index.
+static func squadron_bonus(sortie_index: int) -> int:
+	return 400 + 100 * sortie_index
+
 const SORTIES: Array = [
 	{
 		"name": "Sortie 1 — Dawn Patrol",

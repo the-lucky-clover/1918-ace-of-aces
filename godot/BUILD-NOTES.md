@@ -312,6 +312,43 @@ Tuning numbers: splash 6.5/40px · direct 70/12px · conga 4–6 @ 0.4s ·
 camping threshold 70 px/s, 2.5 s to full heat · wind 34–72 px/s ·
 turbulence 26–80 px/s nudges every 0.45–0.9 s · lightning every 3.5–8 s.
 
+## Squadron goals + flicker/shutdown hardening — 2026-10-03 (v4)
+
+- **SQUADRON SHOOT-DOWN GOALS** (`sortie_data.gd`, `main.gd`, `hud.gd`,
+  `menus.gd`, `enemy.gd`, `global.gd`): every sortie now declares its
+  fighter-wave squadron strength and an attainable break-point goal
+  (~55% — a decent run hits it, a great run exceeds it):
+  S1 18→goal 10 (+400) · S2 19→11 (+500) · S3 22→13 (+600) ·
+  S4 16→9 (+700) · S5 16→9 (+800) · S6 12→7 (+900).
+  HUD shows live "SQUADRON x/y" under the score; on the break-point:
+  "SQUADRON BROKEN!" callout + escalating bonus + the label turns gold.
+  Morale break is real but subtle — surviving fighters fly ragged:
+  weave amplitude ×1.35, scouts break off their dives earlier
+  (56 px vs 8 px commitment), gunnery 20% sloppier. Debrief credits
+  the squadron line ("v SQUADRON: 11/11 DOWN — BROKEN (+500)").
+- **HARD RULE honored — no intro popups**: new enemies/locales debut the
+  194x way, flying into frame with zero ceremony. Steven killed the
+  procession outright.
+- **FLICKER HARDENING**: kill-before-create on all hot modulate/alpha
+  tweens — score flash (`hud.gd` `_score_tween`), hull bleed
+  (`_hull_tween`), screen fades (`main.gd` `_fade_tween`), hit flashes
+  (`effects.gd` `_flash_tween` via item meta). Rapid stacked hits can no
+  longer make competing tweens fight over the same property mid-frame.
+- **SHUTDOWN HARDENING (audit)**: player death and boss death both arm
+  `debrief_timer` (verified statically — no stranded screens); cinematic
+  `_finish()` already single-emits via `_emitted` guard; player `_die()`
+  guarded by `alive`; state transitions guarded (`_on_menu_start` only
+  from TITLE, `_on_menu_next` only from DEBRIEF); all `randi() % size()`
+  sites guarded against empty arrays (added the last missing one:
+  `background.gd` `generate()` pool guard); cinematic `dur`/`life`
+  divisors all non-zero by data. No new crash paths found in the v3
+  weather/flak code.
+- **QA**: `run-nightly.sh` gains five GDScript static checks —
+  squadron-reset, debrief-paths, tween-guards, pool-guard,
+  squadron-goals-sane.
+- Headless-validated: clean import, 30 s smoke, boss-rush full loop,
+  all 6 sorties exercised — zero script errors.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

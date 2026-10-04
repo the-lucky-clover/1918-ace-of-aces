@@ -6,7 +6,7 @@ extends Node
 const GAME_TITLE: String = "1918"
 const GAME_TAGLINE: String = "A Western Front Story"
 ## Holistic build version — bumped by bin/bump-version.sh with every work action.
-const VERSION: String = "3"
+const VERSION: String = "4"
 
 const VIEW_W: float = 720.0
 const VIEW_H: float = 1280.0
@@ -34,6 +34,10 @@ var storm_cells: Array = []       # Vector2s where lightning is active
 # --- Archie camping heat: 0 = cold, 1 = the guns have your range ---
 # Rises while the player holds still, decays with purposeful movement.
 var aa_heat := 0.0
+
+# --- Squadron morale: set when the player breaks the sortie's squadron ---
+# Remaining fighters fly ragged (read by scripts/enemy.gd). Reset per sortie.
+var squadron_broken := false
 
 
 ## Attach a fresh circle collision shape to an Area2D.

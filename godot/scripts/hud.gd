@@ -19,7 +19,10 @@ var boss_container: VBoxContainer
 var boss_label: Label
 var boss_bar: ProgressBar
 var brief_label: Label
+var squad_label: Label
 var _brief_tween: Tween = null
+var _score_tween: Tween = null  # flicker guard: one score flash at a time
+var _hull_tween: Tween = null   # flicker guard: one hull bleed at a time
 var _fuel_frac := 1.0
 var _blink := 0.0
 var _last_hp := 100.0
@@ -52,10 +55,13 @@ func _bar_style(fill_color: Color) -> StyleBoxFlat:
 
 
 func _build() -> void:
-	# score + sortie
+	# score + sortie + squadron shoot-down goal (tucked under the score)
 	score_label = _mk_label("SCORE 0", 26)
 	score_label.position = Vector2(16, 8)
 	add_child(score_label)
+	squad_label = _mk_label("SQUADRON 0/0", 16, Color(0.62, 0.78, 0.95))
+	squad_label.position = Vector2(16, 38)
+	add_child(squad_label)
 	sortie_label = _mk_label("", 22, Color(0.82, 0.86, 0.92))
 	sortie_label.position = Vector2(160, 8)
 	sortie_label.size = Vector2(400, 30)
@@ -63,14 +69,14 @@ func _build() -> void:
 	add_child(sortie_label)
 	# hull bar
 	var hl := _mk_label("HULL", 18)
-	hl.position = Vector2(16, 44)
+	hl.position = Vector2(16, 62)
 	add_child(hl)
 	hull_bar = ProgressBar.new()
 	hull_bar.min_value = 0.0
 	hull_bar.max_value = 100.0
 	hull_bar.value = 100.0
 	hull_bar.show_percentage = false
-	hull_bar.position = Vector2(76, 44)
+	hull_bar.position = Vector2(76, 62)
 	hull_bar.custom_minimum_size = Vector2(220, 22)
 	hull_bar.size = Vector2(220, 22)
 	var bg := _bar_style(Color(0.05, 0.05, 0.06, 0.75))
@@ -80,18 +86,18 @@ func _build() -> void:
 	add_child(hull_bar)
 	# bombs
 	bomb_label = _mk_label("BOMBS x2  [X]", 20, Color(0.6, 0.85, 1.0))
-	bomb_label.position = Vector2(16, 74)
+	bomb_label.position = Vector2(16, 92)
 	add_child(bomb_label)
 	# fuel gauge (atrophies with throttle; empty tank = dead engine)
 	fuel_label = _mk_label("FUEL", 18)
-	fuel_label.position = Vector2(16, 104)
+	fuel_label.position = Vector2(16, 122)
 	add_child(fuel_label)
 	fuel_bar = ProgressBar.new()
 	fuel_bar.min_value = 0.0
 	fuel_bar.max_value = 100.0
 	fuel_bar.value = 100.0
 	fuel_bar.show_percentage = false
-	fuel_bar.position = Vector2(76, 104)
+	fuel_bar.position = Vector2(76, 122)
 	fuel_bar.custom_minimum_size = Vector2(220, 18)
 	fuel_bar.size = Vector2(220, 18)
 	fuel_bar.add_theme_stylebox_override("background", _bar_style(Color(0.05, 0.05, 0.06, 0.75)))
@@ -100,7 +106,7 @@ func _build() -> void:
 	add_child(fuel_bar)
 	# active power-ups / loop cooldown / wingmen
 	power_label = _mk_label("", 18, Color(0.85, 0.85, 0.9))
-	power_label.position = Vector2(16, 128)
+	power_label.position = Vector2(16, 146)
 	power_label.size = Vector2(560, 26)
 	add_child(power_label)
 	# minimap (top-right)
@@ -150,12 +156,26 @@ func _build() -> void:
 
 func update_score(s: int) -> void:
 	if s > _last_score:
-		# arcade punch: the score label flashes on every gain
+		# arcade punch: the score label flashes on every gain.
+		# flicker guard: kill the previous flash so rapid gains never stack.
+		if _score_tween != null and _score_tween.is_valid():
+			_score_tween.kill()
 		score_label.modulate = Color(1.6, 1.5, 1.2)
-		var tw := create_tween()
-		tw.tween_property(score_label, "modulate", Color.WHITE, 0.25)
+		_score_tween = create_tween()
+		_score_tween.tween_property(score_label, "modulate", Color.WHITE, 0.25)
 	_last_score = s
 	score_label.text = "SCORE %d" % s
+
+
+## Squadron shoot-down goal: live "SQUADRON x/y" under the score; turns gold
+## with a broken banner when the squadron's morale breaks.
+func update_squadron(kills: int, goal: int, broken: bool) -> void:
+	if broken:
+		squad_label.text = "SQUADRON BROKEN!"
+		squad_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
+	else:
+		squad_label.text = "SQUADRON %d/%d" % [kills, goal]
+		squad_label.add_theme_color_override("font_color", Color(0.62, 0.78, 0.95))
 
 
 func set_sortie_name(n: String) -> void:
@@ -171,10 +191,13 @@ func update_integrity(hp: float, max_hp: float) -> void:
 	var frac := clampf(hp / max_hp, 0.0, 1.0)
 	hull_bar.value = frac * 100.0
 	if hp < _last_hp:
-		# damage flash: the bar bleeds red for a beat
+		# damage flash: the bar bleeds red for a beat.
+		# flicker guard: kill the previous bleed so stacked hits never stack.
+		if _hull_tween != null and _hull_tween.is_valid():
+			_hull_tween.kill()
 		hull_bar.modulate = Color(2.2, 0.7, 0.7)
-		var tw := create_tween()
-		tw.tween_property(hull_bar, "modulate", Color.WHITE, 0.3)
+		_hull_tween = create_tween()
+		_hull_tween.tween_property(hull_bar, "modulate", Color.WHITE, 0.3)
 	_last_hp = hp
 	if frac > 0.5:
 		hull_fill.bg_color = Color(0.3, 0.75, 0.35)

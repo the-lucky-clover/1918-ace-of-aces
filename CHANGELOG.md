@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v4 — 2026-10-04
+
+Squadron shoot-down goals hoisted up the mast, me hearties! Every sortie now counts its fighter flock with a prize for breakin' their spirit — the HUD keeps the tally and the debrief sings yer kills. Survivors fly ragged and shoot sloppy once ye break 'em. No popups, no parades — the Cap'n says new foes just fly in like proper 194x gents. Also swabbed the decks: no more flickerin' tweens fightin' over the same paint, every death finds its way to the debrief, and never a black screen to strand a sailor. Arrr!
+
+
 ## v3 — 2026-10-04
 
 Archie be re-armed! Timed flak now marches in conga lines o' burstin' shells, leavin' black puffs in their wake — a near miss stings, a direct hit sends ye to Davy Jones. Hold still too long and the guns find yer range, so keep dancin', pilot. The skies themselves turned moody: each sortie brews its own weather — fair winds, drivin's rain, and lightning over the front — but gentle as a sea breeze, never sinkin' no honest airframe. Waves now march in proper rhythm: the secondary prize at three-quarter mark, the enemy ace waitin' at journey's end, all telegraphed on the minimap. Two stowaway bugs keelhauled along the way (empty set-piece pools, a railgun count with no number). Tally-ho!

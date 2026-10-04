@@ -132,16 +132,20 @@ func _physics_process(delta: float) -> void:
 		return
 	age += delta
 	var player := get_tree().get_first_node_in_group("player")
+	# morale break: a broken squadron flies ragged — wider weaves, earlier
+	# break-offs, sloppier gunnery. Subtle; the fight stays winnable.
+	var ragged := Global.squadron_broken and etype in ["triplane", "scout", "fighter", "bomber"]
 
 	match behavior:
 		"weave":
-			vel = Vector2(sin(age * 2.2 + weave_phase) * speed * 0.8, speed * 0.55)
+			vel = Vector2(sin(age * 2.2 + weave_phase) * speed * (1.08 if ragged else 0.8), speed * 0.55)
 		"dive":
 			if not diving and player and global_position.y > 120.0:
 				diving = true
 			if diving and player:
 				var want := (Vector2(player.global_position.x, player.global_position.y + 160.0) - global_position)
-				vel = want.normalized() * speed if want.length() > 8.0 else Vector2(0, speed)
+				var break_dist := 56.0 if ragged else 8.0
+				vel = want.normalized() * speed if want.length() > break_dist else Vector2(0, speed)
 			else:
 				vel = Vector2(0, speed * 0.7)
 		"heavy":
@@ -189,7 +193,7 @@ func _physics_process(delta: float) -> void:
 			sprite.modulate = Color(2.2, 1.4, 1.4, sprite.modulate.a) if int(age * 24.0) % 2 == 0 else Color(1, 1, 1, sprite.modulate.a)
 			if windup <= 0.0:
 				sprite.modulate = Color(1, 1, 1, 1)
-				fire_cd = fire_interval * randf_range(0.85, 1.15)
+				fire_cd = fire_interval * randf_range(0.85, 1.15) * (1.2 if ragged else 1.0)
 				_fire(player)
 		else:
 			fire_cd -= delta

@@ -27,6 +27,11 @@ var fuel_cd := 24.0             # steady fuel-pickup pressure valve
 var last_tap_t := -10.0         # double-tap -> loop-de-loop
 var strafe_streak := 0          # consecutive trench strafes
 var strafe_window := 0.0        # streak window (seconds)
+var squad_kills := 0            # squadron aircraft downed this sortie
+var squad_goal := 0             # attainable break-point (~55% of strength)
+var squad_strength := 0         # nominal fighter-wave strength
+var squad_bonus := 0            # points for breaking the squadron
+var squad_broken := false       # morale broken: remaining fighters fly ragged
 var mood_rect: ColorRect         # time-of-day mood tint overlay
 
 var camera: Camera2D
@@ -37,6 +42,7 @@ var _cine: Control = null    # cinematic sequencer (takeoff / landing reels)
 var _cine_mode := ""         # "takeoff" | "landing"
 var _weather: Node2D = null  # per-sortie dynamic weather (wind/rain/storm)
 var still_t := 0.0           # camping clock: stillness feeds Archie's accuracy
+var _fade_tween: Tween = null  # flicker guard: one fade tween at a time
 
 
 func _ready() -> void:
@@ -104,8 +110,12 @@ func _debug_autostart() -> void:
 
 
 func _fade_to(alpha: float, dur: float) -> void:
-	var tw := create_tween()
-	tw.tween_property(fade, "color:a", alpha, dur)
+	# flicker guard: kill the previous fade before starting a new one so two
+	# tweens never fight over the fade alpha in the same frame
+	if _fade_tween != null and _fade_tween.is_valid():
+		_fade_tween.kill()
+	_fade_tween = create_tween()
+	_fade_tween.tween_property(fade, "color:a", alpha, dur)
 
 
 func _flash_white() -> void:
@@ -155,6 +165,13 @@ func start_sortie(i: int) -> void:
 	# Archie starts cold every sortie
 	still_t = 0.0
 	Global.aa_heat = 0.0
+	# squadron shoot-down goal: attainable break-point for the fighter waves
+	squad_strength = Sorties.squadron_strength(s)
+	squad_goal = Sorties.squadron_goal(s)
+	squad_bonus = Sorties.squadron_bonus(i)
+	squad_kills = 0
+	squad_broken = false
+	Global.squadron_broken = false
 	# sun rig: shadows follow the sortie's takeoff time
 	Sun.shadow_offset = Sun.shadow_for_takeoff(String(s.get("takeoff", "12:00")))
 	mood_rect.color = Sun.mood_tint(String(s.get("takeoff", "12:00")))
@@ -167,6 +184,7 @@ func start_sortie(i: int) -> void:
 	hud.set_objectives(objectives)
 	hud.hide_boss()
 	hud.set_minimap_theme(String(s["theme"]))
+	hud.update_squadron(0, squad_goal, false)
 	# wave schedule
 	schedule.clear()
 	for w in s["waves"]:
@@ -234,6 +252,11 @@ func _show_debrief() -> void:
 		"objectives": objectives,
 		"score": score,
 		"campaign_done": debrief_win and last,
+		"squad_kills": squad_kills,
+		"squad_goal": squad_goal,
+		"squad_strength": squad_strength,
+		"squad_broken": squad_broken,
+		"squad_bonus": squad_bonus,
 	})
 
 
@@ -390,6 +413,18 @@ func _on_enemy_killed(e: Area2D) -> void:
 		return
 	score += int(e.score_value)
 	FX.popup(world, e.global_position, "+%d" % int(e.score_value), Color.WHITE)
+	# squadron shoot-down goal: fighter-wave kills count; breaking the
+	# squadron rattles the survivors (morale break = ragged flying)
+	if String(e.etype) in Sorties.SQUADRON_TYPES:
+		squad_kills += 1
+		if not squad_broken and squad_kills >= squad_goal:
+			squad_broken = true
+			Global.squadron_broken = true
+			score += squad_bonus
+			FX.popup(world, Vector2(Global.VIEW_W * 0.5, Global.VIEW_H * 0.38),
+				"SQUADRON BROKEN!  +%d" % squad_bonus, Color(1.0, 0.85, 0.3))
+			FX.add_trauma(0.25)
+		$HUDLayer.update_squadron(squad_kills, squad_goal, squad_broken)
 	var sec_id := ""
 	match String(e.etype):
 		"balloon":

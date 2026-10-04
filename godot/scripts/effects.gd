@@ -45,11 +45,17 @@ func popup(parent: Node, pos: Vector2, text: String, color: Color = Color.WHITE)
 
 
 ## White-hot flash on a CanvasItem, then back to normal.
+## Flicker guard: kill any in-flight flash on this item first.
 func hit_flash(item: CanvasItem) -> void:
 	if item == null or not is_instance_valid(item):
 		return
+	if item.has_meta("_flash_tween"):
+		var old: Tween = item.get_meta("_flash_tween")
+		if old != null and old.is_valid():
+			old.kill()
 	item.modulate = Color(3.0, 3.0, 3.0)
 	var tw := item.create_tween()
+	item.set_meta("_flash_tween", tw)
 	tw.tween_property(item, "modulate", Color.WHITE, 0.12)
 
 

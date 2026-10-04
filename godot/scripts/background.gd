@@ -94,6 +94,8 @@ class GroundFeatures extends Node2D:
 		locale = theme_name
 		items.clear()
 		var pool: Array = POOLS.get(theme_name, POOLS["nomansland"])
+		if pool.is_empty():
+			return  # defensive: never modulo by zero on an empty pool
 		var H := 1280.0
 		for i in 110:
 			var kind: String = pool[randi() % pool.size()]

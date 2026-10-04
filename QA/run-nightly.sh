@@ -7,6 +7,10 @@
 #   Web:   static regression checks on 1918-ace-of-aces.html, including the
 #          bug-001 photo-frame guards (artifactFlyIn keyframes must not force
 #          transform:none in the `to` state; intro-play removal >= 1000ms).
+#   GDScript: static hardening checks — squadron state resets per sortie,
+#          both death paths arm the debrief timer (no stranded screens),
+#          tween kill-guards present (no flicker stacking), empty-pool guard
+#          in background generation, squadron goal helpers present.
 #   Sync:  VERSION file, splash ver-badge, and both global.gd copies agree.
 #
 # Writes QA/reports/YYYY-MM-DD.md with pass/fail per check.
@@ -101,6 +105,61 @@ PYEOF
     fi
 }
 
+# Static checks on the Godot GDScript sources (flicker/shutdown hardening).
+gdscript_check() {
+    local name="$1"; shift
+    if python3 - "$@" <<'PYEOF' >"$OUT" 2>&1; then
+import re, sys
+
+P = '/home/hatch/workspace/1918-godot/scripts/'
+def read(f):
+    return open(P + f).read()
+
+check = sys.argv[1]
+if check == 'squadron-reset':
+    m = read('main.gd')
+    for pat in ('squad_kills = 0', 'Global.squadron_broken = false',
+                'squad_broken = false'):
+        if pat not in m:
+            sys.exit('start_sortie missing reset: %s' % pat)
+elif check == 'debrief-paths':
+    m = read('main.gd')
+    # both death paths must arm the debrief timer — no stranded screens
+    for fn in ('_on_player_died', '_on_boss_killed'):
+        i = m.find('func ' + fn)
+        if i < 0:
+            sys.exit(fn + ' not found')
+        if 'debrief_timer' not in m[i:i + 400]:
+            sys.exit(fn + ' does not arm debrief_timer')
+elif check == 'tween-guards':
+    # flicker guards: kill-before-create on hot modulate/alpha tweens
+    pairs = (('hud.gd', '_score_tween'), ('hud.gd', '_hull_tween'),
+             ('main.gd', '_fade_tween'))
+    for f, v in pairs:
+        src = read(f)
+        if (v + ' != null') not in src or '.kill()' not in src:
+            sys.exit('%s: %s kill-guard missing' % (f, v))
+    # effects.gd stores its guard in item meta rather than a member var
+    fx = read('effects.gd')
+    if 'has_meta("_flash_tween")' not in fx or '.kill()' not in fx:
+        sys.exit('effects.gd: _flash_tween kill-guard missing')
+elif check == 'pool-guard':
+    b = read('background.gd')
+    i = b.find('func generate(')
+    blk = b[i:i + 600]
+    if 'pool.is_empty()' not in blk:
+        sys.exit('generate() missing empty-pool guard (modulo-by-zero risk)')
+elif check == 'squadron-goals-sane':
+    s = read('sortie_data.gd')
+    if 'SQUADRON_TYPES' not in s or 'squadron_goal' not in s:
+        sys.exit('squadron goal helpers missing from sortie_data.gd')
+PYEOF
+        record "$name" "PASS"
+    else
+        record "$name" "FAIL — $(cat "$OUT" | head -1)"
+    fi
+}
+
 # --- run the checks ---
 godot_check "godot-import"      "$GODOT" --headless --path "$PROJECT" --import
 godot_check "godot-smoke-30s"   "$GODOT" --headless --path "$PROJECT" --quit-after 1800 -- --autostart
@@ -112,6 +171,11 @@ done
 web_check   "web-photo-keyframes" photo-keyframes
 web_check   "web-intro-timeout"   intro-timeout
 web_check   "web-version-sync"    version-sync
+gdscript_check "gdscript-squadron-reset"  squadron-reset
+gdscript_check "gdscript-debrief-paths"  debrief-paths
+gdscript_check "gdscript-tween-guards"   tween-guards
+gdscript_check "gdscript-pool-guard"     pool-guard
+gdscript_check "gdscript-squadron-goals" squadron-goals-sane
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"

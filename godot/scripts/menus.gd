@@ -191,6 +191,14 @@ func show_debrief(data: Dictionary) -> void:
 		else:
 			debrief_vbox.add_child(_label("> x OPTIONAL: %s  (%d/%d)" % [String(o["text"]), int(o["progress"]), int(o["target"])], 21, Color(0.6, 0.57, 0.5)))
 	debrief_vbox.add_child(_label("> FINAL SCORE  %d" % int(data["score"]), 30, Color(0.95, 0.85, 0.55)))
+	# squadron shoot-down goal: kills vs the break-point, bonus when broken
+	var sk := int(data.get("squad_kills", 0))
+	var sg := int(data.get("squad_goal", 0))
+	if sg > 0:
+		if bool(data.get("squad_broken", false)):
+			debrief_vbox.add_child(_label("> v SQUADRON: %d/%d DOWN — BROKEN  (+%d)" % [sk, sg, int(data.get("squad_bonus", 0))], 21, Color(1.0, 0.85, 0.4)))
+		else:
+			debrief_vbox.add_child(_label("> x SQUADRON: %d/%d down (goal %d)" % [sk, sg, sg], 21, Color(0.6, 0.57, 0.5)))
 	if bool(data["campaign_done"]):
 		debrief_next_btn.text = "RETURN TO TITLE"
 	elif bool(data["win"]):
