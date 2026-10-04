@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v6 — 2026-10-04
+
+Avast! v6 hoists the photorealism canvas — churned mud, water-crater glints, trench works with true depth, scorched earth by the front, and an atmosphere rig of grain, vignette, haze, god-rays, and dawn-to-dusk grading. The camera stands iron-rigid: strictly top-down, pan and zoom only, ne'er a tilt — Capcom 1942 congruency. Procedural craft all, matey, ne'er claimed as photographic. QA's three new lookouts (atmosphere wiring, precompute, camera iron rule) stand the watch.
+
+
 ## v5 — 2026-10-04
 
 v5: troop trucks roll to the front — canvas-covered lorries what halt and spill their feldgrau cargo toward the lines, and a sharp interdiction bonus fer sendin' 'em to Davy Jones' locker. Enemy forward airfields rise behind the lines — strafe their parked crates and watch the fire spread wing to wing — while our own aerodrome waves farewell below. Barbed wire grows posts and coils, dirt roads scar the fields, and the minimap learns new tricks: red squares fer ground pounders, airfield marks, and wire lines. No popups, no parades — the way Capcom intended, arrr.

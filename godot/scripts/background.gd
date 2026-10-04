@@ -80,8 +80,8 @@ class GroundFeatures extends Node2D:
 	# theme -> feature kind pool
 	const POOLS := {
 		"farmland": ["mud", "mud", "stump", "wreck", "road", "cloudwisp"],
-		"trenches": ["mud", "crater", "crater", "stump", "wreck", "road", "cloudwisp"],
-		"nomansland": ["crater", "crater", "mud", "stump", "wreck", "road", "cloudwisp"],
+		"trenches": ["mud", "crater", "crater", "scorch", "stump", "wreck", "road", "cloudwisp"],
+		"nomansland": ["crater", "crater", "scorch", "mud", "stump", "wreck", "road", "cloudwisp"],
 		"uboat_flotilla": ["wave", "wave", "wake", "cloudwisp"],
 		"uboat_base": ["wave", "wake", "penblock", "crane", "cloudwisp"],
 		"zeppelin_sheds": ["shed", "mast", "mud", "cloudwisp"],
@@ -130,16 +130,47 @@ class GroundFeatures extends Node2D:
 					_ellipse(p, 46.0 * s, 30.0 * s, Color(0.10, 0.085, 0.06, 0.85), it["r"])
 					_ellipse(p + Vector2(18, 10) * s, 26.0 * s, 18.0 * s,
 						Color(0.14, 0.115, 0.08, 0.8), -it["r"])
+					# churned flecks: clods of turned earth, deterministic from phase
+					var phm: float = it["ph"]
+					for k in 6:
+						var fa := phm + TAU * float(k) / 6.0
+						var fr := (18.0 + 16.0 * (0.5 + 0.5 * sin(phm * 3.0 + float(k) * 1.7))) * s
+						var fp := p + Vector2(cos(fa) * fr, sin(fa) * fr * 0.7)
+						var fsz := (2.2 + 2.4 * (0.5 + 0.5 * sin(phm * 5.0 + float(k) * 2.3))) * s
+						draw_circle(fp, fsz, Color(0.16, 0.13, 0.09, 0.7))
+				"scorch":
+					# scorched earth: a soft blackened patch where the guns have been
+					_ellipse(p, 95.0 * s, 62.0 * s, Color(0.055, 0.05, 0.045, 0.7), it["r"])
+					_ellipse(p + Vector2(22, 14) * s, 52.0 * s, 36.0 * s,
+						Color(0.04, 0.038, 0.034, 0.65), -it["r"])
 				"crater":
 					# blasted rim
 					_ellipse(p, 52.0 * s, 38.0 * s, Color(0.07, 0.06, 0.05, 0.9))
+					# sun-side rim light: the crater lip catching the sun
+					# (shadows point away from it, so the lit side faces -offset)
+					var so: Vector2 = Sun.shadow_offset
+					var sang := -PI * 0.5
+					if so.length() > 1.0:
+						sang = (-so).angle()
+					draw_arc(p, 46.0 * s, sang - 0.8, sang + 0.8, 12,
+						Color(0.55, 0.42, 0.28, 0.5), 3.0)
 					# stagnant water
 					_ellipse(p, 38.0 * s, 27.0 * s, Color(0.09, 0.11, 0.15, 0.95))
+					# sky sheen on the water: cooler, toward the top
+					_ellipse(p + Vector2(0, -9.0) * s, 28.0 * s, 16.0 * s,
+						Color(0.17, 0.21, 0.30, 0.45))
 					# firelight glint skimming the water
 					var g := 0.35 + 0.65 * (0.5 + 0.5 * sin(flick * 6.0 + it["ph"]))
 					_ellipse(p + Vector2(-10.0, -6.0) * s, 12.0 * s, 5.0 * s,
 						Color(1.0, 0.45, 0.12, 0.55 * g), 0.5)
+					# cool sky glint on the far side
+					var g2 := 0.35 + 0.65 * (0.5 + 0.5 * sin(flick * 4.0 - it["ph"]))
+					_ellipse(p + Vector2(11.0, 8.0) * s, 8.0 * s, 3.5 * s,
+						Color(0.65, 0.75, 0.95, 0.4 * g2), -0.5)
 				"stump":
+					# root flare where it meets the earth
+					_ellipse(p + Vector2(0, 10) * s, 13.0 * s, 6.5 * s,
+						Color(0.05, 0.04, 0.03, 0.9))
 					# shattered tree: splintered trunk + radiating shards
 					draw_line(p + Vector2(0, 10) * s, p + Vector2(0, -14) * s,
 						Color(0.06, 0.05, 0.04), 7.0 * s)
@@ -147,8 +178,12 @@ class GroundFeatures extends Node2D:
 						var a: float = float(it["r"]) + TAU * float(k) / 4.0
 						var tip := p + Vector2(cos(a), sin(a)) * 20.0 * s
 						draw_line(p, tip, Color(0.08, 0.065, 0.05), 3.5 * s)
+						# charred splinter tip
+						draw_circle(tip, 2.6 * s, Color(0.03, 0.025, 0.02, 0.95))
 					draw_circle(p, 7.0 * s, Color(0.05, 0.04, 0.035))
 				"wreck":
+					# scorch stain beneath the wreckage
+					_ellipse(p, 42.0 * s, 30.0 * s, Color(0.05, 0.045, 0.04, 0.7), it["r"])
 					# broken planks / wreckage
 					var a: float = it["r"]
 					draw_line(p - Vector2(cos(a), sin(a)) * 26.0 * s,
@@ -157,6 +192,9 @@ class GroundFeatures extends Node2D:
 					draw_line(p - Vector2(-sin(a), cos(a)) * 18.0 * s,
 						p + Vector2(-sin(a), cos(a)) * 18.0 * s,
 						Color(0.07, 0.055, 0.04), 5.0 * s)
+					# bent metal panel catching a little light
+					draw_arc(p + Vector2(12, -8) * s, 24.0 * s, a, a + 1.9, 10,
+						Color(0.14, 0.12, 0.09, 0.9), 4.0 * s)
 				"wave":
 					# wind-driven wave glints on open water
 					for k in 3:

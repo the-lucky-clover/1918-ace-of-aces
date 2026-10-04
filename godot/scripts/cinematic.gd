@@ -154,8 +154,9 @@ func _plane(pos: Vector2, rot: float, sc: float) -> void:
 
 
 func _draw_shadow(pos: Vector2, r: float, off: Vector2, alpha: float) -> void:
+	# strict top-down: shadows are circles offset in-plane by the sun angle.
 	var sp := _w2s(pos + off)
-	draw_set_transform(sp, 0.0, Vector2(r * _cam_z, r * 0.62 * _cam_z))
+	draw_set_transform(sp, 0.0, Vector2(r * _cam_z, r * _cam_z))
 	draw_circle(Vector2.ZERO, 1.0, Color(0, 0, 0, alpha))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
@@ -177,11 +178,35 @@ func _puffs(center: Vector2, count: int, spread: float, life: float, grow: float
 
 
 func _draw_aerodrome_detail(c: Vector2, s: float) -> void:
+	# grass field: mowing stripes (alternating light/dark bands)
+	for ix in 10:
+		var shade := 0.16 if ix % 2 == 0 else 0.20
+		_draw_box(c + Vector2(-400 + ix * 80, 60), Vector2(80, 1040), Color(shade, shade + 0.045, shade * 0.62))
 	# runway strip (vertical dirt strip)
 	_draw_box(c + Vector2(0, 80), Vector2(90, 900), Color(0.34, 0.28, 0.18))
+	# tire tracks: two dark wheel lines along the strip
+	_draw_box(c + Vector2(-14, 80), Vector2(7, 880), Color(0.22, 0.18, 0.12, 0.85))
+	_draw_box(c + Vector2(14, 80), Vector2(7, 880), Color(0.22, 0.18, 0.12, 0.85))
 	# two hangar tents
 	_draw_box(c + Vector2(-140, -260), Vector2(120, 90), Color(0.24, 0.22, 0.17))
 	_draw_box(c + Vector2(140, -260), Vector2(120, 90), Color(0.24, 0.22, 0.17))
+	_draw_box(c + Vector2(-140, -260), Vector2(120, 90), Color(0.0, 0.0, 0.0, 0.25))  # tent shading
+	_draw_box(c + Vector2(140, -260), Vector2(120, 90), Color(0.0, 0.0, 0.0, 0.25))
+	# two small crew tents
+	_draw_box(c + Vector2(-235, -120), Vector2(44, 34), Color(0.36, 0.32, 0.24))
+	_draw_box(c + Vector2(235, -120), Vector2(44, 34), Color(0.36, 0.32, 0.24))
+	# fuel bowser: tank rect + wheels
+	var bp := _w2s(c + Vector2(-210, 170))
+	var be := Vector2(46, 20) * _cam_z * s
+	draw_rect(Rect2(bp - be * 0.5, be), Color(0.30, 0.26, 0.18))
+	draw_circle(bp + Vector2(-14 * _cam_z * s, 12 * _cam_z * s), 5.0 * _cam_z * s, Color(0.10, 0.10, 0.10))
+	draw_circle(bp + Vector2(14 * _cam_z * s, 12 * _cam_z * s), 5.0 * _cam_z * s, Color(0.10, 0.10, 0.10))
+	# AA sandbag pit: ring of dots
+	var pit := _w2s(c + Vector2(190, 250))
+	for ai in 12:
+		var a := TAU * float(ai) / 12.0
+		draw_circle(pit + Vector2(cos(a), sin(a)) * 22.0 * _cam_z * s, 4.0 * _cam_z * s, Color(0.38, 0.33, 0.24))
+	draw_circle(pit, 6.0 * _cam_z * s, Color(0.12, 0.12, 0.12))
 	# windsock: pole + orange sock
 	var wp := _w2s(c + Vector2(110, -60))
 	draw_line(wp, wp + Vector2(0, -46 * _cam_z * s), Color(0.4, 0.33, 0.22), 4.0 * _cam_z)
@@ -189,10 +214,18 @@ func _draw_aerodrome_detail(c: Vector2, s: float) -> void:
 		wp + Vector2(34 * _cam_z * s, -38 * _cam_z * s),
 		wp + Vector2(34 * _cam_z * s, -26 * _cam_z * s)])
 	draw_colored_polygon(sock_pts, Color(0.85, 0.45, 0.15))
+	# blast-pen revetments: U-shaped sandbag lines around two parked aircraft
+	for px in [-110.0, 110.0]:
+		var rp := _w2s(c + Vector2(px, 90))
+		var rr := 34.0 * _cam_z * s
+		draw_arc(rp, rr, 0.0, TAU, 24, Color(0.38, 0.33, 0.24), 5.0 * _cam_z * s)
 	# three parked SPADs
 	_plane(c + Vector2(-110, 60), 0.4, 0.32 * s)
 	_plane(c + Vector2(-60, 130), -0.3, 0.32 * s)
 	_plane(c + Vector2(110, 90), 2.8, 0.32 * s)
+	# oil stains near the parking area
+	draw_circle(_w2s(c + Vector2(-70, 190)), 7.0 * _cam_z * s, Color(0.08, 0.08, 0.08, 0.7))
+	draw_circle(_w2s(c + Vector2(90, 160)), 5.0 * _cam_z * s, Color(0.08, 0.08, 0.08, 0.7))
 
 
 func _draw_box(center: Vector2, ext: Vector2, col: Color) -> void:
@@ -213,6 +246,15 @@ func _draw_farmland(scroll: float) -> void:
 			if wy < -260.0 or wy > 1560.0:
 				continue
 			_draw_box(Vector2(wx + 90, wy + 110), Vector2(cw - 8, ch - 8), cols[(ix + iy) % 4])
+			# hedgerow border along the field edge
+			var hp0 := _w2s(Vector2(wx + 4, wy + 4))
+			var hp1 := _w2s(Vector2(wx + cw - 4, wy + 4))
+			draw_line(hp0, hp1, Color(0.10, 0.13, 0.06, 0.8), 3.0 * _cam_z)
+	# country road: pale strip crossing the fields diagonally (in-plane)
+	var rp0 := _w2s(Vector2(-90, scroll - 160.0))
+	var rp1 := _w2s(Vector2(630, scroll + 1560.0))
+	draw_line(rp0, rp1, Color(0.42, 0.36, 0.26), 14.0 * _cam_z)
+	draw_line(rp0, rp1, Color(0.30, 0.25, 0.18), 3.0 * _cam_z)
 
 
 func _draw_trench_band(wy: float) -> void:

@@ -164,15 +164,48 @@ elif check == 'truck-secondary-sane':
     i = m.find('sec_id = "trucks"')
     if i < 0 or '"truck":' not in m[max(0, i - 200):i]:
         sys.exit('main.gd kill-match missing "truck" -> "trucks"')
-elif check == 'airfield-spawn':
+elif check == 'atmosphere-wired':
     import os
-    if not os.path.exists(P + 'airfield.gd') or not os.path.exists(P + 'truck.gd'):
-        sys.exit('airfield.gd or truck.gd missing')
+    if not os.path.exists(P + 'atmosphere.gd'):
+        sys.exit('atmosphere.gd missing')
     m = read('main.gd')
-    if 'etype == "airfield"' not in m or 'etype == "truck"' not in m:
-        sys.exit('main.gd missing airfield/truck wave branches')
-    if 'escort_spots()' not in m:
-        sys.exit('main.gd does not spawn airfield escort via escort_spots()')
+    for pat in ('AtmosphereScript', '_atmo', '_atmo.setup'):
+        if pat not in m:
+            sys.exit('main.gd missing atmosphere wiring: %s' % pat)
+    if 'layer = 4' not in m:
+        sys.exit('main.gd: atmosphere CanvasLayer not on layer 4')
+elif check == 'atmosphere-precompute':
+    a = read('atmosphere.gd')
+    i = a.find('func _ready()')
+    if i < 0:
+        sys.exit('atmosphere.gd has no _ready()')
+    ready = a[i:a.find('func ', i + 12) if a.find('func ', i + 12) > 0 else len(a)]
+    for tex in ('_grain_tex', '_vign_tex', '_haze_tex', '_shaft_tex', '_scorch_tex'):
+        if tex not in ready:
+            sys.exit('texture not precomputed in _ready(): %s' % tex)
+    i = a.find('func _draw()')
+    nxt = a.find('\nfunc ', i)
+    drawblk = a[i:nxt] if nxt > 0 else a[i:i + 4000]
+    if 'ImageTexture.create_from_image' in drawblk or 'Image.create(' in drawblk:
+        sys.exit('_draw() regenerates textures per-frame (must be precomputed)')
+elif check == 'camera-iron-rule':
+    # camera stays strictly top-down: pan and zoom only, never rotation/tilt
+    m = read('main.gd')
+    if 'camera.rotation' in m:
+        sys.exit('main.gd touches camera rotation')
+    tscn = open('/home/hatch/workspace/1918-godot/scenes/main.tscn').read()
+    camblk = tscn.split('type="Camera2D"')[1][:300]
+    if 'rotation' in camblk or 'zoom' in camblk:
+        sys.exit('Camera2D has rotation/zoom set in main.tscn')
+    c = read('cinematic.gd')
+    # the virtual camera may only ever change _cam_c (pan) and _cam_z (zoom);
+    # in-plane aircraft banking via _plane() is exempt (it is not the camera)
+    for line in c.splitlines():
+        s = line.strip()
+        if s.startswith('_cam_') and '=' in s and '==' not in s:
+            var = s.split('=')[0].strip()
+            if var not in ('_cam_c', '_cam_z'):
+                sys.exit('cinematic writes unexpected camera var: %s' % var)
 PYEOF
         record "$name" "PASS"
     else
@@ -198,6 +231,9 @@ gdscript_check "gdscript-pool-guard"     pool-guard
 gdscript_check "gdscript-squadron-goals" squadron-goals-sane
 gdscript_check "gdscript-truck-secondary" truck-secondary-sane
 gdscript_check "gdscript-airfield-spawn"  airfield-spawn
+gdscript_check "gdscript-atmosphere-wired" atmosphere-wired
+gdscript_check "gdscript-atmosphere-precompute" atmosphere-precompute
+gdscript_check "gdscript-camera-iron-rule" camera-iron-rule
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"

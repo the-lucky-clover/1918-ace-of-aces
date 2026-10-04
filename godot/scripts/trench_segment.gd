@@ -95,10 +95,28 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	var pal: Dictionary = ALLIED if faction == "allied" else GERMAN
 	var enemy_side := 1.0 if faction == "german" else -1.0
-	# trench: dark zigzag with a darker cut
+	# trench: dark zigzag with a darker cut; a sliver of lip light on the
+	# near edge first, so the cut reads as having real depth
 	if pts.size() > 1:
+		var lip := PackedVector2Array()
+		for p in pts:
+			lip.append(p + Vector2(0, -9.0))
+		draw_polyline(lip, Color(0.42, 0.38, 0.28, 0.5), 2.5)
 		draw_polyline(pts, pal["trench"], 17.0)
 		draw_polyline(pts, pal["trench_in"], 9.0)
+		# duckboards: plank treads across the trench floor
+		var di := 0
+		for p in pts:
+			if di % 4 == 1:
+				draw_line(p + Vector2(-6.5, 0), p + Vector2(6.5, 0),
+					Color(0.32, 0.26, 0.16, 0.75), 2.5)
+			di += 1
+	# sandbag parapet on the enemy-facing side, grounded by a drop shadow
+	var sh := PackedVector2Array()
+	for p in pts:
+		sh.append(p + Vector2(0, 17.0 * enemy_side))
+	if sh.size() > 1:
+		draw_polyline(sh, Color(0.02, 0.02, 0.02, 0.5), 8.0)
 	# sandbag parapet on the enemy-facing side
 	for p in pts:
 		var sp := p + Vector2(0, 12.0 * enemy_side)

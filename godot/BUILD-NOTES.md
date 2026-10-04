@@ -392,6 +392,91 @@ just shows up, no intro popups, game stays readable at full speed.
 Tuning: truck 70 HP / 250 pts · stops at y 520–860 · unload after 1.2 s ·
 infantry march 34 px/s up-screen for 3.5–5 s · parked chain 130 px / 60 dmg.
 
+## Photorealism push — 2026-10-03 (v6)
+
+Steven's directive: "Iterate photorealism in minds eye excursions to front
+lines and behind." Push the illusion with procedural craft — **never claim
+it as photographic**. Everything below is honest GDScript vector work;
+the game, notes, and changelog describe it as craft, not photography.
+
+**HONESTY RULE (binding):** no text anywhere in-game or in these notes
+calls the visuals photographic, archival-photo-real, or AI-generated. The
+technique is layered procedural drawing; the illusion is the goal, not
+the claim.
+
+### Terrain truth (`scripts/background.gd`, `scripts/trench_segment.gd`)
+
+- **Churned mud, layered** — mud blotches gained 6 deterministic churned
+  flecks (seeded from each patch's own RNG stream) so no fill is flat; no
+  per-frame noise regen anywhere.
+- **Water-filled shell craters** — crater pools read `Sun.shadow_offset`
+  for a sun-side rim light, plus sky sheen, and dual glints (warm
+  firelight + cool sky). They catch light, not look like gray bowls.
+- **Scorched earth gradient** — new `"scorch"` feature kind seeded into the
+  trenches / no-man's-land pools: dark gradient wash pooling near the
+  front lines.
+- **Trench works with depth** (`scripts/trench_segment.gd`) — trench lip
+  gets a lip-light sliver, duckboard plank treads, sandbag-parapet drop
+  shadows: three stacked cues read as depth from straight above.
+- **Shattered stumps** — root flare + charred tips.
+- **Wreckage fields** — scorch stain under each wreck + a bent-panel arc
+  so wreckage reads as torn metal, not gray boxes.
+
+### Atmosphere rig (`scripts/atmosphere.gd` new, `scripts/sun.gd`)
+
+New CanvasLayer **layer 4** (`_atmo` in `main.gd`, wired in `_ready` and
+driven per-sortie by `_atmo.setup(takeoff, theme)` inside `start_sortie`,
+after `_weather.setup` so `Global.weather_kind` is fresh):
+
+- **Film grain** — precomputed 256×256 noise tile, ±3 px jitter every 3rd
+  frame, alpha 0.05: alive but invisible unless you hunt it.
+- **Vignette** — precomputed radial falloff, alpha 0.22: keeps eyes on
+  the action, costs nothing.
+- **Haze bands** — 3 drifting smoke-haze bands (parallax against the
+  scroll) for depth behind the front.
+- **Light shafts** — diagonal screen-space beams driven by
+  `sun.elevation_for_takeoff()`: strong slanted gold at dawn/dusk,
+  near-invisible at noon. A lens/sky effect, never a camera move.
+- **Scorched-front gradient** — dark top-of-frame wash over
+  trenches/no-man's-land themes: the front reads burnt before you see it.
+- **Storm grade** — color-grade overlay when weather is rain/storm.
+- **Deepened time-of-day grading** (`scripts/sun.gd`) — dawn gold alpha
+  0.10→0.16, dusk blood 0.12→0.20, richer hues; noon stays neutral.
+- **Performance** — all textures built ONCE in `_ready`; per-frame cost
+  is ~10 cheap textured draws. Nightly asserts this statically
+  (`atmosphere-precompute`, `atmosphere-wired`).
+
+### Camera iron rule (non-negotiable, enforced by nightly)
+
+Steven's standing order: the camera stays **strictly top-down at all
+times** — film plane parallel to the earth. Pan and zoom only; never
+rotation, tilt, or perspective shifts. Capcom 1942 congruency: the takeoff
+reel is the P-38 carrier launch shot — strictly top-down aerodrome,
+no wandering angles. Audit findings this pass:
+
+- `Camera2D` (main.tscn): position only — no rotation, no zoom. Gameplay
+  shake is `camera.offset` (translation = pan). Compliant.
+- Cinematic sequencer (`scripts/cinematic.gd`): virtual camera is only
+  ever `_cam_c` (pan) and `_cam_z` (zoom) — all six shots verified. In-plane
+  aircraft banking (`_plane(rot)`) is the aircraft, not the camera, and is
+  exempt (matches 1942's in-plane banking).
+- One tilted-view artifact removed: `_draw_shadow` squashed shadows 0.62×
+  vertically (an oblique-view leftover) — now strict circles offset
+  in-plane by the sun angle.
+- Takeoff reel enriched, still strictly top-down: mowing stripes, runway
+  tire tracks, tent shading, crew tents, fuel bowser, AA sandbag pit,
+  blast-pen revetment arcs, oil stains; farmland gained hedgerow lines and
+  a country road. The diagonal light-shaft graphic is a screen-space sky
+  effect, not a camera move.
+- Nightly check `camera-iron-rule` fails the build if any of this ever
+  regresses.
+
+### Readability guardrails (unchanged)
+
+Targets still pop against terrain (enemy sprites + red minimap squares
+untouched); difficulty untouched; 1942 spirit intact — new detail just
+shows up, no popup ceremonies.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

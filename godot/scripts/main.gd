@@ -12,6 +12,7 @@ const TruckScript := preload("res://scripts/truck.gd")
 const AirfieldScript := preload("res://scripts/airfield.gd")
 const CinematicScript := preload("res://scripts/cinematic.gd")
 const WeatherScript := preload("res://scripts/weather.gd")
+const AtmosphereScript := preload("res://scripts/atmosphere.gd")
 
 var state: int = State.TITLE
 var sortie_index := 0
@@ -43,6 +44,7 @@ var debug_autotest := false  # set by --autostart; enables test logging
 var _cine: Control = null    # cinematic sequencer (takeoff / landing reels)
 var _cine_mode := ""         # "takeoff" | "landing"
 var _weather: Node2D = null  # per-sortie dynamic weather (wind/rain/storm)
+var _atmo: Control = null   # screen-space atmosphere (grain/vignette/haze)
 var still_t := 0.0           # camping clock: stillness feeds Archie's accuracy
 var _fade_tween: Tween = null  # flicker guard: one fade tween at a time
 
@@ -64,6 +66,16 @@ func _ready() -> void:
 	mood_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	mood_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	mood_layer.add_child(mood_rect)
+	# screen-space atmosphere: film grain, vignette, haze, light shafts —
+	# below the HUD (5) so the world gets the mood and the UI stays clean
+	var atmo_layer := CanvasLayer.new()
+	atmo_layer.layer = 4
+	add_child(atmo_layer)
+	_atmo = AtmosphereScript.new()
+	_atmo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_atmo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	atmo_layer.add_child(_atmo)
+	_atmo.setup("12:00", "farmland")
 	# cinematic sequencer: full-screen overlay, above HUD (5), below fade (20)
 	var cine_layer := CanvasLayer.new()
 	cine_layer.layer = 8
@@ -184,6 +196,8 @@ func start_sortie(i: int) -> void:
 	# sun rig: shadows follow the sortie's takeoff time
 	Sun.shadow_offset = Sun.shadow_for_takeoff(String(s.get("takeoff", "12:00")))
 	mood_rect.color = Sun.mood_tint(String(s.get("takeoff", "12:00")))
+	# atmosphere rig: light shafts, scorch gradient, weather grade
+	_atmo.setup(String(s.get("takeoff", "12:00")), String(s["theme"]))
 	fuel_cd = 24.0
 	var hud := $HUDLayer
 	hud.set_sortie_name(String(s["name"]))

@@ -43,17 +43,27 @@ static func draw_shadow(ci: CanvasItem, radius: float = 20.0) -> void:
 	ci.draw_colored_polygon(pts, Color(0.0, 0.0, 0.0, alpha))
 
 
+## 0 at dawn/dusk, 1 at midday — drives the atmosphere's light shafts.
+static func elevation_for_takeoff(t: String) -> float:
+	var parts := t.split(":")
+	if parts.size() < 2:
+		return 1.0
+	var mins := float(parts[0]) * 60.0 + float(parts[1])
+	var t01 := clampf((mins - 360.0) / 720.0, 0.0, 1.0)  # 06:00 -> 18:00
+	return sin(PI * t01)
+
+
 ## Subtle full-screen mood tint for a sortie's takeoff time: warm dawn,
-## neutral midday, blood-red dusk. Alpha stays low — mood, not washout.
+## neutral midday, blood-red dusk. Deepened in v6 — still mood, not washout.
 static func mood_tint(t: String) -> Color:
 	var parts := t.split(":")
 	if parts.size() < 2:
 		return Color(1, 1, 1, 0)
 	var mins := float(parts[0]) * 60.0 + float(parts[1])
 	var t01 := clampf((mins - 360.0) / 720.0, 0.0, 1.0)  # 06:00 -> 18:00
-	var dawn := Color(1.0, 0.55, 0.25, 0.10)
+	var dawn := Color(1.0, 0.52, 0.22, 0.16)
 	var noon := Color(1.0, 1.0, 1.0, 0.0)
-	var dusk := Color(0.9, 0.25, 0.15, 0.12)
+	var dusk := Color(0.92, 0.22, 0.12, 0.20)
 	if t01 < 0.5:
 		return dawn.lerp(noon, t01 * 2.0)
 	return noon.lerp(dusk, (t01 - 0.5) * 2.0)
