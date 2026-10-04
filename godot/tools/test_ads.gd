@@ -13,9 +13,16 @@ var _failed := false
 
 func _initialize() -> void:
 	print("[TESTADS] starting")
-	# Clean slate: ensure no leftover test purchase from a prior run.
-	var iaps := root.get_node("IAPs")
-	iaps.call("_set_owned", false)
+	# Clean slate: reset persisted purchase + ads stats (a prior run's
+	# note_sortie_completed would otherwise leak through the cfg).
+	var cfg := ConfigFile.new()
+	cfg.load("user://1918.cfg")
+	cfg.set_value("purchases", "remove_ads", false)
+	cfg.set_value("ads", "sessions", 0)
+	cfg.set_value("ads", "sorties_completed", 0)
+	cfg.save("user://1918.cfg")
+	var ads := root.get_node("Ads")
+	ads.call("_load_stats")
 	_phase = 1
 
 
