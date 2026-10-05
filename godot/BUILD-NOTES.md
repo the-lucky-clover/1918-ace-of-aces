@@ -1446,6 +1446,74 @@ v19 ROSTER sprites on disk; 8 wingman roll frames; all 44 gameplay sprite
 stems traceable to a Blender pipeline (no orphans); wingman anim wiring
 (`begin_arrival`/`barrel_roll`, loop trigger).
 
+## Steven's playtest feedback: formation, entries, brains, camo — 2026-10-05 (v20)
+
+Steven flew the build and gave four sharp notes. All four are fixed here,
+plus his folded-in fifth: player tracers could be brighter.
+
+### 1. Wingman formation slots — exactly 45° off the player's 6 (his spec)
+The old slot math (`-fwd*78 + side*±58`) sat at ~37°. Now lateral EQUALS
+behind (`-fwd*78.0 + side*±78.0`) — atan(78/78) = 45°, one slot each side,
+slightly behind, flanking. The v19 from-below arrival sweep is untouched.
+Nightly `gdscript-v20-playtest` asserts lateral == behind.
+
+### 2. Conga lines — root cause and fix
+Root cause: slow pass aircraft (balloon 32px/s, zeppelin 55, bomber 92) took
+13–39 SECONDS to climb out in PASS_EXIT while the 0.35× wind drift carried
+them hundreds of px off the playfield sides — and despawn was y-only, so
+they lingered in wind-blown lines off the edges. (All spawns were already
+top-entry; the lines were exits, not entries.)
+Fix: exits now climb at min 260px/s with light wind (0.15×), and PASS_EXIT
+aircraft despawn when >220px past either side edge (invisible pop —
+220px off-screen). Steven's rule encoded: entries from the top 95%+,
+exits straight back out the top, fast.
+Skeptic: new HIGH `edge_linger` detector — a pass aircraft >160px off the
+side for >3s is a regression.
+
+### 3. Smarter enemies — no dumb wiggle
+The bare `sin(age*wfreq+phase)` metronome is gone. New `_lateral()`
+personalities — layered incommensurate sines with slow amplitude breathing,
+so S-turns vary in period and depth:
+- Dr.I "jink": aggressive direction changes, occasional darts
+- scout/D.VII "slash": `_slash_run()` COMMITS to a diving line at dive
+  start (faint drift correction only) — no re-homing wiggle; break-off at
+  the v10 turn line, always
+- Albatros "smooth": long lazy S-turns
+- triplane/fighter "carve": moderate purposeful S-turns
+- bomber "steady": nearly straight, faint wander
+- balloon/zeppelin "drift": majestic, unchanged
+Kette keeps its shared phase (one disciplined body). Magnitudes match the
+old weave — dodgeability and fairness unchanged; only the pattern got
+brains. `_legacy_move` (pass-exempt aircraft) flies the same personalities.
+
+### 4. Muted tactical camo — the radioactive glow, killed
+Root cause: the firing telegraph was a FULL-BODY 2.2× red strobe at 24Hz
+(`sprite.modulate = Color(2.2, 1.4, 1.4)`), firing every 1.35–2.6s per
+enemy — in a busy sky that's constant pulsing glow. (The v16 sprites
+themselves are muted and military; the glow was runtime, not art.)
+Fix: the telegraph is now a SMALL LOCAL amber glint at the nose
+(`windup_glint`, drawn in `_draw`, pulsing 4–6.5px) — the airframe never
+strobes. The boss charge telegraph stepped down from 2.0× red to a 1.55×
+white pulse. Allowed light, per Steven: local muzzle glint, hit-flash on
+damage, and the ghost baron's intentional spectral breathing (exempt).
+Skeptic: new MED `enemy_glow` detector — sustained (>0.6s) full-body
+overdrive >1.5× on a non-spectral pass aircraft; the 0.12s hit-flash can't
+trip it. Static nightly check bans `Color(2.` strobes in enemy/wingman code.
+
+### 5. Player tracers brighter (folded-in note)
+Player streaks: 4-layer draw (30px outer glow at 0.45 alpha/11 wide →
+24px mid → 16px hot core line → 4.5px pure-white tip). Player muzzle flash
+gains a 1.35× size boost via a new `boost` param on `FX.muzzle`
+(backwards-compatible default 1.0; enemy muzzle unchanged). Cheap _draw
+only — no new nodes, no light show.
+
+### Nightly
+New `QA/check_v20_playtest.py` wired as `gdscript-v20-playtest`: 45° slot
+math, all main.gd spawns off the top edge, `_lateral`/`_slash_run`/
+`dive_line` present, no `Color(2.` strobes in enemy/wingman code,
+`windup_glint` present, brightened player tracer + muzzle boost wiring.
+Skeptic gains `edge_linger` (HIGH) and `enemy_glow` (MED) detectors.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

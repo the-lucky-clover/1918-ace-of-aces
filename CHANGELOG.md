@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v20 — 2026-10-05
+
+v20: Steven's playtest feedback — 45° wingman slots, conga-line exits killed, purposeful enemy flight, muted tactical camo, brighter player tracers
+
+
 ## v19 — 2026-10-05
 
 v19: full 3D model coverage for ground war, wingman arrival sweeps 'n barrel rolls, unmistakable invincibility flashin', and FIVE full seconds o' post-loop mercy by the Captain's own order — no more poppin' wingmen, no more vector tanks. Arrr.

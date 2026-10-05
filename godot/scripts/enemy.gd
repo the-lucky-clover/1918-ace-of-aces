@@ -106,6 +106,13 @@ var _cur_frame := -1  # cache: avoid reloading the texture every frame
 var wfreq := 2.2   # weave frequency (Dr.I weaves tighter)
 var wamp := 0.8    # weave amplitude multiplier
 var kette := false  # flying in a disciplined Kette (shared weave phase/fire)
+# --- v20: movement personality. No metronome sines — purposeful flight.
+# "jink" Dr.I / "slash" divers / "smooth" Albatros / "carve" triplane+fighter
+# / "steady" bomber / "drift" balloon+zeppelin.
+var move_style := "carve"
+var dive_line := Vector2(0, 1)  # v20: the slash commits to a line, holds it
+var windup_glint := false  # v20: firing telegraph is a LOCAL muzzle glint,
+# never a full-body strobe — muted tactical camo, non-emissive
 
 # --- 1942 pass model (v10): aircraft make PASSES, not residences ---
 const PASS_ENTER := 0
@@ -143,6 +150,10 @@ func configure(p_etype: String, p_kette: bool = false, p_kette_phase: float = 0.
 	pass_mode = is_aircraft  # flying types make 1942 passes; ground rides the scroll
 	wfreq = float(t.get("wfreq", 2.2))
 	wamp = float(t.get("wamp", 0.8))
+	# v20: each type flies its own personality (documented in _lateral).
+	move_style = {"fokker_dr1": "jink", "scout": "slash", "fokker_d7": "slash",
+		"albatros": "smooth", "bomber": "steady", "balloon": "drift",
+		"zeppelin": "drift"}.get(etype, "carve")
 	kette = p_kette
 	if kette:
 		# Kette doctrine: the whole flight weaves as one body and opens fire
@@ -213,14 +224,16 @@ func _physics_process(delta: float) -> void:
 		else:
 			_set_sprite(1)
 
-	# firing with a telegraph wind-up: brief flash warns before the shot.
+	# firing with a telegraph wind-up. v20: the telegraph is a SMALL LOCAL
+	# muzzle glint at the nose (drawn in _draw) — never a full-body strobe.
+	# Muted tactical camo stays non-emissive; the warning stays readable.
 	# Pass aircraft only fight on the way down — the turn is the exit.
 	if fire_interval > 0.0 and guns_live:
 		if windup > 0.0:
 			windup -= delta
-			sprite.modulate = Color(2.2, 1.4, 1.4, sprite.modulate.a) if int(age * 24.0) % 2 == 0 else Color(1, 1, 1, sprite.modulate.a)
+			windup_glint = true
 			if windup <= 0.0:
-				sprite.modulate = Color(1, 1, 1, 1)
+				windup_glint = false
 				fire_cd = fire_interval * randf_range(0.85, 1.15) * (1.2 if ragged else 1.0)
 				_fire(player)
 		else:
@@ -245,7 +258,11 @@ func _physics_process(delta: float) -> void:
 
 	# despawn: pass aircraft exit off the top and are never seen again until
 	# the next wave; everything else rides the scroll off the bottom.
-	if pass_mode and not pass_exempt and pass_state == PASS_EXIT and position.y < -140.0:
+	# v20: exits that drifted far off the playfield SIDES despawn too —
+	# invisible pop (220px off-screen), and it kills the conga lines.
+	if pass_mode and not pass_exempt and pass_state == PASS_EXIT \
+			and (position.y < -140.0 or position.x < -220.0 \
+			or position.x > Global.VIEW_W + 220.0):
 		queue_free()
 		return
 	if position.y > Global.VIEW_H + 120.0:
@@ -262,7 +279,9 @@ func _pass_move(delta: float, player: Node2D, ragged: bool) -> bool:
 		return pass_state == PASS_ENTER or pass_state == PASS_ATTACK
 	match pass_state:
 		PASS_ENTER:
-			vel = Vector2(sin(age * 2.0 + weave_phase) * 40.0, speed * 0.9)
+			# v20: gentle purposeful S on the way in — never a metronome
+			vel = Vector2(46.0 * sin(age * 1.4 + weave_phase) \
+				+ 18.0 * sin(age * 2.9 + weave_phase * 1.6), speed * 0.9)
 			if global_position.y >= 110.0:
 				pass_state = PASS_ATTACK
 		PASS_ATTACK:
@@ -277,34 +296,68 @@ func _pass_move(delta: float, player: Node2D, ragged: bool) -> bool:
 			if k >= 1.0:
 				pass_state = PASS_EXIT
 		PASS_EXIT:
-			vel = Vector2(sin(age * 2.2 + weave_phase) * speed * 0.45, -speed) \
-				+ Global.wind * 0.35
+			# v20: exits are QUICK — minimum climb speed and light wind, so
+			# slow types (balloon/zeppelin/bomber) can't drift off the
+			# playfield sides and linger in conga lines. Steven's rule:
+			# entries from the top 95%; exits go straight back out the top.
+			var climb := maxf(speed, 260.0)
+			vel = Vector2(sin(age * 2.2 + weave_phase) * speed * 0.3, -climb) \
+				+ Global.wind * 0.15
 	return pass_state == PASS_ENTER or pass_state == PASS_ATTACK
 
 
-## The attack run: each type's personality, on the way down. The scout's
-## dive always carries downward — the pass never stalls into a hover.
+## v20: purposeful lateral flight — layered incommensurate sines plus slow
+## amplitude breathing, so S-turns vary in period and depth and never tick
+## like a metronome. Magnitudes match the old weave, so dodgeability and
+## fairness are unchanged; only the pattern got brains.
+func _lateral(mult := 1.0) -> float:
+	var p := weave_phase
+	match move_style:
+		"jink":  # Dr.I: aggressive direction changes, occasional darts
+			var dart := 0.62 * sin(age * 2.6 + p) + 0.38 * sin(age * 4.3 + p * 1.7)
+			return speed * wamp * dart * (0.65 + 0.35 * sin(age * 0.31 + p * 2.3)) * mult
+		"smooth":  # Albatros: long lazy S-turns
+			return speed * wamp * (0.75 * sin(age * 1.1 + p) + 0.25 * sin(age * 2.7 + p * 0.6)) * mult
+		"steady":  # bomber: nearly straight, faint wander
+			return (26.0 * sin(age * 0.5 + p) + 12.0 * sin(age * 1.3 + p * 1.3)) * mult
+		_:  # "carve": moderate purposeful S-turns (triplane, fighter)
+			return speed * wamp * (0.7 * sin(age * 1.8 + p) + 0.3 * sin(age * 3.1 + p * 1.4)) * mult
+
+
+## v20: the slash — a committed diving line, held, not re-homed every frame
+## (the old homing wiggle was the dumb part). Break-off happens at the
+## v10 turn line, always. Missing is fair: the line was honest.
+func _slash_run(player: Node2D, ragged: bool) -> void:
+	if not diving and player and global_position.y > 120.0:
+		diving = true
+		var aim: Vector2 = player.global_position \
+			+ Vector2(randf_range(-90.0, 90.0), 160.0)
+		dive_line = (aim - global_position).normalized()
+	if diving:
+		var corr := Vector2.ZERO
+		if player and is_instance_valid(player):
+			# faint drift correction only — the line stays committed
+			corr = (player.global_position - global_position).normalized() \
+				* speed * (0.24 if ragged else 0.12)
+		vel = dive_line * speed + corr
+		vel.y = maxf(vel.y, speed * 0.45)  # the pass always carries down
+	else:
+		vel = Vector2(_lateral(0.5), speed * 0.7)
+
+
+## The attack run: each type's personality, on the way down.
 func _attack_run(player: Node2D, ragged: bool) -> void:
+	var rm := 1.15 if ragged else 1.0  # broken squadrons fly wider, not smarter
 	match behavior:
 		"weave":
-			vel = Vector2(sin(age * wfreq + weave_phase) * speed * (1.08 if ragged else wamp), speed * 0.55)
+			vel = Vector2(_lateral(rm), speed * 0.55)
 		"dive":
-			if not diving and player and global_position.y > 120.0:
-				diving = true
-			if diving and player and is_instance_valid(player):
-				var want := (Vector2(player.global_position.x, player.global_position.y + 160.0) - global_position)
-				var break_dist := 56.0 if ragged else 8.0
-				if want.length() > break_dist:
-					vel = want.normalized() * speed
-				else:
-					vel = Vector2(0, speed)
-				vel.y = maxf(vel.y, speed * 0.45)  # the pass always carries down
-			else:
-				vel = Vector2(0, speed * 0.7)
+			_slash_run(player, ragged)
 		"heavy":
-			vel = Vector2(sin(age * 0.8 + weave_phase) * 40.0, speed)
+			vel = Vector2(_lateral(rm), speed)
 		"drift":
-			vel = Vector2(sin(age * 0.6 + weave_phase) * 24.0, speed)
+			vel = Vector2(sin(age * 0.6 + weave_phase) * 24.0 \
+				* (0.7 + 0.5 * sin(age * 0.23 + weave_phase * 1.9)), speed)
 		_:
 			vel = Vector2(0, speed)
 
@@ -325,6 +378,7 @@ func _begin_turn() -> void:
 		turn_dir = 1.0
 	# never freeze a firing telegraph mid-flash — the turn is a clean exit
 	windup = 0.0
+	windup_glint = false
 	sprite.modulate = Color(1, 1, 1, sprite.modulate.a)
 	FX.bank_puff(get_parent(), global_position)
 	SFX.play("bank_whoosh", -8.0, randf_range(0.94, 1.06), 0.04)
@@ -332,23 +386,18 @@ func _begin_turn() -> void:
 
 ## World-anchored movement: ground/naval targets (and pass-exempt aircraft,
 ## e.g. boss escorts) ride the world scroll downward — the pre-v10 behavior.
+## v20: exempt aircraft fly the same purposeful personalities as the pass.
 func _legacy_move(delta: float, player: Node2D, ragged: bool) -> void:
 	match behavior:
 		"weave":
-			vel = Vector2(sin(age * wfreq + weave_phase) * speed * (1.08 if ragged else wamp), speed * 0.55)
+			vel = Vector2(_lateral(1.15 if ragged else 1.0), speed * 0.55)
 		"dive":
-			if not diving and player and global_position.y > 120.0:
-				diving = true
-			if diving and player:
-				var want := (Vector2(player.global_position.x, player.global_position.y + 160.0) - global_position)
-				var break_dist := 56.0 if ragged else 8.0
-				vel = want.normalized() * speed if want.length() > break_dist else Vector2(0, speed)
-			else:
-				vel = Vector2(0, speed * 0.7)
+			_slash_run(player, ragged)
 		"heavy":
-			vel = Vector2(sin(age * 0.8 + weave_phase) * 40.0, speed)
+			vel = Vector2(_lateral(1.15 if ragged else 1.0), speed)
 		"drift":
-			vel = Vector2(sin(age * 0.6 + weave_phase) * 24.0, speed)
+			vel = Vector2(sin(age * 0.6 + weave_phase) * 24.0 \
+				* (0.7 + 0.5 * sin(age * 0.23 + weave_phase * 1.9)), speed)
 		"ground":
 			vel = Vector2(0, Global.scroll_speed)
 		"train":
@@ -506,3 +555,9 @@ func _draw() -> void:
 	# soft top-down shadow from the sortie sun rig (ground targets skip it)
 	if is_aircraft:
 		Sun.draw_shadow(self, 18.0)
+	# v20: firing telegraph — a small pulsing amber glint at the nose,
+	# local and cheap. The airframe itself never strobes.
+	if windup_glint:
+		var blink := 0.5 + 0.5 * sin(age * 30.0)
+		draw_circle(Vector2(0, 22), 4.0 + 2.5 * blink,
+			Color(1.0, 0.72, 0.28, 0.35 + 0.5 * blink))

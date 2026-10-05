@@ -1,8 +1,7 @@
 {"date":"2026-10-05","seedfault":"","sortie":1,"sortie_name":"Sortie 2 — Moonlight Interdiction","type":"meta","version":"19"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Moonlight Interdiction","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":1,"kpm":6.0,"score":80,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Moonlight Interdiction","t":10.0284276666665,"touch_path":true,"type":"snapshot"}
-{"detail":"\"explosion_small\" fired 7x in one second — the mix is shouting","kind":"sfx_spam","seedfault":false,"sev":"MED","sortie":1,"t":15.5314356666661,"type":"anomaly"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":75.0,"kills":8,"kpm":24.0,"score":1427,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Moonlight Interdiction","t":20.0276276666668,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":50.0,"kills":13,"kpm":26.0,"score":3484,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Moonlight Interdiction","t":30.0268276666683,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":37.0,"kills":15,"kpm":22.0,"score":3834,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Moonlight Interdiction","t":40.0296379999996,"touch_path":true,"type":"snapshot"}
-{"deaths":0,"dmg":56.0,"kills":18,"run_s":50.0,"score":4754,"seedfault":false,"sortie":1,"t":50.028114666663,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":1,"kpm":6.0,"score":80,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Moonlight Interdiction","t":10.0291609999999,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":75.0,"kills":5,"kpm":14.0,"score":710,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Moonlight Interdiction","t":20.0283610000001,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":50.0,"kills":7,"kpm":14.0,"score":1040,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Moonlight Interdiction","t":30.0275610000013,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":37.0,"kills":8,"kpm":12.0,"score":1280,"seedfault":false,"sortie":1,"sortie_name":"Sortie 2 — Moonlight Interdiction","t":40.0268094444432,"touch_path":true,"type":"snapshot"}
+{"deaths":0,"dmg":25.0,"kills":8,"run_s":50.0,"score":1280,"seedfault":false,"sortie":1,"t":50.0299334444399,"type":"run_end"}

@@ -707,6 +707,14 @@ else
     record "qa-web-export-ready" "FAIL — $(cat "$OUT" | head -5 | tr '\n' ';')"
 fi
 
+# v20: Steven's playtest feedback — 45° wingman slots, top entry, movement
+# personalities, muted camo (no full-body strobes), brighter player tracers
+if python3 "$ROOT/QA/check_v20_playtest.py" >"$OUT" 2>&1; then
+    record "gdscript-v20-playtest" "PASS — $(tail -1 "$OUT")"
+else
+    record "gdscript-v20-playtest" "FAIL — $(cat "$OUT" | head -5 | tr '\n' ';')"
+fi
+
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"
 pass=0; fail=0

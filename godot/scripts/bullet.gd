@@ -56,9 +56,12 @@ func _draw() -> void:
 	var dir := vel.normalized() if vel.length() > 1.0 else Vector2(0, -1)
 	var tip := dir * 7.0
 	if from_player:
-		draw_line(-dir * 26.0, tip, Color(1.0, 0.72, 0.22, 0.30), 9.0)
-		draw_line(-dir * 20.0, tip, Color(1.0, 0.88, 0.42), 4.5)
-		draw_circle(tip, 3.8, Color(1, 1, 1, 0.95))
+		# v20: Steven's order — the player's own fire pops against the
+		# v16/v14 backgrounds. Brighter, still cheap, not a light show.
+		draw_line(-dir * 30.0, tip, Color(1.0, 0.78, 0.30, 0.45), 11.0)
+		draw_line(-dir * 24.0, tip, Color(1.0, 0.90, 0.52), 6.0)
+		draw_line(-dir * 16.0, tip, Color(1.0, 0.98, 0.80), 3.0)
+		draw_circle(tip, 4.5, Color(1, 1, 1, 1.0))
 	else:
 		draw_line(-dir * 24.0, tip, Color(1.0, 0.18, 0.08, 0.32), 9.0)
 		draw_line(-dir * 18.0, tip, Color(1.0, 0.34, 0.16), 4.5)

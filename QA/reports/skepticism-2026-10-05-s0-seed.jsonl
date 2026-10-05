@@ -1,7 +1,7 @@
 {"date":"2026-10-05","seedfault":"stall","sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","type":"meta","version":"19"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":0.0,"touch_path":true,"type":"snapshot"}
-{"detail":"wedged scout pass machine (debug_freeze_pass) + pinned","kind":"seedfault","sortie":0,"t":4.02708466666667,"type":"event"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":1,"kpm":6.0,"score":80,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":10.0291586666665,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":8.0,"score":380,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":20.0286226666668,"touch_path":true,"type":"snapshot"}
-{"detail":"scout wedged in ATTACK for 16s (expected ~8s) — v10's pass model violated","etype":"scout","kind":"pass_stall","pass_state":1,"seedfault":true,"sev":"HIGH","sortie":0,"t":20.1941266666668,"type":"anomaly"}
-{"deaths":0,"dmg":10.0,"kills":4,"run_s":25.0,"score":530,"seedfault":true,"sortie":0,"t":25.0267040000006,"type":"run_end"}
+{"detail":"wedged scout pass machine (debug_freeze_pass) + pinned","kind":"seedfault","sortie":0,"t":2.86067199999997,"type":"event"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":210,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":10.0325119999999,"touch_path":true,"type":"snapshot"}
+{"detail":"scout wedged in ATTACK for 17s (expected ~9s) — v10's pass model violated","etype":"scout","kind":"pass_stall","pass_state":1,"seedfault":true,"sev":"HIGH","sortie":0,"t":19.5765759999999,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":10.0,"dmg_per_min":30.0,"kills":4,"kpm":12.0,"score":520,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":20.0320511111111,"touch_path":true,"type":"snapshot"}
+{"deaths":0,"dmg":20.0,"kills":4,"run_s":25.0,"score":540,"seedfault":true,"sortie":0,"t":25.0313120000003,"type":"run_end"}

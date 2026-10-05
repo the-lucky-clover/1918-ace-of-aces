@@ -388,6 +388,44 @@ func _track_pass_model() -> void:
 			anomaly("pass_no_turn", "HIGH",
 				"%s blew past the turn line (y=%d) without banking the 180" % [etype, int((e as Node2D).global_position.y)],
 				{"etype": etype})
+		# v20: conga-line killer — a pass aircraft lingering far off the
+		# playfield SIDES is a regression. Exits go out the top, fast;
+		# nothing loiters off the edges.
+		var ex: float = (e as Node2D).global_position.x
+		var offside := bool(rec["pass_mode"]) and not bool(rec["exempt"]) \
+			and (ex < -160.0 or ex > Global.VIEW_W + 160.0)
+		var ot: float = float(rec.get("offside_t", -1.0))
+		if offside:
+			if ot < 0.0:
+				rec["offside_t"] = now
+			elif not bool(rec.get("offside_fired", false)) and now - ot > 3.0:
+				rec["offside_fired"] = true
+				anomaly("edge_linger", "HIGH",
+					"%s lingering %.0fs off the playfield side (x=%d) — conga-line regression" % [etype, now - ot, int(ex)],
+					{"etype": etype})
+		else:
+			rec["offside_t"] = -1.0
+		# v20: no radioactive enemies — a sustained full-body overdrive on
+		# a non-spectral pass aircraft is a regression. (The 0.12s hit-flash
+		# is far too brief to trip this; telegraphs are local glints now.
+		# Bosses keep their own deliberate telegraph language.)
+		if bool(rec["pass_mode"]) and not _ebool(e, "spectral"):
+			var spr = e.get("sprite")
+			var hot := false
+			if spr != null and is_instance_valid(spr):
+				var m: Color = (spr as Sprite2D).modulate
+				hot = maxf(m.r, maxf(m.g, m.b)) > 1.5
+			var hs: float = float(rec.get("hot_start", -1.0))
+			if hot:
+				if hs < 0.0:
+					rec["hot_start"] = now
+				elif not bool(rec.get("hot_fired", false)) and now - hs > 0.6:
+					rec["hot_fired"] = true
+					anomaly("enemy_glow", "MED",
+						"%s full-body overdrive sustained %.1fs — muted camo violated" % [etype, now - hs],
+						{"etype": etype})
+			else:
+				rec["hot_start"] = -1.0
 	# despawned / killed: stop tracking
 	for id in _tracked.keys():
 		if not seen.has(id):

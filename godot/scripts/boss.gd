@@ -139,10 +139,11 @@ func _physics_process(delta: float) -> void:
 	elif charging:
 		vel = charge_vel
 		if charge_telegraph > 0.0:
-			# telegraph: hold still and flash before the dash
+			# telegraph: hold still and flash before the dash. v20: a white
+			# pulse, not a nuclear red strobe — readable, non-emissive.
 			charge_telegraph -= delta
 			vel = Vector2.ZERO
-			sprite.modulate = Color(2.0, 0.6, 0.6) if int(age * 12.0) % 2 == 0 else Color.WHITE
+			sprite.modulate = Color(1.55, 1.55, 1.6) if int(age * 12.0) % 2 == 0 else Color.WHITE
 			if charge_telegraph <= 0.0:
 				sprite.modulate = Color.WHITE
 				if player and is_instance_valid(player):

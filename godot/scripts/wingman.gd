@@ -1,7 +1,8 @@
 extends Area2D
 ## AI wingman: shadows the player's flight path with a trail delay, holds a
-## rear-left / rear-right slot in a ^ chevron behind the player, and fires at
-## nearby enemies. Own HP; dies with an explosion, freeing its slot.
+## rear-left / rear-right slot at 45° off the player's 6 o'clock (Steven's
+## spec: flanking, slightly behind, one each side), and fires at nearby
+## enemies. Own HP; dies with an explosion, freeing its slot.
 ## In group "player" so enemy bullets can hit it (take_damage), and group
 ## "wingmen" for the minimap.
 
@@ -85,7 +86,9 @@ func _slot_target() -> Vector2:
 		delayed = history[TRAIL_FRAMES]
 	var fwd := _facing()
 	var side := fwd.rotated(PI * 0.5)
-	var off := -fwd * 78.0 + side * (-58.0 if slot == 0 else 58.0)
+	# v20: Steven's spec — 45° from the player's 6 o'clock, either side:
+	# lateral offset EQUALS the behind offset (atan(78/78) = 45°).
+	var off := -fwd * 78.0 + side * (-78.0 if slot == 0 else 78.0)
 	return delayed + off
 
 

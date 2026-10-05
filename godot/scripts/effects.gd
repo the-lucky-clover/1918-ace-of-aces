@@ -79,10 +79,11 @@ func shockwave(parent: Node, pos: Vector2) -> void:
 
 
 ## Brief muzzle flash. enemy=true tints it red-orange.
-func muzzle(parent: Node, pos: Vector2, enemy: bool = false) -> void:
+func muzzle(parent: Node, pos: Vector2, enemy: bool = false, boost: float = 1.0) -> void:
 	var m: Node2D = MuzzleScript.new()
 	if enemy:
 		m.col = Color(1.0, 0.45, 0.2)
+	m.boost = boost
 	parent.add_child(m)
 	m.global_position = pos
 

@@ -1,8 +1,8 @@
 {"date":"2026-10-05","seedfault":"","sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","type":"meta","version":"19"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":1,"kpm":6.0,"score":80,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":10.0312689999999,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":8.0,"score":370,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":20.030718,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":50.0,"kills":5,"kpm":10.0,"score":790,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":30.0301320000016,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":37.0,"kills":8,"kpm":12.0,"score":1237,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":40.0326279999993,"touch_path":true,"type":"snapshot"}
-{"detail":"bot ran the tank dry and lawn-darted","kind":"fuel_death","sortie":0,"t":46.3059499555531,"type":"event"}
-{"deaths":1,"dmg":102.0,"kills":8,"run_s":50.0,"score":1307,"seedfault":false,"sortie":0,"t":48.3085483555525,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":18.0,"score":410,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":10.027245,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":6,"kpm":18.0,"score":910,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":20.0264449999997,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":6,"kpm":12.0,"score":910,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":30.0328050000008,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":10.0,"dmg_per_min":15.0,"kills":7,"kpm":10.0,"score":1107,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":40.0322669999987,"touch_path":true,"type":"snapshot"}
+{"detail":"bot ran the tank dry and lawn-darted","kind":"fuel_death","sortie":0,"t":45.529758199997,"type":"event"}
+{"deaths":1,"dmg":93.0,"kills":7,"run_s":50.0,"score":1107,"seedfault":false,"sortie":0,"t":47.6292701999964,"type":"run_end"}

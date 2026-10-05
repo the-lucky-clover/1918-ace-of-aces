@@ -1,7 +1,7 @@
 {"date":"2026-10-05","seedfault":"","sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","type":"meta","version":"19"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":1,"kpm":6.0,"score":150,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":10.0281179999999,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":50.0,"dmg_per_min":150.0,"kills":5,"kpm":14.0,"score":640,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":20.027906,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":50.0,"dmg_per_min":100.0,"kills":9,"kpm":18.0,"score":1970,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":30.0324490000015,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":75.0,"dmg_per_min":112.0,"kills":12,"kpm":18.0,"score":2430,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":40.0321579999995,"touch_path":true,"type":"snapshot"}
-{"deaths":0,"dmg":86.0,"kills":14,"run_s":50.0,"score":3470,"seedfault":false,"sortie":2,"t":50.0309369999962,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":300,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":10.0300123333332,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":5,"kpm":14.0,"score":790,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":20.0321363333329,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":50.0,"kills":13,"kpm":26.0,"score":3290,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":30.0313833333341,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":37.0,"kills":15,"kpm":22.0,"score":3830,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":40.0305833333318,"touch_path":true,"type":"snapshot"}
+{"deaths":0,"dmg":50.0,"kills":20,"run_s":50.0,"score":5150,"seedfault":false,"sortie":2,"t":50.0297833333284,"type":"run_end"}
