@@ -1331,6 +1331,47 @@ For chat delivery, one at a time.
 - `gdscript-s2-no-uboats`: S2 is river_interdiction, zero U-boat waves,
   barges + Drachen present; barge type/behavior exist.
 
+## Web export preset + HTML5 export, staged for publish — 2026-10-05 (v18)
+
+### 1. Export templates
+- Official Godot **4.7.2-stable** export templates, installed to
+  `~/.local/share/godot/export_templates/4.7.2.stable/` (verified via
+  `version.txt`). Source: GitHub releases
+  (`godotengine/godot/releases/download/4.7.2-stable/..._export_templates.tpz`,
+  1.28 GB) — downloads.godotengine.org 303-redirects this version to the
+  archive page, so the direct `.tpz` link there does NOT resolve.
+
+### 2. Web preset (`export_presets.cfg`)
+- Preset "Web", platform Web, runnable, `export_filter="all_resources"`.
+- 720x1280 portrait, GL Compatibility (WebGL2), title "1918".
+- `variant/thread_support=false` — single-threaded build, no COOP/COEP
+  headers required (max hosting compatibility, incl. the artifact host).
+- `html/canvas_resize_policy=2` (Adaptive), focus-canvas-on-start.
+- Export path: `/home/hatch/workspace/1918-ace-of-aces/web-export/index.html`
+  (absolute — resolves from both the working source and the repo mirror).
+
+### 3. Export + verification
+- Headless `--export-release "Web"`: exit 0. Output in
+  `~/workspace/1918-ace-of-aces/web-export/`: `index.html` (5.4 KB, title
+  "1918"), `index.js` (280 KB), `index.wasm` (39.5 MB),
+  `index.pck` (2.9 MB, GDPC magic verified), audio worklets, icons. ~41 MB total.
+- No export errors. PCK size sane for 7.9 MB of assets.
+
+### 4. Staged, not published
+- Publish needs Steven watching chat for the approval tap (standing pattern).
+- `PUBLISH-CHECKLIST.md` (repo root): agent steps, Steven steps, honest
+  web-platform limitations (haptics = Android-Chrome-only via
+  `navigator.vibrate`, iOS Safari silent; ads/IAP test-mode; audio needs a
+  user gesture; `user://` → IndexedDB; WebGL2 required; bot/skeptic scripts
+  ship inert in the pack).
+
+### Nightly
+- `qa-web-export-ready`: `export_presets.cfg` carries a runnable Web preset
+  targeting `web-export/index.html` with thread support off; 4.7.2 templates
+  installed incl. a `web_*.zip`.
+
+Desktop/mobile export presets remain future work (noted, not claimed).
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render
@@ -1349,8 +1390,9 @@ For chat delivery, one at a time.
   deflection) and the 0.55s hold timing want a human thumb.
 - **Haptics**: API-gated and cooldown-throttled, but `vibrate_handheld`
   never fired on real hardware from here — needs a device check.
-- **No export presets**: iOS/Android/desktop export still needs configuring
-  in the editor (export templates + presets).
+- **Export presets**: Web preset exists and exports clean (v18). iOS/Android/
+  desktop export still needs configuring in the editor (templates are
+  installed; presets not yet defined).
 - **Difficulty balance**: tuned for "beatable" but not playtested by a human.
 - **Debug flags** (kept intentionally): `-- --autostart`, `-- --autoboss[=N]`
   (N selects the boss index; `--autoboss=6` rushes the ghost duel), and

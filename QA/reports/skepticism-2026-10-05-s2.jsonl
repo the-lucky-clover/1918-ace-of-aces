@@ -1,7 +1,8 @@
-{"date":"2026-10-05","seedfault":"","sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","type":"meta","version":"16"}
+{"date":"2026-10-05","seedfault":"","sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","type":"meta","version":"18"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":350,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":10.0326289999999,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":4,"kpm":12.0,"score":600,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":20.0318290000001,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":5,"kpm":10.0,"score":730,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":30.0310290000005,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":25.0,"dmg_per_min":37.0,"kills":6,"kpm":8.0,"score":900,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":40.0302289999977,"touch_path":true,"type":"snapshot"}
-{"deaths":0,"dmg":25.0,"kills":10,"run_s":50.0,"score":1722,"seedfault":false,"sortie":2,"t":50.0294289999942,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":10.0271063333332,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":4,"kpm":12.0,"score":714,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":20.0332023333335,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":14.0,"dmg_per_min":28.0,"kills":7,"kpm":14.0,"score":1464,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":30.0324023333348,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":34.0,"dmg_per_min":51.0,"kills":7,"kpm":10.0,"score":1514,"seedfault":false,"sortie":2,"sortie_name":"Sortie 3 — The Zeppelin Sheds","t":40.028484999999,"touch_path":true,"type":"snapshot"}
+{"detail":"bot ran the tank dry and lawn-darted","kind":"fuel_death","sortie":2,"t":42.2107383333316,"type":"event"}
+{"deaths":1,"dmg":44.0,"kills":7,"run_s":50.0,"score":1524,"seedfault":false,"sortie":2,"t":47.6435158148116,"type":"run_end"}

@@ -1,8 +1,7 @@
-{"date":"2026-10-05","seedfault":"","sortie":5,"sortie_name":"Sortie 6 — Iron Harvest","type":"meta","version":"16"}
+{"date":"2026-10-05","seedfault":"","sortie":5,"sortie_name":"Sortie 6 — Iron Harvest","type":"meta","version":"18"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":5,"sortie_name":"Sortie 6 — Iron Harvest","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":5,"sortie_name":"Sortie 6 — Iron Harvest","t":10.0316996666665,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":5,"sortie_name":"Sortie 6 — Iron Harvest","t":20.0308996666662,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":75.0,"dmg_per_min":150.0,"kills":2,"kpm":4.0,"score":750,"seedfault":false,"sortie":5,"sortie_name":"Sortie 6 — Iron Harvest","t":30.0300996666675,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":86.0,"dmg_per_min":129.0,"kills":2,"kpm":2.0,"score":800,"seedfault":false,"sortie":5,"sortie_name":"Sortie 6 — Iron Harvest","t":40.0292996666651,"touch_path":true,"type":"snapshot"}
-{"detail":"bot ran the tank dry and lawn-darted","kind":"fuel_death","sortie":5,"t":41.1809316666647,"type":"event"}
-{"deaths":1,"dmg":108.0,"kills":4,"run_s":50.0,"score":1150,"seedfault":false,"sortie":5,"t":47.6286916666625,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":5,"sortie_name":"Sortie 6 — Iron Harvest","t":10.0303433333332,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":6.0,"score":1000,"seedfault":false,"sortie":5,"sortie_name":"Sortie 6 — Iron Harvest","t":20.0171305333333,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":6.0,"score":1300,"seedfault":false,"sortie":5,"sortie_name":"Sortie 6 — Iron Harvest","t":30.0232265333345,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":11.0,"dmg_per_min":16.0,"kills":3,"kpm":4.0,"score":1320,"seedfault":false,"sortie":5,"sortie_name":"Sortie 6 — Iron Harvest","t":40.022638533332,"touch_path":true,"type":"snapshot"}
+{"deaths":0,"dmg":36.0,"kills":3,"run_s":50.0,"score":1330,"seedfault":false,"sortie":5,"t":50.0218385333285,"type":"run_end"}

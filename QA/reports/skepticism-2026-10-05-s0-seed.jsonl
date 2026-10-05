@@ -1,7 +1,8 @@
-{"date":"2026-10-05","seedfault":"stall","sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","type":"meta","version":"16"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":0.0,"touch_path":true,"type":"snapshot"}
-{"detail":"wedged scout pass machine (debug_freeze_pass) + pinned","kind":"seedfault","sortie":0,"t":2.879434,"type":"event"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":220,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":10.0329069999999,"touch_path":true,"type":"snapshot"}
-{"detail":"scout wedged in ATTACK for 17s (expected ~9s) — v10's pass model violated","etype":"scout","kind":"pass_stall","pass_state":1,"seedfault":true,"sev":"HIGH","sortie":0,"t":19.845915,"type":"anomaly"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":8.0,"score":330,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":20.0321070000001,"touch_path":true,"type":"snapshot"}
-{"deaths":0,"dmg":35.0,"kills":4,"run_s":25.0,"score":480,"seedfault":true,"sortie":0,"t":25.0317070000009,"type":"run_end"}
+{"date":"2026-10-05","seedfault":"stall","sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","type":"meta","version":"18"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":0.0,"touch_path":false,"type":"snapshot"}
+{"detail":"wedged scout pass machine (debug_freeze_pass) + pinned","kind":"seedfault","sortie":0,"t":2.83300033333333,"type":"event"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":10.0264983333332,"touch_path":true,"type":"snapshot"}
+{"detail":"scout wedged in ATTACK for 16s (expected ~8s) — v10's pass model violated","etype":"scout","kind":"pass_stall","pass_state":1,"seedfault":true,"sev":"HIGH","sortie":0,"t":18.7982103333332,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":33.0,"dmg_per_min":99.0,"kills":3,"kpm":8.0,"score":520,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — Dawn Patrol","t":20.0325943333334,"touch_path":true,"type":"snapshot"}
+{"detail":"scout alive 22s (whole pass should take ~15s) — it never exits","etype":"scout","kind":"pass_overlife","seedfault":true,"sev":"HIGH","sortie":0,"t":24.246050333334,"type":"anomaly"}
+{"deaths":0,"dmg":33.0,"kills":4,"run_s":25.0,"score":640,"seedfault":true,"sortie":0,"t":25.0321943333342,"type":"run_end"}

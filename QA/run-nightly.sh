@@ -693,6 +693,13 @@ else
     record "gdscript-v16-sprite-sources" "FAIL — $(cat "$OUT" | head -5 | tr '\n' ';')"
 fi
 
+# v18: web export preset + installed export templates (static readiness check)
+if python3 "$ROOT/QA/check_web_export.py" >"$OUT" 2>&1; then
+    record "qa-web-export-ready" "PASS — $(tail -1 "$OUT")"
+else
+    record "qa-web-export-ready" "FAIL — $(cat "$OUT" | head -5 | tr '\n' ';')"
+fi
+
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"
 pass=0; fail=0

@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v18 — 2026-10-05
+
+Web export rigged an' ready, me hearties! Official 4.7.2 templates hauled aboard from GitHub's hold (the main depot sent us in circles), a proper Web preset charted — portrait, single-threaded, no fancy headers needed. The whole game packed into a 41-megabyte ditty bag: wasm, pck, an' all, staged in web-export/ waitin' fer the Captain's signal. NOT published yet — the launch needs the Captain watchin' the chat to tap the approval card the instant she appears, else she times out like a cowardly tide. PUBLISH-CHECKLIST.md marks the X. Desktop an' mobile exports still uncharted waters. Arrr.
+
+
 ## v17 — 2026-10-05
 
 v17: sortie minimap texture maps for every locale, 94th mission honesty (S2 reframed to moonlit river-supply interdiction with barges an' Drachen, no U-boats for an inland squadron), blue-sky cyclical arenas for the three biggest baddest bosses, an' seven infographic briefing cards. Arr!
