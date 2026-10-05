@@ -25,6 +25,17 @@ var bullet_scene := preload("res://scenes/bullet.tscn")
 
 const TRAIL_FRAMES := 16  # ~0.27 s of flight path behind the player
 
+# v19: dynamic animation — Blender-rendered roll frames (wingman-roll-00..07)
+const ROLL_FRAMES := 8
+const ROLL_DUR := 0.66
+const ARRIVE_DUR := 0.9
+var roll_frames: Array[Texture2D] = []
+var base_texture: Texture2D = null
+var spawn_t := -1.0    # >= 0: sweeping in from off-frame with a roll
+var roll_t := -1.0     # >= 0: mid barrel-roll
+var roll_delay := 0.0  # stagger so wingmen never roll as clones
+var flourish_t := 0.0  # ambient alive-ness: occasional solo roll
+
 
 func setup(p: Area2D, p_slot: int) -> void:
 	player_ref = p
@@ -38,7 +49,23 @@ func _ready() -> void:
 	collision_mask = Global.L_EBULLET | Global.L_ENEMY
 	Global.make_circle(self, 13.0)
 	sprite = $Sprite2D
+	base_texture = sprite.texture
+	for i in ROLL_FRAMES:
+		roll_frames.append(load("res://assets/sprites/wingman/wingman-roll-%02d.png" % i))
+	flourish_t = randf_range(9.0, 16.0)
 	area_entered.connect(_on_area_entered)
+
+
+## v19: called before the wingman joins the tree — it arrives with a roll.
+func begin_arrival() -> void:
+	spawn_t = 0.0
+
+
+## v19: its OWN barrel roll (staggered via delay; slot 1 mirrors the frames).
+func barrel_roll(delay := 0.0) -> void:
+	if not alive or spawn_t >= 0.0 or roll_t >= 0.0:
+		return
+	roll_delay = delay
 
 
 func _facing() -> Vector2:
@@ -67,6 +94,38 @@ func _physics_process(delta: float) -> void:
 		return
 	# v16 cohesion: graded by the sun rig (absolute set, never compounds)
 	modulate = Sun.aircraft_tint()
+	# --- v19 animation: arrival sweep + barrel rolls (Blender frames) ---
+	var animating := false
+	if spawn_t >= 0.0:
+		spawn_t += delta
+		var k := clampf(spawn_t / ARRIVE_DUR, 0.0, 1.0)
+		sprite.texture = roll_frames[mini(int(k * ROLL_FRAMES), ROLL_FRAMES - 1)]
+		sprite.rotation = 0.0
+		animating = true
+		if spawn_t >= ARRIVE_DUR:
+			spawn_t = -1.0
+	elif roll_delay > 0.0:
+		roll_delay -= delta
+		if roll_delay <= 0.0:
+			roll_t = 0.0
+			sprite.flip_h = (slot == 1)  # mirrored: its own roll, not a clone's
+	elif roll_t >= 0.0:
+		roll_t += delta
+		var k := clampf(roll_t / ROLL_DUR, 0.0, 1.0)
+		sprite.texture = roll_frames[mini(int(k * ROLL_FRAMES), ROLL_FRAMES - 1)]
+		sprite.rotation = 0.0
+		animating = true
+		if roll_t >= ROLL_DUR:
+			roll_t = -1.0
+			sprite.flip_h = false
+	if not animating:
+		if sprite.texture != base_texture:
+			sprite.texture = base_texture
+		# ambient alive-ness: a solo victory roll every so often
+		flourish_t -= delta
+		if flourish_t <= 0.0:
+			flourish_t = randf_range(9.0, 16.0)
+			barrel_roll(0.0)
 	# record the player's flight path for the trail delay
 	if player_ref != null and is_instance_valid(player_ref):
 		history.push_front(player_ref.global_position)
@@ -83,9 +142,10 @@ func _physics_process(delta: float) -> void:
 		sm_vel = sm_vel.lerp(Vector2.ZERO, 1.0 - exp(-8.0 * delta))
 	global_position += sm_vel * delta
 	global_position = Global.clamp_playfield(global_position, 30.0)
-	# banking tilt with lateral motion
-	var lv := (target - global_position)
-	sprite.rotation = clampf(lv.x * 0.004, -0.4, 0.4)
+	# banking tilt with lateral motion (not while rolling — frames own the pose)
+	if not animating:
+		var lv := (target - global_position)
+		sprite.rotation = clampf(lv.x * 0.004, -0.4, 0.4)
 	# --- engage nearest enemy in range ---
 	fire_cd -= delta
 	if fire_cd <= 0.0:

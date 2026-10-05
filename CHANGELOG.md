@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v19 — 2026-10-05
+
+v19: full 3D model coverage for ground war, wingman arrival sweeps 'n barrel rolls, unmistakable invincibility flashin', and FIVE full seconds o' post-loop mercy by the Captain's own order — no more poppin' wingmen, no more vector tanks. Arrr.
+
+
 ## v18 — 2026-10-05
 
 Web export rigged an' ready, me hearties! Official 4.7.2 templates hauled aboard from GitHub's hold (the main depot sent us in circles), a proper Web preset charted — portrait, single-threaded, no fancy headers needed. The whole game packed into a 41-megabyte ditty bag: wasm, pck, an' all, staged in web-export/ waitin' fer the Captain's signal. NOT published yet — the launch needs the Captain watchin' the chat to tap the approval card the instant she appears, else she times out like a cowardly tide. PUBLISH-CHECKLIST.md marks the X. Desktop an' mobile exports still uncharted waters. Arrr.

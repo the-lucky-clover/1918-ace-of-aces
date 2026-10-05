@@ -23,6 +23,8 @@ var windup := 0.0  # 0.35s telegraph blink before the shot
 var muzzle_t := 0.0
 var _last_dir := Vector2(0, -1)  # last firing direction, for the muzzle flash
 const BulletScene := preload("res://scenes/bullet.tscn")
+# v19: Blender-rendered MG08 nest (sandbag ring + gun shield)
+const NEST_TEX := preload("res://assets/sprites/mg-nest.png")
 
 
 func configure(p_kind: String, p_seg: Node2D, p_nest: int = -1) -> void:
@@ -119,15 +121,9 @@ func take_damage(amount: float) -> void:
 
 func _draw() -> void:
 	if kind == "mg":
-		# sandbag ring
-		for i in 8:
-			var a := TAU * float(i) / 8.0
-			draw_circle(Vector2(cos(a), sin(a)) * 15.0, 5.0, Color(0.36, 0.36, 0.32))
-		# v15: MG08 on its sled mount with the armored gun shield — the
-		# German nest signature, trained toward the enemy (down-screen)
-		draw_arc(Vector2(0, -4), 10.0, PI * 1.15, PI * 1.85, 8, Color(0.25, 0.26, 0.24), 4.0)
-		draw_rect(Rect2(-3, -2, 6, 18), Color(0.08, 0.08, 0.09))
-		draw_rect(Rect2(-8, 6, 16, 5), Color(0.16, 0.14, 0.12))
+		# v19: Blender-rendered MG08 nest (sandbag ring + gun shield)
+		var ts := NEST_TEX.get_size()
+		draw_texture(NEST_TEX, -ts * 0.5)
 	else:
 		# infantry squad: three tiny feldgrau soldiers with helmets
 		for i in 3:

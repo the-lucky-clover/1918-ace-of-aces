@@ -5,12 +5,17 @@ extends Node2D
 ## player's aircraft (slow, telegraphed shells, light damage), and brewing
 ## kills thump through the SFX bus + mobile haptics.
 
-const GERMAN_COL := Color(0.36, 0.37, 0.34)
-const FRENCH_COL := Color(0.44, 0.52, 0.62)  # horizon blue
-const UK_COL := Color(0.52, 0.46, 0.33)      # khaki drab
-const WRECK_COL := Color(0.12, 0.11, 0.10)
-
 const BulletScene := preload("res://scenes/bullet.tscn")
+
+# v19: Blender-rendered hulls + a separate barrel sprite trained on the foe.
+# Wrecks reuse the hull sprite, charred dark, under the fire/smoke overlay.
+const HULL_TEX := {
+	"german": preload("res://assets/sprites/tank-german.png"),
+	"french": preload("res://assets/sprites/tank-french.png"),
+	"uk": preload("res://assets/sprites/tank-uk.png"),
+	"a7v": preload("res://assets/sprites/tank-a7v.png"),
+}
+const BARREL_TEX := preload("res://assets/sprites/tank-barrel.png")
 
 var tanks: Array = []  # {side, nation, x, hp, alive, cd, flash, aa_cd, foe_x}
 var shells: Array = []  # {ax, ay, bx, by, t, dur, foe}
@@ -155,25 +160,29 @@ func _resolve_shell(s: Dictionary) -> void:
 		FX.explosion(get_parent(), hit_pos, false)
 
 
+func _hull_tex(t: Dictionary) -> Texture2D:
+	return HULL_TEX.get(String(t["nation"]), HULL_TEX["german"])
+
+
+func _draw_barrel(p: Vector2, bdir: float) -> void:
+	# barrel sprite points +X; flip toward the foe (rotation, not mirror)
+	var bts := BARREL_TEX.get_size()
+	draw_set_transform(p, 0.0 if bdir > 0.0 else PI, Vector2.ONE)
+	draw_texture(BARREL_TEX, Vector2(-bts.x * 0.5 + 8.0, -bts.y * 0.5))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
 func _draw_tank(t: Dictionary) -> void:
 	var p := _tank_pos(t)
-	var allied_side := String(t["side"]) == "allied"
+	var hull := _hull_tex(t)
+	var hs := hull.get_size()
 	var heavy: bool = bool(t.get("heavy", false))
-	var body: Color
-	match String(t["nation"]):
-		"french":
-			body = FRENCH_COL
-		"uk":
-			body = UK_COL
-		"a7v":
-			body = Color(0.33, 0.33, 0.30)  # A7V: darker armored box
-		_:
-			body = GERMAN_COL
 	if not bool(t["alive"]):
-		# burning wreck: blackened hull, fire flicker, smoke wisps
-		var ws := 1.4 if heavy else 1.0
-		draw_rect(Rect2(p.x - 16 * ws, p.y - 11 * ws, 32 * ws, 22 * ws), WRECK_COL)
-		draw_rect(Rect2(p.x - 10 * ws, p.y - 7 * ws, 20 * ws, 14 * ws), Color(0.05, 0.05, 0.05))
+		# burning wreck: charred hull sprite + fire flicker + smoke wisps
+		var ws := 1.35 if heavy else 1.0
+		draw_set_transform(p, 0.0, Vector2.ONE * ws)
+		draw_texture(hull, -hs * 0.5, Color(0.22, 0.20, 0.18))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		var fl := 0.6 + 0.4 * sin(age * 17.0 + p.x)
 		draw_circle(p + Vector2(0, -4), 9.0 * fl * ws, Color(1.0, 0.45, 0.1, 0.85))
 		draw_circle(p + Vector2(3, -8), 6.0 * fl * ws, Color(1.0, 0.8, 0.3, 0.9))
@@ -182,25 +191,21 @@ func _draw_tank(t: Dictionary) -> void:
 			draw_circle(p + Vector2(sin(age * 2.0 + float(i) * 2.1) * 6.0, sy),
 				7.0 + float(i) * 2.0, Color(0.15, 0.14, 0.13, 0.4))
 		return
-	if heavy:
-		_draw_a7v(t, p, body)
-		return
-	# hull + tracks
-	draw_rect(Rect2(p.x - 17, p.y - 12, 34, 24), body.darkened(0.35))
-	draw_rect(Rect2(p.x - 13, p.y - 9, 26, 18), body)
-	# turret + barrel trained on the foe
+	# live hull: Blender render, graded by nothing here (sun tint comes from
+	# the scene's modulated canvas like the old vector hulls)
+	draw_texture(hull, p - hs * 0.5)
+	# barrel trained on the foe
 	var bdir := signf(float(t["foe_x"]) - p.x)
 	if bdir == 0.0:
 		bdir = 1.0
-	draw_circle(p, 8.0, body.darkened(0.15))
-	draw_rect(Rect2(p.x + (8.0 if bdir > 0.0 else -26.0), p.y - 2, 18, 4), Color(0.1, 0.1, 0.1))
+	_draw_barrel(p, bdir)
 	# muzzle flash on firing
 	if float(t["flash"]) > 0.0:
-		var mp := p + Vector2(30.0 * bdir, 0)
+		var mp := p + Vector2(27.0 * bdir, 0)
 		draw_circle(mp, 10.0, Color(1.0, 0.75, 0.3, 0.9))
 		draw_circle(mp, 5.0, Color(1.0, 0.95, 0.7, 0.95))
 	# faction markings: French tricolor roundel, UK diamond, German square,
-	# A7V Balkenkreuz
+	# A7V Balkenkreuz (kept as vector overlays on the rendered hulls)
 	match String(t["nation"]):
 		"french":
 			draw_circle(p + Vector2(0, -16), 6.0, Color(0.2, 0.3, 0.6))
@@ -216,36 +221,6 @@ func _draw_tank(t: Dictionary) -> void:
 			draw_rect(Rect2(p.x - 3, p.y - 21, 6, 10), Color(0.08, 0.08, 0.08))
 		_:
 			draw_rect(Rect2(p.x - 5, p.y + 4, 10, 10), Color(0.5, 0.12, 0.12))
-
-
-# A7V: the armored box. Tall casemate hull, no turret — the 57mm juts
-# from the front plate, MG ports along the flanks. Reads as a land ship.
-func _draw_a7v(t: Dictionary, p: Vector2, body: Color) -> void:
-	# tracks (wide, tall)
-	draw_rect(Rect2(p.x - 24, p.y - 16, 48, 32), body.darkened(0.45))
-	# armored box hull
-	draw_rect(Rect2(p.x - 20, p.y - 13, 40, 26), body)
-	draw_rect(Rect2(p.x - 16, p.y - 10, 32, 20), body.lightened(0.08))
-	# commander's cupola hump
-	draw_rect(Rect2(p.x - 6, p.y - 6, 12, 12), body.darkened(0.15))
-	# rivet lines
-	for rx in [-14.0, 14.0]:
-		for ry in [-8.0, 0.0, 8.0]:
-			draw_circle(p + Vector2(rx, ry), 1.5, body.darkened(0.35))
-	# 57mm gun trained on the foe (front = toward foe_x)
-	var bdir := signf(float(t["foe_x"]) - p.x)
-	if bdir == 0.0:
-		bdir = 1.0
-	var gx := p.x + (22.0 if bdir > 0.0 else -22.0)
-	draw_rect(Rect2(minf(gx, p.x + 14.0 * bdir), p.y - 2.5, 22.0, 5), Color(0.1, 0.1, 0.1))
-	# flank MG ports
-	for my in [-8.0, 8.0]:
-		draw_circle(Vector2(p.x + 20.0 * bdir, p.y + my), 2.2, Color(0.08, 0.08, 0.08))
-	# muzzle flash on firing
-	if float(t["flash"]) > 0.0:
-		var mp := Vector2(gx + 14.0 * bdir, p.y)
-		draw_circle(mp, 12.0, Color(1.0, 0.75, 0.3, 0.9))
-		draw_circle(mp, 6.0, Color(1.0, 0.95, 0.7, 0.95))
 
 
 func _draw() -> void:

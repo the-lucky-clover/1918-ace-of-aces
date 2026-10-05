@@ -4,12 +4,12 @@ extends Area2D
 ## and unloads an infantry squad which shuffles out and MARCHES toward the
 ## trenches. Bombable and strafeable — etype "truck" feeds the
 ## "INTERDICT REINFORCEMENTS" secondary. If it finishes unloading it drives
-## off unharmed (no kill). Drawn procedurally: canvas bed with ribs, cab,
-## wheels — no sprite needed.
+## off unharmed (no kill). v19: Blender-rendered lorry sprite.
 
 signal killed(truck: Area2D)
 
 const TargetScript := preload("res://scripts/trench_target.gd")
+const TRUCK_TEX := preload("res://assets/sprites/truck.png")
 
 var etype := "truck"
 var score_value := 250
@@ -23,7 +23,6 @@ var phase: int = Phase.DRIVE
 var phase_t := 0.0
 var stop_at_y := 0.0   # where it halts near the lines
 var unloaded := false
-var _flutter := 0.0
 
 
 func _ready() -> void:
@@ -38,7 +37,6 @@ func _physics_process(delta: float) -> void:
 	if dead:
 		return
 	phase_t += delta
-	_flutter += delta
 	match phase:
 		Phase.DRIVE:
 			# hauling down toward the front, outpacing the world scroll
@@ -95,19 +93,7 @@ func take_damage(amount: float) -> void:
 
 
 func _draw() -> void:
-	# canvas-covered bed: tan canvas with rib arcs, fluttering faintly
-	var flap := sin(_flutter * 7.0) * 1.5
-	draw_rect(Rect2(-22, -38, 44, 56), Color(0.52, 0.47, 0.34))
-	draw_rect(Rect2(-22, -38, 44, 56), Color(0.30, 0.27, 0.20), false, 2.0)
-	for k in 4:
-		var ry := -28.0 + float(k) * 15.0
-		draw_arc(Vector2(0, ry + flap * 0.3), 20.0, -0.5, PI + 0.5,
-			10, Color(0.38, 0.34, 0.24), 2.0)
-	# cab at the front (driving down-screen)
-	draw_rect(Rect2(-19, 18, 38, 20), Color(0.16, 0.15, 0.13))
-	draw_rect(Rect2(-15, 22, 30, 7), Color(0.35, 0.42, 0.50))  # windshield glint
-	# wheels
-	for wx in [-24.0, 24.0]:
-		for wy in [-24.0, 8.0, 28.0]:
-			draw_circle(Vector2(wx, wy), 6.5, Color(0.07, 0.07, 0.08))
-			draw_circle(Vector2(wx, wy), 2.5, Color(0.25, 0.24, 0.22))
+	# v19: Blender-rendered troop lorry (canvas bed, cab, six wheels).
+	# The old vector flutter is retired with the vector body.
+	var ts := TRUCK_TEX.get_size()
+	draw_texture(TRUCK_TEX, -ts * 0.5)

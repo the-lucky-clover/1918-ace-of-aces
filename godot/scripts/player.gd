@@ -4,8 +4,9 @@ extends Area2D
 ## Controls: WASD / arrows to fly, SPACE (or left mouse) to fire, X/SHIFT bomb,
 ## Q (or double-tap) for the loop-de-loop.
 ## Power-ups: SPREAD SHOT (5-way fan), RAPID FIRE (2.5x rate), WINGMAN,
-## FUEL. Loop grants invulnerability during the maneuver + deck-stabilization
-## window after. Fuel atrophies with speed; empty tank = dead engine glide.
+## FUEL. Loop grants 5.0s invulnerability after the maneuver (v19: Steven's
+## explicit order — the old LOOP_DUR + STAB_DUR window is retired). Fuel
+## atrophies with speed; empty tank = dead engine glide.
 
 signal died
 signal damaged(amount: float)  # v13 skepticism hook: every HP loss, pre-death
@@ -18,7 +19,8 @@ const MAX_HP := 100.0
 const MAX_FUEL := 100.0
 const BOMB_COUNT_START := 2
 const LOOP_DUR := 0.75
-const STAB_DUR := 2.5
+const POST_LOOP_INVULN := 5.0  # v19: Steven's order — 5 full seconds of
+# invulnerability after the loop completes (replaces LOOP_DUR + STAB_DUR).
 const LOOP_CD := 10.0
 
 var velocity := Vector2.ZERO
@@ -33,6 +35,7 @@ var weapon_timer := 0.0
 var spread_t := 0.0
 var rapid_t := 0.0
 var gasmask_t := 0.0   # gas mask: timed immunity to mustard gas clouds
+var flash_hold := 0.0  # v19: hit-flash owns the sprite for 0.15s after damage
 var loop_t := 0.0
 var loop_cd := 0.0
 var loop_alt := 0.0   # v16: 2.5D altitude through the Immelmann (0 ground, 1 apex)
@@ -158,12 +161,19 @@ func _physics_process(delta: float) -> void:
 		_fire()
 	if Input.is_action_just_pressed("bomb"):
 		_use_bomb()
-	# --- invulnerability blink ---
+	# --- invulnerability flashing: hard square-wave, unmistakable (v19) ---
+	# white-hot = SAFE, hard dip = still safe. No ambiguity about the window.
+	# A fresh hit-flash owns the sprite for 0.15s first (damage feedback wins).
 	if invuln > 0.0:
 		invuln -= delta
-		sprite.modulate.a = 0.35 + 0.65 * absf(sin(invuln * 30.0))
+		if flash_hold > 0.0:
+			flash_hold -= delta
+		elif sin(invuln * 34.0) > 0.0:
+			sprite.modulate = Color(1.7, 1.7, 1.8, 1.0)
+		else:
+			sprite.modulate = Color(1.0, 1.0, 1.0, 0.22)
 		if invuln <= 0.0:
-			sprite.modulate.a = 1.0
+			sprite.modulate = Color.WHITE
 	# --- power-up decay ---
 	if weapon_timer > 0.0:
 		weapon_timer -= delta
@@ -216,14 +226,20 @@ func _use_bomb() -> void:
 	get_tree().call_group("hud", "update_bombs", bombs)
 
 
-## Loop-de-loop: full roll, invulnerable during the maneuver and through the
-## deck-stabilization window after. Q key or double-tap.
+## Loop-de-loop: full roll, then 5.0s of invulnerability (v19: Steven's order).
+## Q key or double-tap. Wingmen answer with their own staggered barrel rolls.
 func try_loop() -> void:
 	if not alive or engine_dead or loop_cd > 0.0 or loop_t > 0.0:
 		return
 	loop_t = LOOP_DUR
 	loop_cd = LOOP_CD
-	invuln = maxf(invuln, LOOP_DUR + STAB_DUR)
+	invuln = maxf(invuln, POST_LOOP_INVULN)
+	# wingmen roll with the player — staggered, never synchronized clones
+	var ri := 0
+	for w in wingmen:
+		if is_instance_valid(w) and w.has_method("barrel_roll"):
+			w.barrel_roll(0.22 * float(ri))
+			ri += 1
 	FX.popup(get_parent(), global_position + Vector2(0, -56), "LOOP!", Color.CYAN)
 	FX.add_trauma(0.2)
 	SFX.play("loop")
@@ -237,6 +253,7 @@ func take_damage(amount: float) -> void:
 		return
 	hp -= amount
 	invuln = 1.0
+	flash_hold = 0.15  # v19: let the hit-flash read before the blink resumes
 	damaged.emit(amount)
 	FX.hit_flash(sprite)
 	FX.add_trauma(0.35)
@@ -351,13 +368,18 @@ func add_wingman() -> void:
 		return
 	var w := wingman_scene.instantiate()
 	w.setup(self, wingmen.size())
+	# v19: no more popping in — the wingman sweeps up from off-frame below
+	# with a roll and settles into formation (arrival animation in wingman.gd)
+	w.begin_arrival()
 	# deferred: wingmen are born from pickup collection inside physics callbacks
 	get_parent().call_deferred("add_child", w)
 	w.set_deferred("global_position",
-		global_position + Vector2(-70.0 if wingmen.size() == 0 else 70.0, 80.0))
+		Vector2(global_position.x + (-70.0 if wingmen.size() == 0 else 70.0),
+			Global.VIEW_H + 80.0))
 	w.died.connect(_on_wingman_died)
 	wingmen.append(w)
 	FX.popup(get_parent(), global_position + Vector2(0, -56), "WINGMAN UP!", Color(0.5, 0.7, 1.0))
+	SFX.play("loop", -8.0, 1.25, 0.08)  # arrival whoosh
 
 
 func _on_wingman_died(w: Area2D) -> void:

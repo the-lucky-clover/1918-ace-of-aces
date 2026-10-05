@@ -1372,6 +1372,80 @@ For chat delivery, one at a time.
 
 Desktop/mobile export presets remain future work (noted, not claimed).
 
+## Model coverage + wingman animations + 5s post-loop invincibility — 2026-10-05 (v19)
+
+**The directive (Steven):** no gaps in 3D model coverage; wingmen arrive and
+roll like living pilots; invincibility is unmistakable; 5 full seconds of
+post-loop invulnerability, by explicit order.
+
+### 1. Coverage audit (Blender vs hand-drawn/PIL)
+
+| Entity | Before | Verdict |
+|---|---|---|
+| All airframes, bosses, balloons, zeppelin, loop frames | Blender v16 PBR | covered |
+| enemy-aagun, enemy-railwaygun | Blender (render_sprites.py) | covered |
+| ammodepot, uboat, subpen, train, arty | Blender (build_locales.py) | covered |
+| setpieces ×4, item-ammo/bomb/repair | Blender (render_sprites.py) | covered |
+| tanks (3 factions) + A7V | `_draw` vector | **GAP → rendered** |
+| truck | `_draw` vector | **GAP → rendered** |
+| barge | PIL flat (12 colors) | **GAP → rendered** |
+| MG nest | `_draw` vector | **GAP → rendered** |
+| item-fuel/rapid/spread/wingman | PIL flat | **GAP → rendered** |
+| infantry dots (3×4px soldiers) | `_draw` vector | intentionally vector — too small for model renders to matter |
+| atmosphere gradients, gas-mask icon | runtime-generated | intentionally runtime |
+
+**New renders** (`blender/render_v19.py`, v16 PBR pipeline, v14 sun convention):
+`tank-german/french/uk` (faction hulls + turret ring, 61px), `tank-a7v`
+(land-ship casemate, 91px), `tank-barrel` (separate, trained in code),
+`truck` (canvas bed + ribs + cab + 6 wheels — rebuilt once: cab must face
+down-screen, i.e. Blender −Y), `barge` (resized 2.4× to hold the old
+~90×220px footprint), `mg-nest` (sandbag ring + MG08 + shield),
+`item-fuel/rapid/spread/wingman` (1.5-unit icons, ~35px).
+Wiring: `tank_duel.gd` draws hull sprites + a rotation-flipped barrel sprite
+(faction markings kept as vector overlays); wrecks are the charred hull
+sprite under the existing fire/smoke; `truck.gd` / `trench_target.gd` swap
+to `draw_texture`; barge + pickups are drop-in PNG swaps.
+
+### 2. Wingman arrival animation
+
+`add_wingman()` no longer pops the wingman into formation — it spawns
+off-frame below and the wingman **sweeps up with a roll** (the 8-frame
+`wingman-roll` sequence, 0.9s) while the existing trail-delay steering
+flies it to its slot, plus an arrival whoosh on the SFX bus.
+
+### 3. Wingman barrel rolls — each its own
+
+8 Blender frames: true roll about the forward axis from the v16 wingman SPAD
+build (frame 0 == `wingman-spad.png`; frame 4 verified belly-up/inverted).
+Triggers: (a) the player loops → each wingman rolls with 0.22s stagger,
+slot 1 mirrored (`flip_h`) so they never read as synchronized clones;
+(b) ambient flourish — each wingman throws a solo victory roll every
+9–16s on its own timer. Steering and firing continue through the roll;
+the bank-tilt is suppressed while frames own the pose.
+
+### 4. Invincibility flashing — unmistakable
+
+The old sine alpha blink is retired. While `invuln > 0`: hard square-wave
+at ~5.4Hz — white-hot full-bright (SAFE) vs hard 0.22-alpha dip. A fresh
+hit owns the sprite for 0.15s first (`flash_hold`) so damage feedback
+never loses to the blink. Covers post-loop, post-revive, spawn, and
+wingman-mercy windows — never ambiguous whether you're safe.
+
+### 5. 5-second post-loop invulnerability
+
+`POST_LOOP_INVULN := 5.0` replaces `LOOP_DUR + STAB_DUR` (`STAB_DUR`
+retired from code; the loop animation itself stays 0.75s — the remaining
+~4.25s is flashing flight). Steven's explicit order; the v13 skeptic may
+flag difficulty impact and that's fine — the call stands.
+
+### Nightly
+
+New `QA/check_v19_coverage.py` wired as `gdscript-v19-coverage`:
+POST_LOOP_INVULN == 5.0 and granted in `try_loop()`; hard-blink present;
+v19 ROSTER sprites on disk; 8 wingman roll frames; all 44 gameplay sprite
+stems traceable to a Blender pipeline (no orphans); wingman anim wiring
+(`begin_arrival`/`barrel_roll`, loop trigger).
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

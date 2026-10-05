@@ -392,7 +392,7 @@ elif check == 'german-roster':
     if '_spawn_enemy' not in m or 'kette_n' not in m or '"kette"' not in m:
         sys.exit('main.gd missing Kette spawn path')
     td = read('tank_duel.gd')
-    if 'a7v' not in td or '_draw_a7v' not in td:
+    if 'a7v' not in td or '"a7v": preload' not in td or 'heavy' not in td:
         sys.exit('tank_duel.gd missing the A7V')
     af = read('airfield.gd')
     if '_draw_timber_hangar' not in af or '_draw_parked_german' not in af \
@@ -691,6 +691,13 @@ if python3 "$ROOT/QA/check_v16_sprites.py" >"$OUT" 2>&1; then
     record "gdscript-v16-sprite-sources" "PASS — $(tail -1 "$OUT")"
 else
     record "gdscript-v16-sprite-sources" "FAIL — $(cat "$OUT" | head -5 | tr '\n' ';')"
+fi
+
+# v19: model coverage + 5s post-loop invuln + wingman animation wiring
+if python3 "$ROOT/QA/check_v19_coverage.py" >"$OUT" 2>&1; then
+    record "gdscript-v19-coverage" "PASS — $(tail -1 "$OUT")"
+else
+    record "gdscript-v19-coverage" "FAIL — $(cat "$OUT" | head -5 | tr '\n' ';')"
 fi
 
 # v18: web export preset + installed export templates (static readiness check)
