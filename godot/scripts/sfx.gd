@@ -26,6 +26,13 @@ const FILES := {
 
 const POOL := 10
 
+# v21: per-name rate cap — one sound never stacks more than this many
+# times per rolling second. The skeptic calls >6/sec "shouting" (Sortie 5:
+# 7 flak shells bursting in one second = 14 combat sounds at once);
+# 4 keeps the mix sane with margin, gameplay untouched.
+
+const MAX_SAME_PER_SEC := 4
+
 var streams := {}
 var players: Array[AudioStreamPlayer] = []
 var _next := 0
@@ -67,7 +74,17 @@ func play(sfx_name: String, vol_db: float = 0.0, pitch: float = 1.0,
 	var stream: AudioStream = streams.get(sfx_name)
 	if stream == null:
 		return
-	play_log.append({"name": sfx_name, "ms": Time.get_ticks_msec()})
+	# v21 mixer dip: drop a stack before it becomes a shout. Same-name
+	# plays inside a rolling second are capped; the skeptic's own
+	# SFX_SPAM threshold sits at 6, so 4 leaves margin.
+	var now := Time.get_ticks_msec()
+	var recent := 0
+	for e in play_log:
+		if e["name"] == sfx_name and now - e["ms"] < 1000:
+			recent += 1
+			if recent >= MAX_SAME_PER_SEC:
+				return
+	play_log.append({"name": sfx_name, "ms": now})
 	if play_log.size() > 128:
 		play_log.pop_front()
 	var p := players[_next]

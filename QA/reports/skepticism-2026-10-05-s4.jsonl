@@ -1,10 +1,7 @@
-{"date":"2026-10-05","seedfault":"","sortie":4,"sortie_name":"Sortie 5 — The Pens","type":"meta","version":"19"}
+{"date":"2026-10-05","seedfault":"","sortie":4,"sortie_name":"Sortie 5 — The Pens","type":"meta","version":"20"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":0.0,"touch_path":true,"type":"snapshot"}
-{"detail":"\"explosion_small\" fired 7x in one second — the mix is shouting","kind":"sfx_spam","seedfault":false,"sev":"MED","sortie":4,"t":9.84505799999986,"type":"anomaly"}
-{"detail":"\"flak\" fired 7x in one second — the mix is shouting","kind":"sfx_spam","seedfault":false,"sev":"MED","sortie":4,"t":9.84505799999986,"type":"anomaly"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":10.0312499999998,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":13.0,"dmg_per_min":39.0,"kills":2,"kpm":6.0,"score":950,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":20.0304499999995,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":19.5,"dmg_per_min":39.0,"kills":4,"kpm":8.0,"score":1374,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":30.0296500000012,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":19.5,"dmg_per_min":29.0,"kills":5,"kpm":8.0,"score":1514,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":40.0288499999983,"touch_path":true,"type":"snapshot"}
-{"detail":"bot ran the tank dry and lawn-darted","kind":"fuel_death","sortie":4,"t":46.3946009999962,"type":"event"}
-{"deaths":1,"dmg":45.0,"kills":7,"run_s":50.0,"score":1879,"seedfault":false,"sortie":4,"t":48.4013369999955,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":6.5,"dmg_per_min":39.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":10.0315593333332,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":32.5,"dmg_per_min":97.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":20.0307593333329,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":49.0,"dmg_per_min":98.0,"kills":0,"kpm":0.0,"score":10,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":30.0299593333345,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":59.0,"dmg_per_min":88.0,"kills":1,"kpm":2.0,"score":160,"seedfault":false,"sortie":4,"sortie_name":"Sortie 5 — The Pens","t":40.0291593333321,"touch_path":true,"type":"snapshot"}
+{"deaths":0,"dmg":68.0,"kills":3,"run_s":50.0,"score":480,"seedfault":false,"sortie":4,"t":50.0320411111065,"type":"run_end"}

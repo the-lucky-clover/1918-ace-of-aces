@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v21 — 2026-10-05
+
+Heed the skeptic's own report, me hearties! Sortie 5's flak volley were stackin' fourteen booms in a single second — seven shells burstin' as one. Now the mixer dips any one sound to four per second, so the AA guns keep their teeth but lose their shout. And the detector's own papers be mended: the seedfault proof-run were gettin' swallowed by the report merger, now its green flag flies true in the nightly. Bot re-flew Sortie 5 headless — zero anomalies, zero script errors. The Captain's own ears still owe the final verdict on the mix. Arrr.
+
+
 ## v20 — 2026-10-05
 
 v20: Steven's playtest feedback — 45° wingman slots, conga-line exits killed, purposeful enemy flight, muted tactical camo, brighter player tracers

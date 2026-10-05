@@ -25,7 +25,11 @@ reports_dir, date = sys.argv[1], sys.argv[2]
 frag_paths = sorted(glob.glob(os.path.join(
     reports_dir, "skepticism-%s-s*.jsonl" % date)))
 
-runs = {}       # sortie_idx -> {"meta":..., "anomalies": [...], "snaps": [...], "events": [...]}
+runs = {}       # (sortie_idx, is_seed) -> {"meta":..., "anomalies": [...], "snaps": [...], "events": [...]}
+# v21: keyed by (sortie, seed-flag) — the seedfault fragment and the real
+# sortie-0 fragment share sortie index 0, and "-seed.jsonl" sorts before
+# ".jsonl", so the old sortie-only key silently dropped the seed run and
+# the Detector-proof section reported proof missing when it was present.
 for fp in frag_paths:
     run = {"meta": None, "anomalies": [], "snaps": [], "events": [],
            "run_end": None}
@@ -51,10 +55,10 @@ for fp in frag_paths:
                 run["events"].append(obj)
     if run["meta"] is None:
         continue
-    runs[run["meta"]["sortie"]] = run
+    runs[(run["meta"]["sortie"], bool(run["meta"].get("seedfault")))] = run
 
-real = {s: r for s, r in runs.items() if not r["meta"].get("seedfault")}
-seed = {s: r for s, r in runs.items() if r["meta"].get("seedfault")}
+real = {s[0]: r for s, r in runs.items() if not r["meta"].get("seedfault")}
+seed = {s[0]: r for s, r in runs.items() if r["meta"].get("seedfault")}
 
 crit = sum(1 for r in real.values() for a in r["anomalies"] if a["sev"] == "CRITICAL")
 high = sum(1 for r in real.values() for a in r["anomalies"] if a["sev"] == "HIGH")
