@@ -150,6 +150,14 @@ class GroundFeatures extends Node2D:
 					_ellipse(p, 46.0 * s, 30.0 * s, Color(0.10, 0.085, 0.06, 0.85), it["r"])
 					_ellipse(p + Vector2(18, 10) * s, 26.0 * s, 18.0 * s,
 						Color(0.14, 0.115, 0.08, 0.8), -it["r"])
+					# v16: wet sheen — churned mud catches the sun on the
+					# light side, a tactile specular skim (true-north rig)
+					var m_ldir: Vector2 = Sun.current.get("light_dir", Vector2(0, -1))
+					var m_lcol: Color = Sun.current.get("light_color", Color(1, 1, 1))
+					var m_sh := 0.5 + 0.5 * sin(flick * 3.0 + it["ph"])
+					_ellipse(p + m_ldir * 20.0 * s, 20.0 * s, 8.0 * s,
+						Color(m_lcol.r, m_lcol.g, m_lcol.b, 0.10 + 0.08 * m_sh),
+						m_ldir.angle())
 					# churned flecks: clods of turned earth, deterministic from phase
 					var phm: float = it["ph"]
 					for k in 6:
@@ -158,6 +166,9 @@ class GroundFeatures extends Node2D:
 						var fp := p + Vector2(cos(fa) * fr, sin(fa) * fr * 0.7)
 						var fsz := (2.2 + 2.4 * (0.5 + 0.5 * sin(phm * 5.0 + float(k) * 2.3))) * s
 						draw_circle(fp, fsz, Color(0.16, 0.13, 0.09, 0.7))
+						# v16: clod top-light — each clod catches a sun-side tick
+						draw_circle(fp + m_ldir * fsz * 0.7, fsz * 0.45,
+							Color(m_lcol.r, m_lcol.g, m_lcol.b, 0.16))
 				"scorch":
 					# scorched earth: a soft blackened patch where the guns have been
 					_ellipse(p, 95.0 * s, 62.0 * s, Color(0.055, 0.05, 0.045, 0.7), it["r"])

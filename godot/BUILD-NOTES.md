@@ -7,6 +7,35 @@ spirit of Capcom's 194x. Portrait 720x1280, GL Compatibility renderer.
 > It lives in exactly one place: `GAME_TITLE` in `scripts/global.gd`.
 > Menus, HUD, and debrief all read from that constant.
 
+## Art direction — the doctrine
+
+**1918 is a juiced-up 1942.** Capcom's spirit, with the badass juice turned all
+the way up: every airframe and every acre of earth rendered like it exists in
+the real world.
+
+- **Photorealistic, never photographic.** Everything is procedural and original
+  — built in Blender, painted in code — but it must *read* as real: wood grain
+  you could run a thumb over, doped linen with a sheen, oil staining around
+  the cowling, mud with a wet shine. We never claim a procedural pixel is a
+  photograph; we just make you forget to ask.
+- **Skeuomorphic.** Materials behave like materials. Canvas folds, timber shows
+  grain, water reflects sky, metal glints. If it doesn't feel touchable, it
+  isn't done.
+- **2.5D.** Strictly top-down camera, always — but the world has *depth*:
+  cloud decks at real heights throwing soft shadows, altitude-true aircraft
+  shadows, parallax that sells 10,000 feet. Flat is a failure mode.
+- **One light, one world.** The v14 sun rig is the single source of truth.
+  Every sprite, every shadow, every glint obeys the same sun. Nothing
+  pasted on, nothing floating outside the light.
+- **Readability is king.** Beauty never hides gameplay. A tracer, an enemy, a
+  pickup must read in 1–2 seconds against any background. If the masterpiece
+  gets in the way of the war, the masterpiece yields.
+
+*Look like the real thing. Feel like a physical object. Play like 1942 on its
+best day ever.*
+
+— *enshrined per Steven, "with tact and panache," 2026-10-04*
+
 ## Godot version
 
 - Built and headless-validated with **Godot 4.7.2-stable**
@@ -1155,6 +1184,88 @@ the Armistice specifically required Germany to surrender all D.VIIs
   spd 245 / dive / score 170. Albatros: hp 40 / spd 210 / score 140.
 - Kette: Vic offsets (±58, +40), shared phase + fire_cd.
 - A7V: hp 150, fire cd 3.5–5.5s, 57mm 30–48 dmg, ~18% spawn, max 1/duel.
+
+## Visual identity reinforcement — 2026-10-05 (v16)
+
+**The directive (Steven):** every airframe and every environment must read as
+REAL-WORLD, SKEUOMORPHIC (tactile, material-rich), 2.5D (layered depth),
+PHOTOREALISTIC. A juiced-up 1942. The SPAD XIII is the hero — it should look
+like you could reach in and touch the plywood.
+
+### Airframe material audit
+
+Every airframe sprite was audited against the bar: wood grain, fabric ribbing,
+doped-linen sheen, metal cowling reflections, oil staining, exhaust soot,
+battle wear, chipped paint. **Full roster FAILED** — the v15 renders used flat
+single-color Principled materials with no grain, no ribbing, no sheen, no
+grime. Visually confirmed on player-spad, enemy-fighter, wingman-spad,
+zeppelin; the rest share the identical builder pipeline.
+
+**Verdict: 0 passed, 19 models re-rendered.**
+
+| Airframe | v15 fail | v16 material upgrades |
+|---|---|---|
+| player-spad (hero) | flat khaki, no grain | Painted plywood skin: stretched-noise grain ghosting through paint, clearcoat sheen, chipped-paint primer show-through, nose-ward exhaust grime gradient; doped linen wings with spanwise rib albedo bands + bump; metal cowling ring + exhaust stubs |
+| wingman-spad | same as player | Same PBR stack as the hero |
+| enemy-triplane/scout/fighter/bomber | flat monochrome | Linen ribbing (albedo bands), skin grain, metal mottling; cowling + soot |
+| enemy-fokker-dr1/d7/albatros | flat | Same; lozenge/markings via marking PBR |
+| boss-1..7 (red, checker, stripes, tiger, jester, ghost, baron) | flat livery colors | Livery markings get PBR with roughness variation; airframe materials as above |
+| enemy-balloon (3 frames) | flat envelope | Ribbed envelope: wave rib albedo + bump, doped sheen |
+| zeppelin | flat envelope | Same envelope PBR at scale |
+| loop/loop-00..11 | flat SPAD | Re-rendered from the v16 hero with full PBR |
+
+**Render pipeline** (`blender/render_v16.py`): rebuilds each airframe via the
+canonical `build_models.py`, upgrades every material slot IN PLACE to
+procedural PBR (no image textures — all procedural, all original). Key
+technical fixes: (1) `normalize_pose()` bakes the join's rotation so renders
+are deterministic; (2) slots replaced in place (clearing resets
+material_index); (3) roundels added AFTER normalize to avoid transform
+mangling; (4) **Generated texture coordinates** — Object space proved
+degenerate on joined meshes (constant output); (5) **direct texture→color**
+— complex Mix node chains did not survive the booth; direct links render
+correctly; (6) **strong albedo variation** — the v14 sun compresses subtle
+ranges, so bands use 0.70×–1.30× contrast. Lighting follows the v14 sun-rig
+convention (screen-up = North, key sun due SOUTH at 60° elevation).
+
+### 2.5D depth
+
+- **Cloud decks** (`atmosphere.gd`): 3 drifting cirrus puffs at genuine
+  altitude, each throwing a soft sun-vector shadow on the terrain below
+  (`Sun.shadow_offset * 5.5`) plus a faint lit puff tinted by `light_color`.
+  The puff/shadow offset is the altitude tell — 10,000 feet, not a flat map.
+- **Altitude-true aircraft shadows** (`sun.gd`, `player.gd`): `Sun.draw_shadow`
+  takes an altitude param — higher = larger, softer, further-thrown along the
+  v14 light vector. The player's Immelmann loop drives `loop_alt` (0→1→0 via
+  `sin`), so the shadow visibly detaches and rejoins through the maneuver.
+
+### Skeuomorphic environments
+
+- **Mud** (`background.gd`): wet sheen — a sun-oriented specular skim on the
+  light side, plus per-clod top-light ticks. Churned mud catches the light.
+- **Canvas** (`airfield.gd`): Bessonneau hangar gets fold shading (cloth sags
+  between ribs, sun-side lift + lee hollow); tents get sag lines from the
+  ridge. Cloth, not cardboard.
+- **Timber** (`airfield.gd`): German hangars get long stained grain streaks
+  along the planks. Timber, not a brown box.
+- Water craters (sky reflection) and scorch (char gradients) from v6/v14
+  already passed — untouched.
+
+### Cohesion — one light, one world
+
+`Sun.aircraft_tint()` grades every airframe by the sun rig (45% toward
+night blue-grey at full night). Applied at the aircraft ROOT each physics
+tick (absolute set, never compounds) in `player.gd`, `enemy.gd`, `boss.gd`,
+`wingman.gd` — hit-flash and alpha-fade logic untouched (hierarchical
+modulate multiplies cleanly).
+
+### Nightly
+
+New static check `QA/check_v16_sprites.py` (wired as
+`gdscript-v16-sprite-sources`): parses `ROSTER` from `blender/render_v16.py`,
+asserts every rostered sprite file exists, and flags any airframe-ish PNG on
+disk with no render source (no orphan sprites). Legacy ground units
+(`enemy-aagun`, `enemy-railwaygun`) are allowlisted — they come from the
+older `render_sprites.py` pipeline.
 
 ## What's stubbed / not yet validated
 

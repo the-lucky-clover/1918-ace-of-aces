@@ -19,6 +19,10 @@ var _glow_tex: Texture2D     # v14: soft radial glow (moon, searchlights)
 var _toplight_tex: Texture2D # v14: noon top-light gradient
 
 var _haze: Array = []          # {p, s, vx, a}
+var _clouds: Array = []        # v16: high cloud deck {p, s, vx, a} — 2.5D:
+                               # soft puffs with sun-thrown shadows on the
+                               # terrain below, offset by the true-north light
+                               # vector. Cirrus-faint so aircraft read through.
 var _shaft_alpha := 0.0        # 0 in daylight, ~0.10 at dawn/dusk
 var _scorch_alpha := 0.0       # theme-driven: the front is that way
 var _grade := Color(1, 1, 1, 0)
@@ -48,6 +52,13 @@ func _ready() -> void:
 			"s": randf_range(520.0, 860.0),
 			"vx": randf_range(-7.0, 7.0),
 			"a": randf_range(0.05, 0.09),
+		})
+	for i in 3:
+		_clouds.append({
+			"p": Vector2(randf_range(0.0, 720.0), randf_range(0.0, 1280.0)),
+			"s": randf_range(300.0, 520.0),
+			"vx": randf_range(-11.0, -4.0),
+			"a": randf_range(0.08, 0.13),
 		})
 
 
@@ -107,6 +118,15 @@ func _process(delta: float) -> void:
 		elif p.x > 720.0 + s:
 			p.x = -s
 		h["p"] = p
+	for c in _clouds:
+		var cp: Vector2 = c["p"]
+		cp.x += float(c["vx"]) * delta
+		var cs: float = c["s"]
+		if cp.x < -cs:
+			cp.x = 720.0 + cs
+		elif cp.x > 720.0 + cs:
+			cp.x = -cs
+		c["p"] = cp
 	queue_redraw()
 	# sun glare: at dawn/dusk, climbing toward the light washes the lens —
 	# mild, atmospheric, never blinding
@@ -158,6 +178,24 @@ func _draw() -> void:
 		var s: float = h["s"]
 		draw_texture_rect(_haze_tex, Rect2(p - Vector2(s, s) * 0.5, Vector2(s, s)),
 			false, Color(0.72, 0.76, 0.86, float(h["a"])))
+	# v16: high cloud deck — faint cirrus puffs with their shadows thrown
+	# onto the terrain by the true-north sun vector. The offset between
+	# puff and shadow is the 2.5D tell: you're looking down from altitude.
+	if _clouds.size() > 0:
+		var coff: Vector2 = Sun.shadow_offset * 5.5
+		var lcol: Color = Sun.current.get("light_color", Color(1, 1, 1))
+		var calm := 1.0 - 0.55 * _night
+		for c in _clouds:
+			var cp2: Vector2 = c["p"]
+			var cs2: float = c["s"]
+			var ca: float = float(c["a"]) * calm
+			# shadow first (on the earth below), then the lit puff
+			draw_texture_rect(_glow_tex,
+				Rect2(cp2 + coff - Vector2(cs2, cs2) * 0.68, Vector2(cs2, cs2) * 1.36),
+				false, Color(0.02, 0.03, 0.06, 0.17 * calm))
+			draw_texture_rect(_glow_tex,
+				Rect2(cp2 - Vector2(cs2, cs2) * 0.5, Vector2(cs2, cs2)),
+				false, Color(lcol.r, lcol.g, lcol.b, ca))
 	# dawn/dusk light shafts, breathing almost imperceptibly
 	if _shaft_alpha > 0.004:
 		var shimmer := 0.85 + 0.15 * sin(_t * 0.6)

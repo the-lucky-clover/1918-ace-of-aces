@@ -35,6 +35,7 @@ var rapid_t := 0.0
 var gasmask_t := 0.0   # gas mask: timed immunity to mustard gas clouds
 var loop_t := 0.0
 var loop_cd := 0.0
+var loop_alt := 0.0   # v16: 2.5D altitude through the Immelmann (0 ground, 1 apex)
 var warn_cd := 0.0
 var fuel_warned := false  # one-time LOW FUEL callout per sortie
 var bank_angle := 0.0    # smoothed banking tilt (lerped, not snapped)
@@ -72,6 +73,9 @@ func _input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void:
 	if not alive:
 		return
+	# v16 cohesion: one light, one world — the airframe is graded by the
+	# same sun rig as the terrain (absolute set each tick, never compounds)
+	modulate = Sun.aircraft_tint()
 	# --- fuel atrophy: base burn + speed-scaled burn (pushing the throttle drinks) ---
 	if not debug_godmode and not engine_dead:
 		var spd01 := clampf(velocity.length() / MAX_SPEED, 0.0, 1.0)
@@ -124,12 +128,14 @@ func _physics_process(delta: float) -> void:
 	if loop_t > 0.0:
 		loop_t -= delta
 		var prog := clampf(1.0 - loop_t / LOOP_DUR, 0.0, 1.0)
+		loop_alt = sin(prog * PI)  # v16: climb to apex, dive back out
 		var fi := mini(int(prog * LOOP_FRAMES), LOOP_FRAMES - 1)
 		if fi != loop_frame:
 			loop_frame = fi
 			sprite.texture = loop_frames[fi]
 		sprite.rotation = 0.0
 		if loop_t <= 0.0:
+			loop_alt = 0.0
 			sprite.texture = base_texture
 			sprite.rotation = 0.0
 			bank_angle = 0.0
@@ -172,7 +178,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _draw() -> void:
-	Sun.draw_shadow(self, 20.0)
+	Sun.draw_shadow(self, 20.0, loop_alt)
 
 
 func _fire() -> void:
@@ -278,6 +284,7 @@ func revive(hull_frac: float) -> void:
 	invuln = 3.0  # breathing room: the sky is still full of lead
 	loop_t = 0.0
 	loop_cd = 0.0
+	loop_alt = 0.0
 	loop_frame = -1
 	if base_texture != null:
 		sprite.texture = base_texture

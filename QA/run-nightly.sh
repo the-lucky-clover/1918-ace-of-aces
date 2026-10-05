@@ -645,6 +645,12 @@ gdscript_check "gdscript-bot-skeptic-sane" bot-skeptic-sane
 gdscript_check "gdscript-lighting-schedule" lighting-schedule
 gdscript_check "gdscript-german-roster" german-roster
 gdscript_check "gdscript-no-wehrmacht" no-wehrmacht
+# v16: every airframe sprite must have a Blender render source (no orphans)
+if python3 "$ROOT/QA/check_v16_sprites.py" >"$OUT" 2>&1; then
+    record "gdscript-v16-sprite-sources" "PASS — $(tail -1 "$OUT")"
+else
+    record "gdscript-v16-sprite-sources" "FAIL — $(cat "$OUT" | head -5 | tr '\n' ';')"
+fi
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"

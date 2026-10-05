@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v16 — 2026-10-05
+
+v16: visual identity reinforcement! Every airframe re-rendered in Blender with true PBR materials — wood grain ye can almost touch, fabric ribbin', metal cowlin' glintin', oil an' soot where she belongs. Clouds sail at true altitude castin' shadows on the earth below, aircraft shadows stretch true with height. Mud shines wet, canvas folds, timber shows grain. One sun, one world — all graded by the v14 rig. A juiced-up 1942, shipmate!
+
+
 ## v15 — 2026-10-04
 
 The Imperial German war machine gets its due, ye scurvy dogs! Three new Luftstreitkräfte birds — the stubby Fokker Dr.I, the chunky D.VII, an' the wooden Albatros — all wearin' the Balkenkreuz proud. They fly in disciplined Ketten now, no ragged rabble. The A7V land-ship lumbers onto the field (only twenty ever built, an' she's a rare sight!), Jerry's trenches sport feldgrau an' MG08 shields, an' their Jasta fields rise in dark timber. Mind the namin', lads — 'tis Deutsches Heer an' Luftstreitkräfte; the W-word be banned from these waters on pain o' the nightly's wrath. Arrr!

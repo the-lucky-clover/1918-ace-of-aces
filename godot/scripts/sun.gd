@@ -150,20 +150,37 @@ static func mood_tint(t: String) -> Color:
 ## Soft elliptical shadow shared by all aircraft. Call from _draw().
 ## Shadow darkness follows sun elevation: long dawn/dusk shadows are
 ## deeper, short noon shadows are faint, moon shadows are faint blue-grey.
-static func draw_shadow(ci: CanvasItem, radius: float = 20.0) -> void:
+## v16: alt 0..1 lifts the shadow — higher aircraft cast larger, softer,
+## further-thrown shadows (2.5D altitude cue, still strictly top-down).
+static func draw_shadow(ci: CanvasItem, radius: float = 20.0, alt: float = 0.0) -> void:
 	if shadow_offset.length() < 1.0:
 		return
-	var dir := shadow_offset.normalized()
+	var a := clampf(alt, 0.0, 1.0)
+	var eff_off := shadow_offset * (1.0 + a * 1.6)
+	var eff_rad := radius * (1.0 + a * 0.7)
+	var dir := eff_off.normalized()
 	var side := Vector2(-dir.y, dir.x)
-	var stretch := shadow_offset.length() * 0.5
+	var stretch := eff_off.length() * 0.5
 	var alpha := lerpf(0.38, 0.18, clampf(shadow_offset.length() / 26.0, 0.0, 1.0))
+	alpha *= 1.0 - a * 0.45
 	var tint := Color(0.0, 0.0, 0.0, alpha)
 	if not current.is_empty() and bool(current.get("is_night", false)):
 		tint = Color(0.02, 0.03, 0.10, alpha * 0.8)
 	var pts := PackedVector2Array()
 	for i in 18:
-		var a := TAU * float(i) / 18.0
-		pts.append(shadow_offset
-			+ dir * cos(a) * (radius + stretch)
-			+ side * sin(a) * radius * 0.62)
+		var ang := TAU * float(i) / 18.0
+		pts.append(eff_off
+			+ dir * cos(ang) * (eff_rad + stretch)
+			+ side * sin(ang) * eff_rad * 0.62)
 	ci.draw_colored_polygon(pts, tint)
+
+
+## v16 cohesion: one light, one world. Aircraft sprites are graded by the
+## same sun rig as the terrain — subtle (readability wins): 45% toward the
+## night blue-grey at full night, plus a whisper of the sortie mood tint.
+static func aircraft_tint() -> Color:
+	if current.is_empty():
+		return Color.WHITE
+	var nf := float(current.get("night_factor", 0.0))
+	var c := Color.WHITE.lerp(Color(0.62, 0.68, 0.88), nf * 0.45)
+	return c

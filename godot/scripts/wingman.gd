@@ -65,6 +65,8 @@ func _slot_target() -> Vector2:
 func _physics_process(delta: float) -> void:
 	if not alive:
 		return
+	# v16 cohesion: graded by the sun rig (absolute set, never compounds)
+	modulate = Sun.aircraft_tint()
 	# record the player's flight path for the trail delay
 	if player_ref != null and is_instance_valid(player_ref):
 		history.push_front(player_ref.global_position)

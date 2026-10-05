@@ -72,6 +72,11 @@ func _draw_tent(p: Vector2, s: float, canvas: Color, trim: Color) -> void:
 	draw_colored_polygon(pts, canvas)
 	draw_polyline(PackedVector2Array([pts[0], pts[1], pts[2]]), trim, 2.5)
 	draw_line(p + Vector2(0, -30) * s, p + Vector2(0, -38) * s, trim, 2.0)
+	# v16: canvas folds — sag lines from the ridge, cloth not cardboard
+	for fx in [-0.55, -0.2, 0.2, 0.55]:
+		var top := p + Vector2(fx * 20.0, -26.0) * s
+		var bot := p + Vector2(fx * 46.0, 24.0) * s
+		draw_line(top, bot, Color(trim.r, trim.g, trim.b, 0.35), 1.5)
 	for gx in [-1.0, 1.0]:
 		draw_line(p + Vector2(gx * 40, 22) * s, p + Vector2(gx * 62, 34) * s,
 			Color(trim.r, trim.g, trim.b, 0.5), 1.5)
@@ -112,10 +117,18 @@ func _draw_bessonneau(p: Vector2, s: float, canvas: Color, trim: Color) -> void:
 	for i in 5:
 		var x := p.x - w * 0.5 + w * float(i) / 4.0
 		draw_line(Vector2(x, p.y - h * 0.5), Vector2(x, p.y + h * 0.5), trim, 2.0)
-	# rim light: the canvas lip on the light side (true-north sun rig)
+	# v16: canvas fold shading — the cloth sags between ribs, catching
+	# a soft sun-side lift and a lee-side hollow. Tactile, not flat.
 	var ldir: Vector2 = Sun.current.get("light_dir", Vector2(0, -1))
-	var la := ldir.angle()
 	var lcol: Color = Sun.current.get("light_color", Color(1, 1, 1))
+	for i in 4:
+		var fx := p.x - w * 0.5 + w * (float(i) + 0.5) / 4.0
+		draw_line(Vector2(fx, p.y - h * 0.42), Vector2(fx, p.y + h * 0.42),
+			Color(lcol.r, lcol.g, lcol.b, 0.10), 7.0 * s)
+		draw_line(Vector2(fx + 6.0 * s, p.y - h * 0.42), Vector2(fx + 6.0 * s, p.y + h * 0.42),
+			Color(0.05, 0.05, 0.04, 0.12), 4.0 * s)
+	# rim light: the canvas lip on the light side (true-north sun rig)
+	var la := ldir.angle()
 	draw_arc(p, w * 0.5 + 3.0 * s, la - 0.85, la + 0.85, 14,
 		Color(lcol.r, lcol.g, lcol.b, 0.45), 3.0 * s)
 
@@ -221,6 +234,14 @@ func _draw_timber_hangar(p: Vector2, s: float) -> void:
 	for i in 6:
 		var x := p.x - w * 0.5 + w * float(i) / 5.0
 		draw_line(Vector2(x, p.y - h * 0.5), Vector2(x, p.y + h * 0.5), wood_d, 1.5)
+	# v16: wood grain — long stained streaks along the planks, the timber
+	# reads as timber instead of a brown box
+	for gi in 8:
+		var gy := p.y - h * 0.5 + h * (float(gi) + 0.5) / 8.0
+		var goff := sin(float(gi) * 12.9) * 6.0 * s
+		draw_line(Vector2(p.x - w * 0.5 + 4.0 * s, gy + goff),
+			Vector2(p.x + w * 0.5 - 4.0 * s, gy - goff),
+			Color(0.10, 0.075, 0.045, 0.25), 1.2)
 	# big open doors facing the strip (dark mouth)
 	draw_rect(Rect2(p.x - w * 0.28, p.y - h * 0.5, w * 0.56, h * 0.9), Color(0.06, 0.05, 0.04))
 	# rim light on the sun side (true-north sun rig)

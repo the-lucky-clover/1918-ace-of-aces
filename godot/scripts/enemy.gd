@@ -178,6 +178,8 @@ func _physics_process(delta: float) -> void:
 	if dead:
 		return
 	age += delta
+	# v16 cohesion: graded by the sun rig (absolute set, never compounds)
+	modulate = Sun.aircraft_tint()
 	var player := get_tree().get_first_node_in_group("player")
 	# morale break: a broken squadron flies ragged — wider weaves, earlier
 	# break-offs, sloppier gunnery. Subtle; the fight stays winnable.

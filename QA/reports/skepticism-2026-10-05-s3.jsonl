@@ -1,0 +1,10 @@
+{"date":"2026-10-05","seedfault":"","sortie":3,"sortie_name":"Sortie 4 — Powder Keg","type":"meta","version":"15"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":3,"sortie_name":"Sortie 4 — Powder Keg","t":0.0,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":290,"seedfault":false,"sortie":3,"sortie_name":"Sortie 4 — Powder Keg","t":10.0275773333333,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":10.0,"dmg_per_min":30.0,"kills":3,"kpm":8.0,"score":500,"seedfault":false,"sortie":3,"sortie_name":"Sortie 4 — Powder Keg","t":20.0277777777778,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":16.5,"dmg_per_min":33.0,"kills":8,"kpm":16.0,"score":1850,"seedfault":false,"sortie":3,"sortie_name":"Sortie 4 — Powder Keg","t":30.0312583333344,"touch_path":true,"type":"snapshot"}
+{"detail":"fokker_dr1 spawned 91px from the player","etype":"fokker_dr1","kind":"spawn_camp","seedfault":false,"sev":"MED","sortie":3,"t":34.0102503333339,"type":"anomaly"}
+{"detail":"trench spawned 118px from the player","etype":"trench","kind":"spawn_camp","seedfault":false,"sev":"MED","sortie":3,"t":39.2443143333321,"type":"anomaly"}
+{"detail":"trench spawned 107px from the player","etype":"trench","kind":"spawn_camp","seedfault":false,"sev":"MED","sortie":3,"t":39.2443143333321,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":50.5,"dmg_per_min":76.0,"kills":8,"kpm":12.0,"score":1870,"seedfault":false,"sortie":3,"sortie_name":"Sortie 4 — Powder Keg","t":40.0304583333318,"touch_path":true,"type":"snapshot"}
+{"deaths":0,"dmg":87.0,"kills":13,"run_s":50.0,"score":3094,"seedfault":false,"sortie":3,"t":50.0299053333286,"type":"run_end"}
