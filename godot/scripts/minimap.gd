@@ -35,6 +35,7 @@ const SEC_ETYPE := {
 	"parked": "parked",
 	"trucks": "truck",
 	"flak": "aagun",
+	"barges": "barge",
 }
 
 
@@ -289,6 +290,12 @@ func _draw_terrain() -> void:
 			_draw_munitions_depot()
 		"rail_yard":
 			_draw_rail_yard()
+		"river_interdiction":
+			_draw_river()
+		"storm":
+			_draw_storm()
+		"bluesky":
+			_draw_bluesky()
 		_:
 			_draw_nomansland()
 	# airfields: home aerodrome (green ring) vs enemy fields (red square +
@@ -316,6 +323,11 @@ func _draw_farmland() -> void:
 	for ix in 4:
 		for iy in 6:
 			draw_rect(Rect2(ix * cw + 1, iy * ch + 1, cw - 2, ch - 2), cols[(ix * 3 + iy) % 3])
+	# v17: a dirt road threading the fields + two farmstead dots — S1's portrait
+	draw_line(Vector2(size.x * 0.3, 0), Vector2(size.x * 0.62, size.y),
+		Color(0.20, 0.16, 0.10, 0.85), 2.5)
+	for fp in [Vector2(size.x * 0.22, size.y * 0.3), Vector2(size.x * 0.72, size.y * 0.68)]:
+		draw_circle(fp, 3.0, Color(0.42, 0.34, 0.22, 0.9))
 
 
 func _draw_trenches() -> void:
@@ -423,3 +435,63 @@ func _draw_rail_yard() -> void:
 	var yr := Rect2(size.x * 0.5 - 40, size.y * 0.42, 80, 60)
 	draw_rect(yr, Color(0.16, 0.14, 0.10, 0.9))
 	draw_rect(yr, Color(0.50, 0.46, 0.36, 0.7), false, 1.5)
+
+
+func _draw_river() -> void:
+	# v17: moonlit river-supply interdiction — dark fields, a winding silver
+	# river band, soft banks. The barges ride the water.
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.07, 0.09, 0.11, 0.92))
+	# field patchwork, dimmer for night
+	var cols := [Color(0.08, 0.10, 0.06, 0.9), Color(0.10, 0.085, 0.05, 0.9)]
+	var cw := size.x / 4.0
+	var ch := size.y / 6.0
+	for ix in 4:
+		for iy in 6:
+			draw_rect(Rect2(ix * cw + 1, iy * ch + 1, cw - 2, ch - 2), cols[(ix + iy) % 2])
+	# the river: winding band top to bottom with moon-glint
+	var pts := PackedVector2Array()
+	for k in 17:
+		var py := k * size.y / 16.0
+		var px := size.x * 0.5 + sin(k * 0.85) * size.x * 0.13
+		pts.append(Vector2(px, py))
+	draw_polyline(pts, Color(0.10, 0.11, 0.08, 0.9), 15.0)
+	draw_polyline(pts, Color(0.06, 0.11, 0.17, 0.95), 11.0)
+	draw_polyline(pts, Color(0.45, 0.55, 0.65, 0.35), 2.5)
+
+
+func _draw_storm() -> void:
+	# v17: the thunderhead duel — bruised storm-cloud dark, lightning veins
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.10, 0.11, 0.16, 0.93))
+	for i in 9:
+		var px := fmod(float(i) * 137.0, size.x)
+		var py := fmod(float(i) * 89.0, size.y)
+		var pr := 9.0 + fmod(float(i) * 13.0, 12.0)
+		draw_circle(Vector2(px, py), pr, Color(0.16, 0.17, 0.24, 0.5))
+	# jagged lightning hint
+	var lp := PackedVector2Array()
+	var lx := size.x * 0.68
+	for k in 7:
+		lp.append(Vector2(lx + (6.0 if k % 2 == 0 else -6.0), k * size.y / 6.0))
+	draw_polyline(lp, Color(0.75, 0.82, 0.95, 0.55), 1.5)
+
+
+func _draw_bluesky() -> void:
+	# v17: seamless blue-sky boss arena — cyclical sky, soft cloud wisps,
+	# no terrain. The duel happens up here.
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.30, 0.48, 0.72, 0.93))
+	for i in 7:
+		var px := fmod(float(i) * 173.0, size.x)
+		var py := fmod(float(i) * 211.0, size.y)
+		var pw := 26.0 + fmod(float(i) * 29.0, 22.0)
+		draw_ellipse_marker(Vector2(px, py), pw, pw * 0.38,
+			Color(0.82, 0.88, 0.95, 0.35))
+
+
+func draw_ellipse_marker(p: Vector2, rx: float, ry: float, col: Color) -> void:
+	# ellipse via polyline (CanvasItem has no draw_ellipse)
+	var pts := PackedVector2Array()
+	for k in 20:
+		var a := TAU * float(k) / 20.0
+		pts.append(p + Vector2(cos(a) * rx, sin(a) * ry))
+	pts.append(pts[0])
+	draw_polyline(pts, col, 6.0)

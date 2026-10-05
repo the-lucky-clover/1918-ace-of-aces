@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v17 — 2026-10-05
+
+v17: sortie minimap texture maps for every locale, 94th mission honesty (S2 reframed to moonlit river-supply interdiction with barges an' Drachen, no U-boats for an inland squadron), blue-sky cyclical arenas for the three biggest baddest bosses, an' seven infographic briefing cards. Arr!
+
+
 ## v16 — 2026-10-05
 
 v16: visual identity reinforcement! Every airframe re-rendered in Blender with true PBR materials — wood grain ye can almost touch, fabric ribbin', metal cowlin' glintin', oil an' soot where she belongs. Clouds sail at true altitude castin' shadows on the earth below, aircraft shadows stretch true with height. Mud shines wet, canvas folds, timber shows grain. One sun, one world — all graded by the v14 rig. A juiced-up 1942, shipmate!

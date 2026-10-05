@@ -71,6 +71,21 @@ const THEMES: Dictionary = {
 		"pieces": [],
 		"furrows": false,
 	},
+	"river_interdiction": {
+		# v17: S2 reframed — moonlit river-supply interdiction inland (the
+		# 94th had no naval role). Dark moonlit fields, the river is drawn
+		# by GroundFeatures; barges ride it.
+		"c": Color(0.10, 0.13, 0.16),
+		"pieces": [],
+		"furrows": false,
+	},
+	"bluesky": {
+		# v17: seamless blue-sky boss arena — cyclical scrolling sky/clouds,
+		# no terrain. The biggest baddest bosses duel up here.
+		"c": Color(0.35, 0.55, 0.80),
+		"pieces": [],
+		"furrows": false,
+	},
 }
 
 
@@ -95,6 +110,8 @@ class GroundFeatures extends Node2D:
 		"zeppelin_sheds": ["shed", "mast", "mud", "cloudwisp"],
 		"munitions_depot": ["dump", "dump", "sandbag", "mud", "cloudwisp"],
 		"rail_yard": ["railtrack", "railtrack", "freight", "mud", "cloudwisp"],
+		"river_interdiction": ["riverbend", "mud", "road", "stump", "cloudwisp", "cloudwisp"],
+		"bluesky": ["cloudwisp", "cloudwisp", "cloudwisp", "cloudbank"],
 	}
 
 	func generate(furrow_rows: bool, theme_name: String = "") -> void:
@@ -392,6 +409,29 @@ class GroundFeatures extends Node2D:
 								draw_colored_polygon(PackedVector2Array([
 									fp + Vector2(-fw * 0.5, 0), fp + Vector2(fw * 0.5, 0),
 									fp + Vector2(0, -fh * 0.55)]), Color(1.0, 0.80, 0.25, 0.9))
+				"riverbend":
+					# v17: moonlit river reach — dark water band with a silver
+					# moon-glint down the middle, soft banks
+					var rw2 := 130.0 * s
+					var rpts := PackedVector2Array()
+					for k in 13:
+						var wy := p.y - 260.0 * s + float(k) * 43.0 * s
+						var wx := p.x + sin(float(k) * 0.9 + float(it["ph"])) * 46.0 * s
+						rpts.append(Vector2(wx, wy))
+					for off in [-rw2 / 2.0, rw2 / 2.0]:
+						var bank := PackedVector2Array()
+						for q in rpts:
+							bank.append(q + Vector2(off, 0))
+						draw_polyline(bank, Color(0.16, 0.15, 0.10, 0.9), 10.0 * s)
+					draw_polyline(rpts, Color(0.07, 0.13, 0.20, 0.95), rw2 - 10.0 * s)
+					draw_polyline(rpts, Color(0.55, 0.65, 0.75, 0.28), 8.0 * s)
+				"cloudbank":
+					# v17: fat seamless-sky cloud bank for the blue-sky arena
+					_ellipse(p, 170.0 * s, 60.0 * s, Color(0.88, 0.92, 0.97, 0.35), it["r"])
+					_ellipse(p + Vector2(-60, 18) * s, 100.0 * s, 38.0 * s,
+						Color(0.92, 0.95, 1.0, 0.30), -it["r"])
+					_ellipse(p + Vector2(70, -10) * s, 90.0 * s, 34.0 * s,
+						Color(0.82, 0.87, 0.94, 0.28), it["r"] * 0.7)
 		if furrows:
 			# faint plough lines, farmland only
 			for i in 16:

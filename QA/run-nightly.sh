@@ -533,8 +533,47 @@ elif check == 'bot-skeptic-sane':
                 'merge_skeptic.py'):
         if pat not in sh:
             sys.exit('run-nightly.sh missing bot stage: %s' % pat)
-elif check == 'ads-state':
-    # v12: remove-ads must suppress every ad path; placements + caps wired
+elif check == 'minimap-textures':
+    # v17: every sortie theme gets its own minimap portrait (never generic);
+    # every sortie declares boss_arena + boss_at; blue-sky bosses agree.
+    import re
+    sd = read('sortie_data.gd')
+    themes = re.findall(r'"theme": "([^"]+)"', sd)
+    arenas = re.findall(r'"boss_arena": "([^"]+)"', sd)
+    ats = re.findall(r'"boss_at": ([\d.]+),', sd)
+    if len(themes) != 7 or len(arenas) != 7 or len(ats) != 7:
+        sys.exit('sortie_data.gd: expected 7 sorties with theme/boss_arena/boss_at, got %d/%d/%d'
+                 % (len(themes), len(arenas), len(ats)))
+    mm = read('minimap.gd')
+    for t in set(themes):
+        if '"%s":' % t not in mm:
+            sys.exit('minimap.gd _draw_terrain missing arm for theme "%s"' % t)
+    if '"bluesky":' not in mm:
+        sys.exit('minimap.gd missing bluesky arena portrait')
+    mn = read('main.gd')
+    if 'BLUESKY_BOSSES' not in mn or '"bluesky"' not in mn:
+        sys.exit('main.gd missing blue-sky boss arena entry')
+    for a in arenas:
+        if a not in ('terrain', 'bluesky'):
+            sys.exit('bad boss_arena value: %s' % a)
+elif check == 's2-no-uboats':
+    # v17 94th mission honesty: S2 is a moonlit river-supply interdiction —
+    # no U-boat waves (the 94th had no naval role), barges + Drachen instead.
+    import re
+    sd = read('sortie_data.gd')
+    m = re.search(r'"name": "Sortie 2.*?"takeoff": "([^"]+)"', sd, re.S)
+    s2 = m.group(0)
+    if '"theme": "river_interdiction"' not in s2:
+        sys.exit('S2 theme is not river_interdiction')
+    if '"type": "uboat"' in s2:
+        sys.exit('S2 still contains U-boat waves — 94th had no naval role')
+    for pat in ('"type": "barge"', '"type": "balloon"', '"barges"'):
+        if pat not in s2:
+            sys.exit('S2 missing reframed piece: %s' % pat)
+    e = read('enemy.gd')
+    if '"barge"' not in e or '"barge":' not in e:
+        sys.exit('enemy.gd missing barge type/behavior')
+elif check == 'ads-state':    # v12: remove-ads must suppress every ad path; placements + caps wired
     a = read('ads.gd')
     for pat in ('func is_remove_ads', 'func show_rewarded', 'func show_interstitial_then',
                 'func rewarded_available', 'INTERSTITIAL_COOLDOWN_S',
@@ -645,6 +684,8 @@ gdscript_check "gdscript-bot-skeptic-sane" bot-skeptic-sane
 gdscript_check "gdscript-lighting-schedule" lighting-schedule
 gdscript_check "gdscript-german-roster" german-roster
 gdscript_check "gdscript-no-wehrmacht" no-wehrmacht
+gdscript_check "gdscript-minimap-textures" minimap-textures
+gdscript_check "gdscript-s2-no-uboats" s2-no-uboats
 # v16: every airframe sprite must have a Blender render source (no orphans)
 if python3 "$ROOT/QA/check_v16_sprites.py" >"$OUT" 2>&1; then
     record "gdscript-v16-sprite-sources" "PASS — $(tail -1 "$OUT")"

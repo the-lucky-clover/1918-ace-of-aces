@@ -220,8 +220,8 @@ func start_sortie(i: int) -> void:
 	$GroundWar.setup(String(s["theme"]))
 	Global.scroll_speed = 90.0
 	# home aerodrome dressing scrolls past right after takeoff (takeoff
-	# continuity) — not at sea, naturally
-	if not String(s["theme"]) in ["uboat_flotilla", "uboat_base"]:
+	# continuity) — not at sea, naturally (only the S5 pens are offshore now)
+	if not String(s["theme"]) in ["uboat_base"]:
 		var home := AirfieldScript.new()
 		home.setup("home")
 		world.add_child(home)
@@ -645,6 +645,15 @@ func _spawn_boss(idx: int) -> void:
 	b.global_position = Vector2(Global.VIEW_W * 0.5, -100.0)
 	boss_ref = b
 	b.killed.connect(_on_boss_killed)
+	# v17: the three biggest baddest duel in the seamless blue-sky cyclical
+	# arena — brief sky-transition beat (flash + the INBOUND call), no popup
+	# ceremony. The ground war stands down; the sky is the arena now.
+	if idx in Sorties.BLUESKY_BOSSES:
+		$Background.setup("bluesky")
+		$GroundWar.setup("bluesky")
+		$HUDLayer.set_minimap_theme("bluesky")
+		FX.shockwave(world, Vector2(Global.VIEW_W * 0.5, Global.VIEW_H * 0.5))
+		FX.add_trauma(0.2)
 	FX.popup(world, Vector2(Global.VIEW_W * 0.5, 420.0),
 		String(Sorties.BOSS_NAMES[idx]) + " INBOUND", Color.RED)
 	FX.add_trauma(0.3)
@@ -698,6 +707,8 @@ func _on_enemy_killed(e: Area2D) -> void:
 			sec_id = "parked"
 		"truck":
 			sec_id = "trucks"
+		"barge":
+			sec_id = "barges"
 	if sec_id != "" and objectives.has(sec_id):
 		var o: Dictionary = objectives[sec_id]
 		if not bool(o["done"]):

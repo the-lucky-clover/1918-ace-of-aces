@@ -57,6 +57,17 @@ func setup(theme: String) -> void:
 			naval = false
 			spawn_interval = 10.0
 			duel_interval = 9999.0
+		"river_interdiction":
+			# v17: moonlit river country inland — light ambient battle along
+			# the banks, no tank duels (the 94th's war was in the air)
+			naval = false
+			spawn_interval = 10.0
+			duel_interval = 9999.0
+		"bluesky":
+			# v17: the duel happens above the clouds — the ground war stands down
+			naval = true
+			spawn_interval = 9999.0
+			duel_interval = 9999.0
 		_:
 			naval = false
 			spawn_interval = 4.5

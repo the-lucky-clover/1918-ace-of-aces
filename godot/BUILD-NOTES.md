@@ -1267,6 +1267,70 @@ disk with no render source (no orphan sprites). Legacy ground units
 (`enemy-aagun`, `enemy-railwaygun`) are allowlisted — they come from the
 older `render_sprites.py` pipeline.
 
+## Sortie minimap textures + 94th mission honesty + blue-sky boss arenas — 2026-10-05 (v17)
+
+**The directive (Steven):** every sortie's minimap renders its OWN locale
+texture; the campaign honors the 94th's real mission set (trains, Drachen
+balloons, Fokker hunts — no U-boats, they were an inland pursuit squadron);
+the biggest baddest bosses duel in a seamless blue-sky cyclical arena; seven
+chat-ready infographics, one per sortie.
+
+### 1. Sortie-specific minimap texture maps (`minimap.gd`)
+
+Every sortie theme now has a dedicated `_draw_*` portrait arm — no generic
+fallback for any live sortie: farmland (S1, enriched with a dirt road +
+farmsteads), river_interdiction (S2, moonlit winding river with silver glint),
+zeppelin_sheds (S3), munitions_depot (S4), uboat_base (S5), rail_yard (S6),
+storm (S7, bruised clouds + lightning vein), bluesky (boss arena, seamless sky
++ cloud wisps). The minimap reads as a tiny portrait of where you are.
+
+### 2. 94th mission honesty (`sortie_data.gd`, `enemy.gd`, `main.gd`)
+
+Steven's mapping, implemented:
+- **Trains/troop columns:** kept (St. Mihiel / Meuse-Argonne strafing).
+- **Drachen balloons:** HIGH-PRIORITY — S2 fields 3 balloons as a secondary
+  objective, guarded by a flak belt (2× aagun) and Fokker screens; the brief
+  names them as the artillery-directing terror they were.
+- **U-boats:** reframed. The 94th flew inland pursuit (Toul, Rembercourt) —
+  no naval role. S2 "Wolfpack" → **"Sortie 2 — Moonlight Interdiction"**:
+  moonlit river-supply interdiction with a new `barge` enemy type (slow
+  strafe target drifting downriver, PIL-rendered sprite), trains, Drachen,
+  Fokker screens. The `uboat` type stays in code, unused in S2. S5's pens
+  keep their boats (harbor raid, unchanged).
+- **Fokker hunts + recon protection:** kept; bombers stand in for
+  reconnaissance types.
+
+The old `uboat_flotilla` theme arms remain dormant in background/ground-war/
+minimap (harmless); S2's home-aerodrome dressing now shows (inland again).
+
+### 3. Blue-sky boss arenas (`main.gd`, `background.gd`, `ground_war.gd`)
+
+The three biggest baddest — **THE STRIPED DEVIL** (S3, the zeppelin-sheds ace),
+**THE GHOST** (S6, the campaign's greatest ace), **THE RED BARON** (S7) —
+duel in a seamless blue-sky cyclical arena (new `bluesky` background theme:
+sky-blue + drifting cloudbanks, no terrain). On boss entry: background +
+minimap switch to bluesky, ground war stands down, one shockwave beat —
+no popup ceremony beyond the standing INBOUND call. (There is no "Blue Max"
+boss in the roster; THE GHOST carries that slot — documented in
+`sortie_data.gd`.) Boss entry convention: top-center (North), at the
+sortie's `boss_at` seconds (S3 ~64s, S6 ~76s, S7 ~58s); `boss_arena` declared
+per sortie, `BLUESKY_BOSSES = [2, 5, 6]`.
+
+### 4. Infographics (`tools/make_infographics.py` → `infographics/`)
+
+Seven 1080×1140 PNGs, one per sortie, parsed live from `sortie_data.gd`:
+title + weather badge + takeoff, real-sprite strip (player, wave types,
+boss), mission objectives, and a boss-entry card (boss name, minimap
+thumbnail with the North spawn diamond, ~seconds to INBOUND, arena badge).
+For chat delivery, one at a time.
+
+### Nightly
+
+- `gdscript-minimap-textures`: all 7 sortie themes have minimap arms;
+  every sortie declares `boss_arena`/`boss_at`; blue-sky entry wired.
+- `gdscript-s2-no-uboats`: S2 is river_interdiction, zero U-boat waves,
+  barges + Drachen present; barge type/behavior exist.
+
 ## What's stubbed / not yet validated
 
 - **Player art**: `assets/sprites/player-spad.png` is now a real Blender render

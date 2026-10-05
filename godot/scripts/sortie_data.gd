@@ -16,6 +16,7 @@ const SECONDARY_DEFS: Dictionary = {
 	"parked": {"text": "Strafe %d parked aircraft", "bonus": 450},
 	"trucks": {"text": "Interdict %d reinforcement trucks", "bonus": 550},
 	"flak": {"text": "Silence %d AA batteries", "bonus": 500},
+	"barges": {"text": "Sink %d river supply barges", "bonus": 600},
 }
 
 # Boss callsigns are fictional — duel-worthy aces, not historical figures.
@@ -31,6 +32,16 @@ const BOSS_NAMES: Array = [
 	"THE RED BARON",
 ]
 
+# Boss entry convention (v17): every ace enters from the top-center of the
+# frame (North on the minimap), diving to y=300 — no popup ceremony, just the
+# "INBOUND" call. The three biggest baddest — the Striped Devil over the
+# zeppelin sheds (S3), THE GHOST, the campaign's greatest ace (S6), and the
+# Ghost of the Red Baron (S7) — duel in the seamless blue-sky cyclical arena;
+# the rest fight over terrain. Entry time ~= the sortie's "boss_at" seconds.
+# (There is no "Blue Max" boss in the roster; THE GHOST carries that slot.)
+const BOSS_ENTRY_REGION := "top-center"
+const BOSS_ENTRY_QUADRANT := "N"
+const BLUESKY_BOSSES: Array = [2, 5, 6]
 # Fighter-wave aircraft that count as the enemy squadron for shoot-down
 # goals (194x-style: the duel in the sky; balloons/zeppelins/ground targets
 # belong to the secondary objectives instead).
@@ -65,6 +76,7 @@ const SORTIES: Array = [
 		"theme": "farmland",
 		"brief": "Patrol the lines at dawn. An enemy ace prowls these skies — send him down in flames.",
 		"boss": 0,
+		"boss_arena": "terrain",
 		"secondaries": [
 			{"id": "balloons", "target": 3},
 			{"id": "trenches", "target": 5},
@@ -89,14 +101,15 @@ const SORTIES: Array = [
 		"boss_at": 58.0,
 	},
 	{
-		"name": "Sortie 2 — Wolfpack",
-		"lore": "The wolfpack hunts below; above, the aces circle like hawks.",
-		"theme": "uboat_flotilla",
-		"brief": "A U-boat flotilla rides at anchor off the coast. Catch them surfaced — sink them before they crash-dive.",
+		"name": "Sortie 2 — Moonlight Interdiction",
+		"lore": "Spring 1918 — the 94th flew inland pursuit out of Toul and Rembercourt. No wolfpacks on this river: just barges, Drachen, and Fokkers by moonlight.",
+		"theme": "river_interdiction",
+		"brief": "German supply barges crawl the river by moonlight, feeding the big push. Sink the barges, burn the heavily-guarded Drachen balloons directing their artillery, and scatter the Fokker screen.",
 		"boss": 1,
+		"boss_arena": "terrain",
 		"secondaries": [
-			{"id": "uboats", "target": 4},
-			{"id": "bombers", "target": 3},
+			{"id": "barges", "target": 4},
+			{"id": "balloons", "target": 3},
 		],
 		"waves": [
 			{"t": 2.0, "type": "scout", "count": 4, "gap": 1.2},
@@ -104,8 +117,10 @@ const SORTIES: Array = [
 			{"t": 24.0, "type": "fokker_dr1", "count": 4, "gap": 1.2},
 			{"t": 36.0, "type": "fighter", "count": 6, "gap": 1.0},
 			{"t": 40.0, "type": "fokker_d7", "count": 1, "gap": 1.0, "kette": 3},
-			{"t": 46.5, "type": "uboat", "count": 4, "gap": 4.0},
-			{"t": 50.0, "type": "bomber", "count": 3, "gap": 2.5},
+			{"t": 45.0, "type": "barge", "count": 4, "gap": 3.0},
+			{"t": 49.0, "type": "aagun", "count": 2, "gap": 4.0},
+			{"t": 50.0, "type": "balloon", "count": 3, "gap": 2.5},
+			{"t": 54.0, "type": "train", "count": 2, "gap": 4.0},
 		],
 		"takeoff": "03:20",
 		"boss_at": 62.0,
@@ -116,6 +131,7 @@ const SORTIES: Array = [
 		"theme": "zeppelin_sheds",
 		"brief": "Giant sheds house the Kaiser's zeppelins. Bring the gasbags down and strafe their parked guards.",
 		"boss": 2,
+		"boss_arena": "bluesky",
 		"secondaries": [
 			{"id": "zeppelins", "target": 2},
 			{"id": "parked", "target": 4},
@@ -137,6 +153,7 @@ const SORTIES: Array = [
 		"theme": "munitions_depot",
 		"brief": "Ammo dumps feed the whole sector. One spark sets off the chain — give them the spark.",
 		"boss": 3,
+		"boss_arena": "terrain",
 		"secondaries": [
 			{"id": "depots", "target": 4},
 			{"id": "trenches", "target": 5},
@@ -164,6 +181,7 @@ const SORTIES: Array = [
 		"theme": "uboat_base",
 		"brief": "Concrete pens shelter the wolfpack under heavy flak. Smash the pens and scatter the boats.",
 		"boss": 4,
+		"boss_arena": "terrain",
 		"secondaries": [
 			{"id": "pens", "target": 3},
 			{"id": "uboats", "target": 2},
@@ -187,6 +205,7 @@ const SORTIES: Array = [
 		"theme": "rail_yard",
 		"brief": "The railway gun's home turf — marshaling yards feeding the front. Wreck it all, then duel their greatest ace.",
 		"boss": 5,
+		"boss_arena": "bluesky",
 		"secondaries": [
 			{"id": "railgun", "target": 1},
 			{"id": "arty", "target": 4},
@@ -208,6 +227,7 @@ const SORTIES: Array = [
 		"theme": "storm",
 		"brief": "A spectral Fokker Dr.I haunts the thunderheads. Face the Ghost of the Red Baron in single combat — and lay him to rest.",
 		"boss": 6,
+		"boss_arena": "bluesky",
 		"mythic": true,
 		"secondaries": [
 			{"id": "bombers", "target": 3},

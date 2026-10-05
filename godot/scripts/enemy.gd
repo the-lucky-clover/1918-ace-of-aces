@@ -64,6 +64,11 @@ const TYPES: Dictionary = {
 	"train": {"hp": 150.0, "speed": 0.0, "score": 500, "fire": 0.0, "dmg": 0.0,
 		"behavior": "train", "aircraft": false, "radius": 40.0,
 		"sprites": ["train"]},
+	# --- v17: river-supply barge for the reframed S2 moonlit interdiction.
+	# A slow strafe target drifting downriver with the world scroll.
+	"barge": {"hp": 90.0, "speed": 0.0, "score": 350, "fire": 0.0, "dmg": 0.0,
+		"behavior": "barge", "aircraft": false, "radius": 34.0,
+		"sprites": ["barge"]},
 	"arty": {"hp": 80.0, "speed": 0.0, "score": 300, "fire": 3.0, "dmg": 16.0,
 		"behavior": "ground", "aircraft": false, "radius": 26.0,
 		"sprites": ["arty"]},
@@ -349,6 +354,10 @@ func _legacy_move(delta: float, player: Node2D, ragged: bool) -> void:
 		"train":
 			# rides the world scroll, swaying gently along its rails
 			vel = Vector2(sin(age * 0.5 + weave_phase) * 25.0, Global.scroll_speed)
+		"barge":
+			# v17: river-supply barge drifts downriver with the scroll,
+			# wallowing gently side to side
+			vel = Vector2(sin(age * 0.45 + weave_phase) * 18.0, Global.scroll_speed)
 		"uboat":
 			# surfaced boat rides the scroll — until the player closes in,
 			# then it crash-dives and escapes (no kill, no score)
