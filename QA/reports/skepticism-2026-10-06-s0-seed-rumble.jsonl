@@ -1,0 +1,11 @@
+{"archetype":"average","date":"2026-10-06","seedfault":"rumble","sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","type":"meta","version":"22"}
+{"detail":"6 haptic pulses in one frame (rumble)","kind":"seedfault","sortie":0,"t":0.0,"type":"event"}
+{"detail":"6 haptic calls in one second — the phone is a jackhammer","kind":"rumble_storm","seedfault":true,"sev":"MED","sortie":0,"t":0.0,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":4,"kpm":24.0,"score":770,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":10.0329859999999,"touch_path":true,"type":"snapshot"}
+{"detail":"16 live air attackers sustained 6s — the screen is unreadable","kind":"threat_saturation","seedfault":true,"sev":"HIGH","sortie":0,"t":19.0322659999999,"type":"anomaly"}
+{"detail":"killed by enemy tracer (18px)","kind":"death","sortie":0,"t":19.1494979999999,"type":"event"}
+{"boss_spawned":false,"deaths":1,"dmg":8.0,"dmg_per_min":24.0,"kills":11,"kpm":32.0,"score":3011,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":20.0321860000001,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":1,"dmg":8.0,"dmg_per_min":16.0,"kills":15,"kpm":30.0,"score":3928,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":30.0219154000011,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by rammed by balloon (44px)","kind":"death","sortie":0,"t":31.7252274000014,"type":"event"}
+{"deaths":2,"dmg":33.0,"kills":16,"run_s":35.0,"score":4178,"seedfault":true,"sortie":0,"t":32.6189490000012,"type":"run_end"}

@@ -1,7 +1,6 @@
-{"date":"2026-10-06","seedfault":"","sortie":24,"sortie_name":"Sortie 25 — UDET'S GAMBIT","type":"meta","version":"22"}
+{"archetype":"average","date":"2026-10-06","seedfault":"","sortie":24,"sortie_name":"Sortie 25 — UDET'S GAMBIT","type":"meta","version":"22"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":24,"sortie_name":"Sortie 25 — UDET'S GAMBIT","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":650,"seedfault":false,"sortie":24,"sortie_name":"Sortie 25 — UDET'S GAMBIT","t":10.0278076666666,"touch_path":true,"type":"snapshot"}
-{"detail":"killed by enemy tracer (16px)","kind":"death","sortie":24,"t":13.8619836666662,"type":"event"}
-{"boss_spawned":false,"deaths":1,"dmg":12.0,"dmg_per_min":36.0,"kills":6,"kpm":18.0,"score":2120,"seedfault":false,"sortie":24,"sortie_name":"Sortie 25 — UDET'S GAMBIT","t":20.0341576666668,"touch_path":true,"type":"snapshot"}
-{"detail":"killed by rammed by e9_searchlight (37px)","kind":"death","sortie":24,"t":24.0683176666671,"type":"event"}
-{"deaths":2,"dmg":37.0,"kills":10,"run_s":50.0,"score":3925,"seedfault":false,"sortie":24,"t":26.0739710000004,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":1,"kpm":6.0,"score":310,"seedfault":false,"sortie":24,"sortie_name":"Sortie 25 — UDET'S GAMBIT","t":10.0280213333332,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by enemy tracer (18px)","kind":"death","sortie":24,"t":12.296805333333,"type":"event"}
+{"detail":"killed by rammed by trench (30px)","kind":"death","sortie":24,"t":17.4099142222216,"type":"event"}
+{"deaths":2,"dmg":37.0,"kills":4,"run_s":50.0,"score":1530,"seedfault":false,"sortie":24,"t":19.4134773333328,"type":"run_end"}

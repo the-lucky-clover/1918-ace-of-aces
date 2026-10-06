@@ -1,0 +1,10 @@
+{"archetype":"average","date":"2026-10-06","seedfault":"edge","sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"detail":"fault 'edge' on e1_eindecker","kind":"seedfault","sortie":0,"t":4.19901699999994,"type":"event"}
+{"detail":"e1_eindecker lingering 3s off the playfield side (x=-180) — conga-line regression","etype":"e1_eindecker","kind":"edge_linger","seedfault":true,"sev":"HIGH","sortie":0,"t":7.21256900000004,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":18.0,"score":630,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":10.0330329999999,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":13,"kpm":38.0,"score":2982,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":20.0173198,"touch_path":true,"type":"snapshot"}
+{"detail":"e1_eindecker wedged in ATTACK for 22s (expected ~12s) — v10's pass model violated","etype":"e1_eindecker","kind":"pass_stall","pass_state":1,"seedfault":true,"sev":"HIGH","sortie":0,"t":26.251303800001,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":19,"kpm":38.0,"score":4630,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":30.0165198000016,"touch_path":true,"type":"snapshot"}
+{"detail":"e1_eindecker alive 32s (whole pass should take ~21s) — it never exits","etype":"e1_eindecker","kind":"pass_overlife","seedfault":true,"sev":"HIGH","sortie":0,"t":34.8644078000009,"type":"anomaly"}
+{"deaths":0,"dmg":0.0,"kills":20,"run_s":35.0,"score":4780,"seedfault":true,"sortie":0,"t":35.0161198000009,"type":"run_end"}

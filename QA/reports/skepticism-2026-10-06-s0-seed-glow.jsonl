@@ -1,0 +1,10 @@
+{"archetype":"average","date":"2026-10-06","seedfault":"glow","sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"detail":"fault 'glow' on e1_eindecker","kind":"seedfault","sortie":0,"t":4.99612766666664,"type":"event"}
+{"detail":"e1_eindecker full-body overdrive sustained 0.6s — muted camo violated","etype":"e1_eindecker","kind":"enemy_glow","seedfault":true,"sev":"MED","sortie":0,"t":5.63055966666666,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":18.0,"score":620,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":10.0293187777778,"touch_path":true,"type":"snapshot"}
+{"detail":"15 live air attackers sustained 6s — the screen is unreadable","kind":"threat_saturation","seedfault":true,"sev":"HIGH","sortie":0,"t":19.0267292666664,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":9,"kpm":26.0,"score":2057,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":20.0169948666665,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by rammed by e1_eindecker (33px)","kind":"death","sortie":0,"t":24.5311164666673,"type":"event"}
+{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":50.0,"kills":15,"kpm":30.0,"score":3527,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":30.0134364666682,"touch_path":true,"type":"snapshot"}
+{"deaths":1,"dmg":25.0,"kills":17,"run_s":35.0,"score":3914,"seedfault":true,"sortie":0,"t":32.6132284666683,"type":"run_end"}

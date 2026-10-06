@@ -1,0 +1,11 @@
+{"archetype":"average","date":"2026-10-06","seedfault":"stall","sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"detail":"wedged e1_eindecker pass machine (debug_freeze_pass) + pinned","kind":"seedfault","sortie":0,"t":4.13013433333327,"type":"event"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":360,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":10.0331103333332,"touch_path":true,"type":"snapshot"}
+{"detail":"balloon full-body overdrive sustained 0.6s — muted camo violated","etype":"balloon","kind":"enemy_glow","seedfault":true,"sev":"MED","sortie":0,"t":12.543254333333,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":18,"kpm":54.0,"score":4140,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":20.0121337333332,"touch_path":true,"type":"snapshot"}
+{"detail":"e1_eindecker full-body overdrive sustained 0.6s — muted camo violated","etype":"e1_eindecker","kind":"enemy_glow","seedfault":true,"sev":"MED","sortie":0,"t":24.5979737333339,"type":"anomaly"}
+{"detail":"e1_eindecker wedged in ATTACK for 21s (expected ~11s) — v10's pass model violated","etype":"e1_eindecker","kind":"pass_stall","pass_state":1,"seedfault":true,"sev":"HIGH","sortie":0,"t":25.0842780666673,"type":"anomaly"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":20,"kpm":40.0,"score":4490,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":30.0124227333347,"touch_path":true,"type":"snapshot"}
+{"detail":"e1_eindecker alive 30s (whole pass should take ~20s) — it never exits","etype":"e1_eindecker","kind":"pass_overlife","seedfault":true,"sev":"HIGH","sortie":0,"t":33.1501027333346,"type":"anomaly"}
+{"deaths":0,"dmg":0.0,"kills":28,"run_s":35.0,"score":6545,"seedfault":true,"sortie":0,"t":35.006505933334,"type":"run_end"}

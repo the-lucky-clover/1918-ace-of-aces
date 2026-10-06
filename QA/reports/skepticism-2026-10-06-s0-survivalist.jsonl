@@ -1,0 +1,7 @@
+{"archetype":"survivalist","date":"2026-10-06","seedfault":"","sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":337,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":10.0280942222222,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":14,"kpm":42.0,"score":3439,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":20.0285706666668,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":21,"kpm":42.0,"score":5231,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":30.0127588222234,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by rammed by trench (32px)","kind":"death","sortie":0,"t":39.3154628222212,"type":"event"}
+{"deaths":1,"dmg":25.0,"kills":25,"run_s":40.0,"score":6149,"seedfault":false,"sortie":0,"t":40.0119588222209,"type":"run_end"}

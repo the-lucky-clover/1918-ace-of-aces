@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v23 — 2026-10-06
+
+v23: the skeptic grows four pilots — novice, average, expert, an' a survivalist what dodges first an' shoots later. Eight detectors stand watch with seeded-fault proof, catchin' every scallywag: unfair kills, spawn-camp rams, conga-line stragglers, screen-floodin' hordes. Two gremlins in the spyglass itself be squashed (a crashin' spyglass query an' a wobblin' edge-pin). The 32-sortie war now sails under constant watch — three campaign squalls spotted an' logged fer the next refit. Arrr.
+
+
 ## v22 — 2026-10-06
 
 v22: the 32-sortie campaign be settin' sail — 3,196 foes, 32 aces, 128 elites, 128 secondaries, nine theater shanties, one-hit permadeath, photoreal particle shot an' shell. The Ghost o' the Red Baron waits at the eleventh hour o' the eleventh day. No quarter given, none asked!

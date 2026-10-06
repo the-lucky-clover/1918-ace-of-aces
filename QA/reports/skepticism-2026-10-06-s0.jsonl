@@ -1,9 +1,8 @@
-{"date":"2026-10-06","seedfault":"","sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","type":"meta","version":"22"}
+{"archetype":"average","date":"2026-10-06","seedfault":"","sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","type":"meta","version":"22"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":4,"kpm":24.0,"score":770,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":10.0287613333334,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":14,"kpm":42.0,"score":3440,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":20.0257109333334,"touch_path":true,"type":"snapshot"}
-{"detail":"killed by rammed by trench (32px)","kind":"death","sortie":0,"t":22.7195855333337,"type":"event"}
-{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":50.0,"kills":17,"kpm":34.0,"score":4050,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":30.0224495333349,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":37.0,"kills":22,"kpm":32.0,"score":5218,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":40.0119951333326,"touch_path":true,"type":"snapshot"}
-{"detail":"killed by rammed by e1_eindecker (36px)","kind":"death","sortie":0,"t":46.2197743333306,"type":"event"}
-{"deaths":2,"dmg":50.0,"kills":33,"run_s":50.0,"score":8448,"seedfault":false,"sortie":0,"t":47.6058703333301,"type":"run_end"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":350,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":10.0283389999999,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by rammed by e1_eindecker (37px)","kind":"death","sortie":0,"t":13.0970589999996,"type":"event"}
+{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":75.0,"kills":11,"kpm":32.0,"score":3076,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":20.0358723333334,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":50.0,"kills":17,"kpm":34.0,"score":4250,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":30.032313933335,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by rammed by e1_eindecker (37px)","kind":"death","sortie":0,"t":32.9713891333351,"type":"event"}
+{"deaths":2,"dmg":50.0,"kills":22,"run_s":50.0,"score":5270,"seedfault":false,"sortie":0,"t":34.9781251333347,"type":"run_end"}

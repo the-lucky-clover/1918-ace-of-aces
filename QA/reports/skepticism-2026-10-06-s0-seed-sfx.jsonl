@@ -1,0 +1,7 @@
+{"archetype":"average","date":"2026-10-06","seedfault":"sfx","sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","type":"meta","version":"22"}
+{"detail":"10 rapid plays collapsed to 4 logged (v21 cap holds)","kind":"mixer_cap_held","sortie":0,"t":0.0,"type":"event"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":18.0,"score":620,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":10.0301079999999,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":18,"kpm":54.0,"score":4387,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":20.0184938666665,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":23,"kpm":46.0,"score":5506,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":30.0183885333342,"touch_path":true,"type":"snapshot"}
+{"deaths":0,"dmg":0.0,"kills":25,"run_s":35.0,"score":5976,"seedfault":true,"sortie":0,"t":35.0179885333334,"type":"run_end"}

@@ -1,0 +1,6 @@
+{"archetype":"novice","date":"2026-10-06","seedfault":"","sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by rammed by e4_fokker_dr1 (35px)","kind":"death","sortie":31,"t":9.69447500000002,"type":"event"}
+{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":150.0,"kills":4,"kpm":24.0,"score":1370,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":10.032379,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by flak shell (22px)","kind":"death","sortie":31,"t":14.7405861111109,"type":"event"}
+{"deaths":2,"dmg":32.0,"kills":6,"run_s":40.0,"score":2345,"seedfault":false,"sortie":31,"t":16.7473221111109,"type":"run_end"}

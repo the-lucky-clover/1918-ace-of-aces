@@ -1,0 +1,10 @@
+{"archetype":"average","date":"2026-10-06","seedfault":"earlydeath","sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"detail":"died 1.0s after (re)spawn — spawn protection or pacing feels wrong","kind":"unfair_death_early","pos":"(485,1067)","seedfault":true,"sev":"CRITICAL","since_spawn":1.0,"sortie":0,"t":1.01527777777778,"type":"anomaly"}
+{"detail":"killed the bot 1.0s after spawn (earlydeath)","kind":"seedfault","sortie":0,"t":1.01527777777778,"type":"event"}
+{"boss_spawned":false,"deaths":1,"dmg":9999.0,"dmg_per_min":59894.0,"kills":3,"kpm":18.0,"score":620,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":10.0294436666666,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":1,"dmg":9999.0,"dmg_per_min":29972.0,"kills":13,"kpm":38.0,"score":3390,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":20.028643666667,"touch_path":true,"type":"snapshot"}
+{"detail":"14 live air attackers sustained 6s — the screen is unreadable","kind":"threat_saturation","seedfault":true,"sev":"HIGH","sortie":0,"t":25.0282436666678,"type":"anomaly"}
+{"boss_spawned":false,"deaths":1,"dmg":9999.0,"dmg_per_min":19987.0,"kills":18,"kpm":36.0,"score":4656,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":30.0213296000017,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by rammed by trench (33px)","kind":"death","sortie":0,"t":30.6557616000018,"type":"event"}
+{"deaths":2,"dmg":10024.0,"kills":18,"run_s":35.0,"score":4656,"seedfault":true,"sortie":0,"t":32.6211216000018,"type":"run_end"}

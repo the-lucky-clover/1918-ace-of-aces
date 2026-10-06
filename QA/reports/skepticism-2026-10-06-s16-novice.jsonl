@@ -1,0 +1,7 @@
+{"archetype":"novice","date":"2026-10-06","seedfault":"","sortie":16,"sortie_name":"Sortie 17 — MARNE DAWN","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":16,"sortie_name":"Sortie 17 — MARNE DAWN","t":0.0,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":1,"kpm":6.0,"score":250,"seedfault":false,"sortie":16,"sortie_name":"Sortie 17 — MARNE DAWN","t":10.0315803333332,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by rammed by ammodepot (43px)","kind":"death","sortie":16,"t":13.6795643333329,"type":"event"}
+{"detail":"killed by rammed by e3_albatros_d5 (33px)","kind":"death","sortie":16,"t":19.3135963333328,"type":"event"}
+{"boss_spawned":false,"deaths":2,"dmg":50.0,"dmg_per_min":150.0,"kills":6,"kpm":18.0,"score":2080,"seedfault":false,"sortie":16,"sortie_name":"Sortie 17 — MARNE DAWN","t":20.0307803333329,"touch_path":true,"type":"snapshot"}
+{"deaths":2,"dmg":50.0,"kills":6,"run_s":40.0,"score":2080,"seedfault":false,"sortie":16,"t":21.3203323333332,"type":"run_end"}

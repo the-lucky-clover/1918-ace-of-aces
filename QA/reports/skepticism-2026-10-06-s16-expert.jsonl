@@ -1,0 +1,8 @@
+{"archetype":"expert","date":"2026-10-06","seedfault":"","sortie":16,"sortie_name":"Sortie 17 — MARNE DAWN","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":16,"sortie_name":"Sortie 17 — MARNE DAWN","t":0.0,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":3,"kpm":18.0,"score":920,"seedfault":false,"sortie":16,"sortie_name":"Sortie 17 — MARNE DAWN","t":10.0318716666665,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by rammed by ammodepot (42px)","kind":"death","sortie":16,"t":17.2772738888882,"type":"event"}
+{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":75.0,"kills":9,"kpm":26.0,"score":3232,"seedfault":false,"sortie":16,"sortie_name":"Sortie 17 — MARNE DAWN","t":20.0379676666663,"touch_path":true,"type":"snapshot"}
+{"detail":"18 live air attackers sustained 6s — the screen is unreadable","kind":"threat_saturation","seedfault":false,"sev":"HIGH","sortie":16,"t":25.0375676666671,"type":"anomaly"}
+{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":50.0,"kills":28,"kpm":56.0,"score":11046,"seedfault":false,"sortie":16,"sortie_name":"Sortie 17 — MARNE DAWN","t":30.0371676666675,"touch_path":true,"type":"snapshot"}
+{"deaths":1,"dmg":25.0,"kills":34,"run_s":40.0,"score":13046,"seedfault":false,"sortie":16,"t":37.6365596666658,"type":"run_end"}

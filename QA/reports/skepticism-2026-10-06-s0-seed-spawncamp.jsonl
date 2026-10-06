@@ -1,0 +1,8 @@
+{"archetype":"average","date":"2026-10-06","seedfault":"spawncamp","sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"detail":"teleported e1_eindecker onto the bot (spawncamp)","kind":"seedfault","sortie":0,"t":3.01240933333333,"type":"event"}
+{"detail":"e1_eindecker spawned 50px from the player","etype":"e1_eindecker","kind":"spawn_camp","seedfault":true,"sev":"MED","sortie":0,"t":3.01240933333333,"type":"anomaly"}
+{"detail":"killed by rammed by e1_eindecker (36px)","kind":"death","sortie":0,"t":7.94589833333332,"type":"event"}
+{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":150.0,"kills":2,"kpm":12.0,"score":387,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":10.0356713333332,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by rammed by trench (44px)","kind":"death","sortie":0,"t":15.5734143333327,"type":"event"}
+{"deaths":2,"dmg":50.0,"kills":4,"run_s":35.0,"score":737,"seedfault":true,"sortie":0,"t":17.5801503333329,"type":"run_end"}

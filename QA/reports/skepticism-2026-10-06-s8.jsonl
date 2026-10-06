@@ -1,8 +1,6 @@
-{"date":"2026-10-06","seedfault":"","sortie":8,"sortie_name":"Sortie 9 — MOSELLE","type":"meta","version":"22"}
+{"archetype":"average","date":"2026-10-06","seedfault":"","sortie":8,"sortie_name":"Sortie 9 — MOSELLE","type":"meta","version":"22"}
 {"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":8,"sortie_name":"Sortie 9 — MOSELLE","t":0.0,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":4,"kpm":24.0,"score":970,"seedfault":false,"sortie":8,"sortie_name":"Sortie 9 — MOSELLE","t":10.0328413333332,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":4,"kpm":12.0,"score":980,"seedfault":false,"sortie":8,"sortie_name":"Sortie 9 — MOSELLE","t":20.0292293333327,"touch_path":true,"type":"snapshot"}
-{"detail":"killed by rammed by trench (30px)","kind":"death","sortie":8,"t":26.323304,"type":"event"}
-{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":50.0,"kills":9,"kpm":18.0,"score":2725,"seedfault":false,"sortie":8,"sortie_name":"Sortie 9 — MOSELLE","t":30.0264560000006,"touch_path":true,"type":"snapshot"}
-{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":37.0,"kills":11,"kpm":16.0,"score":3600,"seedfault":false,"sortie":8,"sortie_name":"Sortie 9 — MOSELLE","t":40.0228975999982,"touch_path":true,"type":"snapshot"}
-{"deaths":1,"dmg":25.0,"kills":14,"run_s":50.0,"score":4300,"seedfault":false,"sortie":8,"t":47.6222895999957,"type":"run_end"}
+{"detail":"killed by rammed by trench (32px)","kind":"death","sortie":8,"t":6.61285233333341,"type":"event"}
+{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":150.0,"kills":2,"kpm":12.0,"score":450,"seedfault":false,"sortie":8,"sortie_name":"Sortie 9 — MOSELLE","t":10.0332683333333,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by enemy tracer (17px)","kind":"death","sortie":8,"t":15.1156203333329,"type":"event"}
+{"deaths":2,"dmg":28.0,"kills":4,"run_s":50.0,"score":1120,"seedfault":false,"sortie":8,"t":17.122356333333,"type":"run_end"}

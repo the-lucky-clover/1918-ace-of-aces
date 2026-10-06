@@ -447,7 +447,7 @@ func _fairness_violation(k: Dictionary, pos: Vector2) -> String:
 		# telegraph an attack it doesn't have.
 		if not _ebool(n, "pass_mode") or _ebool(n, "pass_exempt") \
 				or (n as Node).is_in_group("bosses") \
-				or float(n.get("fire_interval", 1.0)) <= 0.0:
+				or _is_nonshooter(n):
 			return ""
 		var rec: Dictionary = _tracked.get((n as Node).get_instance_id(), {})
 		var age := 999.0
@@ -458,6 +458,15 @@ func _fairness_violation(k: Dictionary, pos: Vector2) -> String:
 				_estr(n, "etype"), age]
 	return ""
 
+
+
+# fire_interval <= 0 marks non-shooters (Drachen balloons are terrain — a
+# balloon can't telegraph an attack it doesn't have). Missing property
+# defaults to shooter. (Object.get() takes exactly 1 arg; the 2-arg
+# Dictionary.get default form crashes on nodes.)
+func _is_nonshooter(n) -> bool:
+	var fi = n.get("fire_interval")
+	return fi != null and float(fi) <= 0.0
 
 func _track_pass_model() -> void:
 	var now := _t()
@@ -876,9 +885,12 @@ func _fault_pin(which: String) -> void:
 	_fault_enemy = target
 	if which == "edge":
 		# pin off the playfield side (frozen: a drifting fault target would
-		# wander back on-screen before edge_linger's 3s timer fires)
+		# wander back on-screen before edge_linger's 3s timer fires).
+		# x=-180: past the detector's -160 offside line, but inside the
+		# game's -220 side-despawn — pinning ON the despawn line raced
+		# cleanup and made the proof flaky.
 		target.set("debug_freeze_pass", true)
-		_fault_pos = Vector2(-220.0, 300.0)
+		_fault_pos = Vector2(-180.0, 300.0)
 		(target as Node2D).global_position = _fault_pos
 	else:
 		# glow: do NOT freeze — a frozen aircraft would also trip

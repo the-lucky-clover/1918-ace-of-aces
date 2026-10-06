@@ -1,0 +1,6 @@
+{"archetype":"survivalist","date":"2026-10-06","seedfault":"","sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":1,"kpm":6.0,"score":375,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":10.0329209999999,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":13,"kpm":38.0,"score":5820,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":20.032121,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":34,"kpm":68.0,"score":14965,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":30.0315720000015,"touch_path":true,"type":"snapshot"}
+{"deaths":0,"dmg":0.0,"kills":39,"run_s":40.0,"score":18070,"seedfault":false,"sortie":31,"t":40.030771999999,"type":"run_end"}

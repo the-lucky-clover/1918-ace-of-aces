@@ -1,0 +1,9 @@
+{"archetype":"expert","date":"2026-10-06","seedfault":"","sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":10,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":10.0287759999999,"touch_path":true,"type":"snapshot"}
+{"detail":"19 live air attackers sustained 6s — the screen is unreadable","kind":"threat_saturation","seedfault":false,"sev":"HIGH","sortie":31,"t":15.0283759999995,"type":"anomaly"}
+{"detail":"killed by rammed by trench (30px)","kind":"death","sortie":31,"t":16.8489199999996,"type":"event"}
+{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":75.0,"kills":1,"kpm":2.0,"score":410,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":20.0245679999995,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":50.0,"kills":32,"kpm":64.0,"score":13825,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":30.0237680000007,"touch_path":true,"type":"snapshot"}
+{"detail":"node count 208 -> 332 (+59% past warmup minimum) — something isn't despawning","kind":"node_leak","seedfault":false,"sev":"MED","sortie":31,"t":35.1405999999999,"type":"anomaly"}
+{"deaths":1,"dmg":25.0,"kills":34,"run_s":40.0,"score":14425,"seedfault":false,"sortie":31,"t":37.6300559999992,"type":"run_end"}

@@ -1,0 +1,7 @@
+{"archetype":"average","date":"2026-10-06","seedfault":"unfair","sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"detail":"died with no bullet, flak, gas, or enemy within 320px — damage came from nowhere?","kind":"death_no_visible_cause","pos":"(600,1000)","seedfault":true,"sev":"HIGH","since_spawn":4.0,"sortie":0,"t":4.01056466666661,"type":"anomaly"}
+{"detail":"killed the bot from a clear sky (unfair)","kind":"seedfault","sortie":0,"t":4.01056466666661,"type":"event"}
+{"boss_spawned":false,"deaths":1,"dmg":9999.0,"dmg_per_min":59894.0,"kills":3,"kpm":18.0,"score":620,"seedfault":true,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":10.0307726666666,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by rammed by balloon (47px)","kind":"death","sortie":0,"t":16.6647246666662,"type":"event"}
+{"deaths":2,"dmg":10024.0,"kills":7,"run_s":35.0,"score":1390,"seedfault":true,"sortie":0,"t":18.6714606666665,"type":"run_end"}

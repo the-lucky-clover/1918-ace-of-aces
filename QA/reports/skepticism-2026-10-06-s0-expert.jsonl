@@ -1,0 +1,6 @@
+{"archetype":"expert","date":"2026-10-06","seedfault":"","sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":2,"kpm":12.0,"score":350,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":10.0332429999999,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":17,"kpm":50.0,"score":3970,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":20.0258547037037,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":20,"kpm":40.0,"score":4590,"seedfault":false,"sortie":0,"sortie_name":"Sortie 1 — VIMY RIDGE","t":30.025054703705,"touch_path":true,"type":"snapshot"}
+{"deaths":0,"dmg":0.0,"kills":28,"run_s":40.0,"score":7171,"seedfault":false,"sortie":0,"t":40.0136565037026,"type":"run_end"}
