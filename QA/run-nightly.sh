@@ -511,9 +511,17 @@ elif check == 'bot-skeptic-sane':
     for pat in ('pass_stall', 'pass_overlife', 'pass_no_turn', 'softlock',
                 'unfair_death_early', 'iframes_broken', 'sfx_spam',
                 'rumble_storm', 'spawn_camp', 'bot_zero_progress',
-                'wave_stall', 'debug_freeze_pass', 'skepticism-'):
+                'wave_stall', 'debug_freeze_pass', 'skepticism-',
+                # v23: new detectors + fault library + archetypes
+                'dead_air', 'threat_saturation', 'kette_broken',
+                'unfair_kill', 'perf_sag', 'node_leak', 'mixer_cap_held',
+                'botarchetype', 'seedfault'):
         if pat not in sk:
             sys.exit('skeptic.gd missing detector/hook: %s' % pat)
+    sa = read('skeptic_archetypes.gd')  # v23: four bot brains
+    for pat in ('novice', 'expert', 'survivalist', 'params_for'):
+        if pat not in sa:
+            sys.exit('skeptic_archetypes.gd missing: %s' % pat)
     p = read('player.gd')
     if 'signal damaged' not in p or 'damaged.emit' not in p:
         sys.exit('player.gd missing damaged signal')
@@ -530,7 +538,10 @@ elif check == 'bot-skeptic-sane':
     sh = open('/home/hatch/workspace/1918-ace-of-aces/QA/run-nightly.sh').read()
     for pat in ('godot-bot-sortie-', 'godot-bot-mythic', 'godot-bot-seedfault',
                 'qa-seedfault-proof', 'qa-skepticism-report',
-                'merge_skeptic.py'):
+                'merge_skeptic.py',
+                # v23: archetype matrix, fault library, terrain hygiene
+                'godot-bot-novice', 'godot-bot-seedfault-stall',
+                '--botarchetype=', 'check_terrain.py', 'qa-terrain-hygiene'):
         if pat not in sh:
             sys.exit('run-nightly.sh missing bot stage: %s' % pat)
 elif check == 'minimap-textures':
@@ -617,6 +628,19 @@ PYEOF
 godot_check "godot-import"      "$GODOT" --headless --path "$PROJECT" --import
 godot_check "godot-smoke-30s"   "$GODOT" --headless --path "$PROJECT" --quit-after 1800 -- --autostart
 godot_check "godot-boss-rush"   "$GODOT" --headless --path "$PROJECT" --quit-after 3600 -- --autostart --autoboss
+# v22: the 32-sortie campaign — sorties, pacing curve, boss roster, E1-E10,
+# 128 elites, 32 terrain identities
+if python3 "$ROOT/QA/check_v22_campaign.py" >"$OUT" 2>&1; then
+    record "qa-v22-campaign" "PASS — $(tail -1 "$OUT")"
+else
+    record "qa-v22-campaign" "FAIL — $(cat "$OUT" | head -8 | tr '\n' ';')"
+fi
+# v22 audio bar: 9 theater tracks, stingers, engine loops, sfx registry
+if python3 "$ROOT/QA/check_v22_audio.py" >"$OUT" 2>&1; then
+    record "qa-v22-audio" "PASS — $(tail -1 "$OUT")"
+else
+    record "qa-v22-audio" "FAIL — $(cat "$OUT" | head -8 | tr '\n' ';')"
+fi
 godot_check "godot-ads-flow"    "$GODOT" --headless --path "$PROJECT" --script res://tools/test_ads.gd
 if ! grep -q '\[TESTADS\] PASS' "$OUT"; then
     # godot_check already recorded; downgrade if the PASS marker is missing
@@ -627,7 +651,8 @@ if ! grep -q '\[TESTADS\] PASS' "$OUT"; then
     done
 fi
 # sortie sweep: every sortie's weather, waves, and flak paths must run clean
-for s in 0 1 2 3 4 5 6; do
+# v22: all 32 sorties boot and run (each ~25s game time, fast headless)
+for s in $(seq 0 31); do
     godot_check "godot-sortie-$((s+1))" "$GODOT" --headless --path "$PROJECT" --quit-after 1500 -- --autostart --sortie="$s"
 done
 # --- v13: bot playtest + continuous skepticism ---
@@ -639,23 +664,44 @@ done
 # report and fails on CRITICAL anomalies. Bot failures fail loudly.
 SKEP_DIR="$REPORT_DIR"
 rm -f "$SKEP_DIR/skepticism-$DATE-s"*.jsonl
-for s in 0 1 2 3 4 5; do
+# v22: sample the 32-sortie campaign — early / mid / late / finale
+for s in 0 8 16 24 31; do
     godot_check "godot-bot-sortie-$((s+1))" "$GODOT" --headless --path "$PROJECT" --quit-after 9000 -- --autostart --botpilot --botquit=50 --sortie="$s"
 done
-godot_check "godot-bot-mythic" "$GODOT" --headless --path "$PROJECT" --quit-after 16000 -- --autostart --botpilot --botquit=110 --sortie=6
-# seeded fault: wedge one pass aircraft — the skeptic MUST flag pass_stall.
-# This proves the detector fires on real faults, not just theory.
-godot_check "godot-bot-seedfault" "$GODOT" --headless --path "$PROJECT" --quit-after 5000 -- --autostart --botpilot --botquit=25 --sortie=0 --seedfault=stall
-if grep -q '"kind":"pass_stall"' "$SKEP_DIR/skepticism-$DATE-s0-seed.jsonl" 2>/dev/null; then
-    record "qa-seedfault-proof" "PASS"
-else
-    record "qa-seedfault-proof" "FAIL — pass_stall not flagged in the seedfault run"
-fi
-# merge fragments into QA/reports/skepticism-<date>.md (exits 1 on CRITICAL)
+# --- v23: archetype matrix — novice / expert / survivalist on early / mid /
+# finale (average is covered by the base sample above). 40s game time each.
+for a in novice expert survivalist; do
+    for s in 0 16 31; do
+        godot_check "godot-bot-$a-s$((s+1))" "$GODOT" --headless --path "$PROJECT" --quit-after 8000 -- --autostart --botpilot --botquit=40 --botarchetype="$a" --sortie="$s"
+    done
+done
+# --- v23: seeded-fault library — every detector must catch its fault.
+# Proof is gated by merge_skeptic.py's per-fault table (exit 1 when any
+# detector fails to fire); no separate grep needed. 35s runs: the stall
+# fault needs ~25s of pinned time before pass_stall's margin expires.
+for f in stall unfair spawncamp glow edge sfx rumble earlydeath; do
+    godot_check "godot-bot-seedfault-$f" "$GODOT" --headless --path "$PROJECT" --quit-after 7000 -- --autostart --botpilot --botquit=35 --sortie=0 --seedfault="$f"
+done
+# merge fragments into QA/reports/skepticism-<date>.md
+# (v23: archetype-aware stats, per-fault proof table, trends, bug autofile;
+#  exits 1 on CRITICAL anomalies or missing detector proof)
 if python3 "$PROJECT/tools/merge_skeptic.py" "$SKEP_DIR" "$DATE" >"$OUT" 2>&1; then
     record "qa-skepticism-report" "PASS — $(grep -o 'SKEPTIC:.*' "$OUT" | head -1)"
 else
     record "qa-skepticism-report" "FAIL — $(grep -o 'SKEPTIC:.*' "$OUT" | head -1)"
+fi
+# v23: the merge gates detector proof — record its tally here so the
+# long-standing qa-seedfault-proof stage keeps its name and meaning.
+if grep -q 'proof 8/8' "$OUT" 2>/dev/null; then
+    record "qa-seedfault-proof" "PASS — 8/8 detectors proved"
+else
+    record "qa-seedfault-proof" "FAIL — $(grep -o 'proof [0-9]*/8' "$OUT" | head -1)"
+fi
+# --- v23: terrain hygiene — the 32 minimap identities under the iron rule ---
+if python3 "$ROOT/QA/skeptic/check_terrain.py" "$PROJECT/scripts" >"$OUT" 2>&1; then
+    record "qa-terrain-hygiene" "PASS — $(tail -1 "$OUT")"
+else
+    record "qa-terrain-hygiene" "FAIL — $(cat "$OUT" | head -8 | tr '\n' ';')"
 fi
 web_check   "web-photo-keyframes" photo-keyframes
 web_check   "web-intro-timeout"   intro-timeout
