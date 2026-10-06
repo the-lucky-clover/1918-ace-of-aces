@@ -1540,3 +1540,245 @@ Skeptic gains `edge_linger` (HIGH) and `enemy_glow` (MED) detectors.
   (N selects the boss index; `--autoboss=6` rushes the ghost duel), and
   `-- --sortie=N` headless smoke-test hooks in `main.gd`; harmless in normal
   play.
+
+## v22 — THE 32-SORTIE CAMPAIGN — 2026-10-05/06
+
+Steven's master directive, implemented as data. This is the biggest content
+pass yet: 32 sorties (1942's structure), the universal roster E1-E10, 32
+bosses, 128 elite minibosses, 128 secondaries, and Steven's authoritative
+terrain spec (32 minimap identities, strict 90° vertical aerial-recon
+doctrine).
+
+### Campaign data architecture
+- `tools/build_campaign.py` is the data-driven framework: 32 compact sortie
+  specs + the 32-boss roster are authored as Python data, then expanded into
+  full 1942-orchestrated wave schedules (intro -> escalating fighter waves
+  with Kette discipline -> interleaved ground-target waves -> elite
+  minibosses at the quartiles -> boss) and emitted as a GDScript literal into
+  `scripts/sortie_data.gd`. SORTIES stays a `const` — main.gd needed no
+  data-access changes. Regenerate: `python3 tools/build_campaign.py`.
+- The old 6-sortie + mythic S7 structure is superseded (kept in git history).
+  The v11 mythic-unlock flow (title duel button, ghost unlock save) is
+  retired — the Baron is the S32 finale now. `CAMPAIGN_LAST = 31`.
+- Completion metrics: 80/100/120 pacing curve (early S1-10: 80, mid S11-21:
+  100, late S22-31: 120; S32 uses the doc's explicit 96) = 3,196 campaign
+  enemies (~3,200). 100% = kills + 128 secondaries + 32 bosses. Title screen
+  shows campaign progress (furthest sortie, saved locally).
+
+### HP reconciliation (doc ratios, current-game feel)
+- The doc's absolute numbers assume a different damage model. Preserved the
+  RATIOS, re-anchored: enemy HP = doc HP x 10 (E1 2 -> 20, exactly the old
+  scout's feel — the anchor that validates the scale); boss HP =
+  round(900 x doc_tier / 60) (tier 60 -> 900, the current early-boss feel).
+- Boss HP ladder: 900 / 1050 / 1125 / 1200 / 1350 / 1500 / 1800 / 2100 /
+  2250 / 2400 / 2700 / 2850 / 3000 / 3300 / 3600 / 3900 / 4200 / 4500 /
+  4800 / 6000 / 7500 (S32). Player base DPS ~75 (12 dmg / 0.16s); the finale
+  is a proper epic (~100s of sustained fire, less with rapid/wingmen/bombs).
+  Skeptic bot samples early/mid/late/finale to validate time-to-kill.
+
+### Universal roster E1-E10 (all implemented, Blender renders via render_v22.py)
+- E1 Eindecker (20, dive/steady, S1-8), E2 Albatros D.III (40, dive/slash
+  boom-and-zoom, S8-18), E3 Albatros D.V (50, weave/smooth S-curves in pairs,
+  S12-24, reuses albatros sprites), E4 Fokker Dr.I (60, weave/jink
+  circle-strafing, S18-32, reuses Dr.I sprites), E5 Rumpler (70, rear gunner
+  fires on the exit leg + calls 2x reinforcements twice, S3+), E6 Gotha G.V
+  (250, 3-way defensive fan + bomb carpets, S16+), E7 Staaken R.VI (600,
+  5-way turret fan + heavy bombs, S21+), E8 Zeppelin (1200, flak pods,
+  hydrogen-cell weakness = double bomb damage, S16+), E9 Searchlight Tower
+  (150, illuminates the player feeding Archie heat + summons flak volleys,
+  S7+), E10 Archie Battery (180, v3 predictive flak, S2+).
+- New renders: enemy-eindecker, enemy-albatros-d3, enemy-rumpler,
+  enemy-gotha, enemy-staaken, enemy-searchlight (+ 7 ace liveries for
+  bosses). All procedural through the v16 pipeline — never photographic.
+
+### Boss roster: three duel frameworks, one roster
+- "ace" (the classic duel: strafes, charges, spirals), "heavy" (drifting
+  gunship: turret fans + bomb carpets), "ground" (stationary emplacement:
+  aimed fans + signature specials — railway fan, Archie flak ripple,
+  searchlight sweep). Roster-driven: sprite/livery, kind, phases, arena,
+  escort, spectral all come from BOSS_ROSTER.
+- Bosses with escorts: S15 Jasta Elite Squadron (3 elite Dr.I), S29 Bomber
+  Command (2 elite Gothas), S30 Staaken Squadron (2 elite Staakens), S31 The
+  Flying Circus (4 elite Dr.I). Bluesky arena: S5, S16, S28, S29, S30, S32.
+- S32: Ghost of the Red Baron, 4 phases (75/50/25 breaks; phase 4 the GHOST
+  BLUE MAX joins as an elite Dr.I in blue livery, pass-exempt, 1350 HP).
+- BLUE MAX IS NOW A CHARACTER (supersedes the old "no Blue Max" note): S5
+  boss "Blue Max Ace" + S32 phase 4. Steven's call, documented here.
+
+### Minibosses (128) / secondaries (128)
+- Elite framework: `configure(..., p_elite=true)` = 2.5x HP, 3x score,
+  "ELITE INBOUND" callout. 4 per sortie via `"elites": 1` wave flags.
+- Secondaries: palette extended with "searchlights" and "trains"; 4 per
+  sortie with targets computed from the actual enemy mix (asserted > 0).
+
+### Terrain spec (Steven's, authoritative — supersedes the short prompts)
+- Doctrine: strict 90° vertical aerial-recon, no perspective/horizon,
+  readable at 3-10k ft, strong landmarks, arcade contrast. Takeoff/landing
+  = first/last map sections (aerodrome strip at the bottom of every
+  portrait, with the spec's landing-damage progression S13->S16).
+- 32 identities in `minimap.gd` TERRAIN (data-driven: theme -> [painter,
+  variant, aerodrome damage]): Issoudun pristine -> Colombey -> Toul mist ->
+  front approach -> ... -> Verdun apocalyptic progression (S13-S16) ->
+  Marne/Champagne -> Meuse -> offensive -> Argonne -> S32 ARMISTICE
+  composite mosaic (storm/Argonne/Meuse/Marne/vineyards/Verdun/rail/St.
+  Mihiel/Toul farmland bands + massive aerodrome).
+- The universal texture-prompt modifier governs AI texture generation;
+  the in-game minimap is procedural canvas painting in the same doctrine
+  (strong separation of roads/rail/trenches/forests, high-contrast intel
+  map look). Procedural — never claimed photographic.
+- Aerodromes per the spec: S1 Issoudun, S2 Colombey-les-Belles, S3-5 Toul,
+  S6-8 Epiez, S9-12 Toul, S13-16 Rembercourt, S17-24 Villeneuve, S25-32
+  Rembercourt. Takeoff reel caption shows the field name.
+
+### Dates (Steven's call pending)
+- Kept the doc's dates as written: S1 "9 Apr 1917" (Vimy anchor deliberate),
+  S29 "Sep 1918", S30-31 "Oct 1918", S32 "11 Nov 1918"; others undated.
+  The 1917->1918 framing question is STEVEN'S CALL — not retconned.
+
+### Validation
+- Clean import, zero script errors. Smokes: S1/S16/S32 boot clean.
+- Boss-rush: boss 0 phases 2/3 trigger, kill confirmed.
+- Nightly: new `qa-v22-campaign` check (32 sorties, pacing curve, 32-boss
+  roster w/ HP math + sprite presence, E1-E10 HP, 32 terrain keys, 128
+  elites); sortie sweep extended to all 32; bot sampling 5 sorties
+  (0/8/16/24/31) across the arc; seedfault retained.
+
+### 1942 DAMAGE MODEL (Steven's directive — SUPERSEDES HP reconciliation)
+Steven killed the RPG-HP reconciliation mid-pass: the game now implements
+1942's design philosophy literally. Difficulty from patterns, numbers,
+positioning, screen control — NOT attrition.
+
+- **Player (SPAD XIII): 1 hit = death.** The hull HP system is fully retired
+  (player.gd has no hp/MAX_HP; heal() is a no-op). Survival tools: readable
+  patterns, the loop's 5s invulnerability (kept), firepower pickups, bombs.
+  Spawn protection 3s (matches the skeptic's unfair-death window) so one-hit
+  death never feels cheap. Gas is lethal without a mask (one breath kills;
+  mask = immunity, loop invuln covers the maneuver). Revive is binary.
+- **Enemies in hits** (1 player bullet = 12 dmg = 1 hit; HP hidden):
+  E1 Eindecker 1, E2 Early Albatros 2, E3 Albatros D.V 3, E4 Dr.I 4,
+  E5 Rumpler 8, balloon 10, Archie 6, searchlight 4. (E2/E3 mapping note:
+  the directive's "Early Albatros 2 / D.III 3" maps onto E2/E3 in tier
+  order; behaviors align — E2 boom-and-zoom, E3 crossing runs.)
+  E6 Gotha 28, E7 Staaken 68, E8 Zeppelin 137 (scaled from the Rumpler-8
+  anchor). Elites: 2.5x hits.
+- **Railway targets = 1942's ships**: Nathan 40, Samuel 50, Bruno 120 hits;
+  Theodor Otto 80 / Theodor Karl 90 (aviation aces, railway-scale numbers —
+  the mid-campaign dip is Steven's explicit call). Weak points: locomotive /
+  ammo wagon (x2).
+- **Aviation bosses in hits**: S1 25, S2 30, S3 32, S4 35, S5 40, S6 45,
+  S7 48, S8 50, S9 40, S10 50, S11 55, S12 58, S13 60, S14 70, S15 75,
+  S16 80, S17 100, S18 120, S19 135, S20 140, S21 180, S22 150, S23 80,
+  S24 90, S25 180, S26 250 (5x50 shared), S27 120, S28 300, S29 340,
+  S30 370, S31 400 (shared), S32 500.
+- **Damage regions** (multiplied hits, with callouts): Gotha (engines x2,
+  cockpit x3, fuselage x1), Staaken (4 engines x2, cockpit x3, bomb bay
+  x1.5), Zeppelin (hydrogen cells x2, gondola/engine cars x1.5), railway
+  (locomotive/ammo wagon x2). Implemented as boss-local zones; the bullet's
+  hit position selects the zone.
+- **No boss HP meter** (Steven's call): 1942-style damage states instead —
+  smoke under 66%, fire/explosions under 33%. The name banner stays.
+- **Pickups**: repair retired (no hull to heal) — drops and collects grant
+  bombs. Powerups increase hit *delivery* (spread/rate), never per-hit
+  damage — pure 1942.
+- **S14 Blue Max Ghost** (replaces Peter Adalbert): spectral ace with
+  illusion doubles (2 translucent phantom escorts). Blue Max is now S5 +
+  S14 ghost + S32 P3.
+- **S26/S31 shared formation health**: escorts share the pool — each escort
+  death deals (hits / aircraft) to the boss.
+- Skeptic: deaths with visible causes are events, not anomalies; the 3s
+  unfair-death window still guards spawn fairness. Nightly asserts the full
+  hits table (check_v22_campaign.py).
+- NEEDS STEVEN'S HUMAN PLAYTEST VERDICT before web republish — this is a
+  major combat-feel change.
+
+### v22 SCORE MAP (Steven's audio bar)
+"Updated sound design and musical score composed to serve as the de facto
+soundtrack for WWI shoot-em-up action." All music/SFX synthesized from
+first principles in numpy (tools/make_music.py, tools/make_sfx.py) —
+no licensed, sampled, or placeholder audio. Old single gameplay_theme.wav
+retired (deleted); tracks now loop properly (the old import never looped —
+loop_mode is set in code, LOOP_FORWARD, tracks resolve to tonic).
+
+**Nine theater identities** (music.gd THEATER_BY_SORTIE, 32 sorties):
+- training (S1-3): G major, 100 BPM — hopeful pastoral, bugle-call lead.
+- front (S4-8): D minor, 92 BPM — uneasy drone, sparse lead, rain-tick hats.
+- industrial (S9-12): E minor, 124 BPM — mechanical 16th arps, snare backbeat.
+- verdun (S13-16): C minor, 72 BPM — funereal dirge, tolling tones, timpani.
+- vineyard (S17-20): A major, 88 BPM — bittersweet lyrical, warm pads.
+- salient (S21-24): F# minor, 112 BPM — escalating ostinato, driving hats.
+- meuse (S25-28): Bb minor, 104 BPM — grim march, anthem lead.
+- argonne (S29-31): G minor, 132 BPM — relentless push, urgent lead.
+- armistice (S32): D minor -> D major lift -> Dm resolve, 100 BPM —
+  storm timpani, triumph drums, 20 bars (~48s).
+Spectral review (nightly qa-v22-audio): verdun darkest (327Hz), training
+brightest, armistice heaviest low-end. Sizes: ~14MB WAV source, ~3.5MB in
+export (IMA-ADPCM import compression).
+
+**Sound design**: per-family engine loops (2s seamless, integer-cycle):
+rotary putter (Dr.I scouts), inline V8 growl (the SPAD — always on in
+sorties, ducked in pause, dies with the pilot), bomber drone (heavies),
+zeppelin hum (the airship). Boss stingers on spawn: ace (rising),
+heavy (dissonant slam), ghost (eerie gliss). Railway guns: railgun_boom
+(deep sub + echo, replaces tank_boom for Nathan/Samuel/Bruno). Searchlights:
+eerie sweep when the beam first finds the player. Also fixed a dead call —
+main.gd played "alarm" but no such file existed; now synthesized.
+Nightly qa-v22-audio: 9 theaters (20-60s, no clip, seamless edges),
+stingers, engine loop continuity, sfx.gd FILES all on disk, every
+SFX.play("name") literal resolves (no orphans).
+
+### v22 PHOTOREALISM DOCTRINE (Steven's directive — extends v16)
+Photorealism is the visual bar for ALL gameplay aspects. Status:
+- Aircraft/ground sprites: already Blender PBR (v16 pipeline) incl. all
+  13 v22 renders. Compliant.
+- Effects: NEW Blender particle sprite set (fx/ renders): 3-frame
+  explosion fireball, smoke puff, muzzle flash, flak burst — layered under
+  the readable canvas cores (v20 4-layer tracer is the template: photoreal
+  texture, arcade-readable core).
+- Terrain/minimaps: procedural per the 32-identity spec (perf + readability;
+  the universal texture-prompt modifier is the art direction, implemented
+  procedurally — never claimed photographic).
+- Documented exceptions (readability/perf, never silent): infantry dots
+  (vector — must read at speed), atmospheric haze (procedural gradient),
+  UI chrome/briefing cards (vector — legibility), tracer cores (canvas —
+  the photoreal layer sits underneath).
+- Nightly visual-regression: QA/check_v22_visual.py — every sprite must
+  trace to a render manifest (no orphan programmer art), flat-shade
+  heuristic (low color variance on large sprites), placeholder-color scan
+  (magenta/green), fx/ manifest coverage for the particle set.
+
+### v22 nightly-hardening fixes (2026-10-06)
+- **Gas strikes never spawned** (real bug): build_campaign.py authored
+  "gas_strikes" per sortie but main.gd never scheduled them — the key is now
+  merged into the wave schedule. Nightly gas-system-sane asserts both the
+  data key and the scheduling.
+- **S16 night sortie**: THE IRON FORTS (Imperial Night Fighter) takeoff
+  moved 11:20 -> 02:10 — the campaign had zero night sorties; the
+  lighting-schedule check now passes and the Night Fighter flies at night.
+- **Seedfault proof**: the 25s bot run ended before the stall detector's
+  ~21s wedge threshold — extended to 50s. Skeptic fragment dir is now
+  --skepdir= configurable (was hardcoded to another checkout).
+- Stale old-structure checks updated for 32 sorties: tween-guards (hull
+  tween retired with the hull bar), german-roster (E1-E10 names),
+  minimap-textures (32 themes, roster "arena" flags), s2-no-uboats
+  (Colombey training identity), ghost-baron-duel (S32 finale pieces),
+  v16/v19 sprite registries (+13 v22 models), ground-war-two-way (32 briefs).
+
+### v22 field-report fixes (2026-10-06, from v23 automated playtesting)
+Three real issues caught by the one-hit-fairness + density detectors:
+1. **Spawn fairness (CRITICAL)**: Dr.I spawned 106px from the player and
+   rammed 0.5s later during ENTER on S32. Fixed: _spawn_enemy enforces a
+   300px minimum spawn distance (pushes laterally if the roll lands close);
+   aircraft lose their player collision mask during PASS_ENTER — it rejoins
+   at the ENTER->ATTACK transition. ENTER-state rams are now impossible.
+2. **Density**: S1 ran 15-31 concurrent attackers/6s. Thinned via the 1942
+   curve: sorties 0-7 use 4-plane air waves / 3-target ground waves over a
+   1.6x timing window (S1: 23 waves, max 4/wave, boss at 168s); mid 6/5,
+   late 7/6. Kill totals unchanged.
+3. **Conga-line regression**: the v20 side-despawn only applied in EXIT —
+   Eindeckers slashing off-screen during ATTACK lingered at x=-475. The
+   220px side-despawn now applies in ALL pass states (bosses/escorts exempt).
+Also fixed: **"trucks"/"railgun" wave-type crash** — the generator emitted
+plural/singular mismatches (TYPES has "truck" via TruckScript and
+"railwaygun"; waves used "trucks"/"railgun"), crashing configure() and
+cascading into modulate-on-Nil. SEC_FEED + ground specs corrected;
+check_v22_campaign.py now asserts every wave type is spawnable.

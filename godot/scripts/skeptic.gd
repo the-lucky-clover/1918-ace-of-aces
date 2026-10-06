@@ -72,7 +72,13 @@ func setup(main_ref, si: int) -> void:
 	var frag := "s%d" % si
 	if seedfault != "":
 		frag += "-seed"
-	out_path = "/home/hatch/workspace/1918-ace-of-aces/QA/reports/skepticism-%s-%s.jsonl" % [date, frag]
+	# v22: report dir is configurable (--skepdir=); defaults to the repo so
+	# bare runs still land somewhere sane. Never hardcode a checkout path.
+	var skepdir := "/home/hatch/workspace/1918-ace-of-aces/QA/reports"
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--skepdir="):
+			skepdir = a.get_slice("=", 1)
+	out_path = skepdir + "/skepticism-%s-%s.jsonl" % [date, frag]
 	_f = FileAccess.open(out_path, FileAccess.WRITE)  # truncate: fresh run
 	_last_tick = Time.get_ticks_msec()
 	_write({

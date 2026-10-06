@@ -1,6 +1,9 @@
 extends Node2D
-## Brief muzzle flash — a hot core with star spikes. Pure _draw.
+## Brief muzzle flash — a hot core with star spikes.
 ## v20: optional size boost — the player's own gunfire pops a little harder.
+## v22 photorealism: Blender-rendered flash sprite under the canvas core.
+
+const MUZZ := preload("res://assets/sprites/fx/fx-muzzle.png")
 
 var age := 0.0
 var life := 0.07
@@ -24,6 +27,10 @@ func _draw() -> void:
 	# v14: gunfire pops harder in the dark — night sorties read by flash
 	var night := 1.0 + 0.6 * Global.night_factor
 	var r := (15.0 * t + 4.0) * night * boost
+	# v22: photoreal flash sprite under the readable core, tinted by side
+	var ms := r * 4.2
+	draw_texture_rect(MUZZ, Rect2(-ms * 0.5, -ms * 0.5, ms, ms), false,
+		Color(col.r, col.g, col.b, 0.9 * t))
 	draw_circle(Vector2.ZERO, r, Color(col.r, col.g, col.b, 0.85 * t))
 	draw_circle(Vector2.ZERO, r * 0.45, Color(1, 1, 1, 0.9 * t))
 	for i in 4:

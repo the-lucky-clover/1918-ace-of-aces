@@ -80,7 +80,7 @@ func _unload() -> void:
 		t.march_time = randf_range(3.5, 5.0)
 
 
-func take_damage(amount: float) -> void:
+func take_damage(amount: float, heavy: bool = false, hit_pos: Vector2 = Vector2.ZERO) -> void:
 	if dead:
 		return
 	hp -= amount

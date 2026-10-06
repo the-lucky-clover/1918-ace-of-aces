@@ -1,6 +1,9 @@
 extends Node2D
 ## Contrail puff: the readable beat when an enemy banks into its 180° turn.
-## Three soft white-grey wisps, expanding, drifting, fading. Pure _draw.
+## Three soft white-grey wisps, expanding, drifting, fading.
+## v22 photorealism: Blender smoke sprite, tinted pale, under the canvas.
+
+const SMOKE_SPR := preload("res://assets/sprites/fx/fx-smoke.png")
 
 var age := 0.0
 var life := 0.5
@@ -30,4 +33,8 @@ func _draw() -> void:
 	for s in _seeds:
 		var r: float = float(s["r"]) + float(s["grow"]) * t
 		var c := Vector2(s["o"]) + Vector2(-16.0, 0.0) * t
+		var pr := r * 2.8
+		draw_texture_rect(SMOKE_SPR,
+			Rect2(c.x - pr * 0.5, c.y - pr * 0.5, pr, pr), false,
+			Color(0.92, 0.94, 0.97, 0.42 * fade))
 		draw_circle(c, r, Color(0.92, 0.94, 0.97, 0.42 * fade))

@@ -4,7 +4,6 @@ extends CanvasLayer
 const AdsConfig := preload("res://scripts/ads_config.gd")
 
 signal start_requested
-signal duel_requested
 signal resume_requested
 signal next_requested
 signal revive_requested
@@ -15,7 +14,7 @@ var debrief_root: Control
 var debrief_vbox: VBoxContainer
 var debrief_title: Label
 var debrief_next_btn: Button
-var duel_btn: Button
+var progress_label: Label
 var blink_label: Label
 var blink_t := 0.0
 var pause_obj_box: VBoxContainer
@@ -97,7 +96,8 @@ func _build_title() -> void:
 	vb.add_child(_label(Global.GAME_TAGLINE, 30, Color(0.72, 0.68, 0.58)))
 	vb.add_child(_label("v" + Global.VERSION, 20, Color(0.62, 0.56, 0.44)))
 	vb.add_child(_label("OVER THE TRENCHES — 1918", 24, Color(0.75, 0.42, 0.28)))
-	vb.add_child(_label("SIX SORTIES · SIX ACES · NO PARACHUTES", 22, Color(0.55, 0.5, 0.45)))
+	vb.add_child(_label("32 SORTIES · 32 ACES · NO PARACHUTES", 22, Color(0.55, 0.5, 0.45)))
+	vb.add_child(_label("3,200 KILLS · 128 SECONDARIES · 32 BOSSES = 100%", 20, Color(0.55, 0.5, 0.45)))
 	vb.add_child(_label("WASD / ARROWS — fly      SPACE / CLICK — fire", 22))
 	vb.add_child(_label("X / SHIFT — bomb      ESC — pause", 22))
 	if Global.on_touch_device():
@@ -113,16 +113,9 @@ func _build_title() -> void:
 	var bc := CenterContainer.new()
 	bc.add_child(b)
 	vb.add_child(bc)
-	# the mythic duel: appears on the title once S6 is beaten (saved unlock)
-	duel_btn = _button("⚡ THUNDERHEAD DUEL")
-	duel_btn.pressed.connect(func() -> void:
-		SFX.play("ghost_wail", -8.0)
-		SFX.play("ui_confirm")
-		duel_requested.emit())
-	var dc := CenterContainer.new()
-	dc.add_child(duel_btn)
-	vb.add_child(dc)
-	duel_btn.visible = false
+	# v22: campaign progress — the furthest sortie reached, saved locally
+	progress_label = _label("", 22, Color(0.9, 0.8, 0.5))
+	vb.add_child(progress_label)
 
 
 func _build_pause() -> void:
@@ -239,10 +232,15 @@ func hide_all() -> void:
 		revive_btn.visible = false
 
 
-func show_title(ghost_unlocked: bool = false) -> void:
+func show_title(progress: int = 0) -> void:
 	hide_all()
-	if duel_btn:
-		duel_btn.visible = ghost_unlocked
+	if progress_label:
+		if progress >= 31:
+			progress_label.text = "CAMPAIGN COMPLETE — THE GHOST IS LAID TO REST"
+		elif progress > 0:
+			progress_label.text = "CAMPAIGN: SORTIE %d/32 — CONTINUE THE FIGHT" % (progress + 1)
+		else:
+			progress_label.text = "CAMPAIGN: 32 SORTIES AHEAD OF YOU, PILOT"
 	title_root.visible = true
 
 
@@ -272,22 +270,16 @@ func show_debrief(data: Dictionary) -> void:
 	for c in debrief_vbox.get_children():
 		c.queue_free()
 	debrief_vbox.add_child(_label("FIELD REPORT", 26, Color(0.72, 0.66, 0.52)))
-	if bool(data.get("mythic_win", false)):
-		debrief_title.text = "LEGEND COMPLETE"
-		debrief_title.add_theme_color_override("font_color", Color(1.0, 0.55, 0.35))
-	elif bool(data["campaign_done"]):
+	if bool(data["campaign_done"]):
 		debrief_title.text = "CAMPAIGN COMPLETE"
 		debrief_title.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
+		debrief_vbox.add_child(_label("> THE GHOST IS LAID TO REST — WE WON.", 24, Color(1.0, 0.75, 0.4)))
 	elif bool(data["win"]):
 		debrief_title.text = "MISSION COMPLETE"
 		debrief_title.add_theme_color_override("font_color", Color(0.55, 0.9, 0.5))
 	else:
 		debrief_title.text = "KILLED IN ACTION"
 		debrief_title.add_theme_color_override("font_color", Color(1.0, 0.38, 0.3))
-	if bool(data.get("mythic_win", false)):
-		debrief_vbox.add_child(_label("> THE GHOST IS LAID TO REST — WE WON.", 24, Color(1.0, 0.75, 0.4)))
-	if bool(data.get("ghost_offer", false)):
-		debrief_vbox.add_child(_label("> The thunderheads gather... a crimson triplane rides the storm.", 22, Color(0.85, 0.6, 0.6)))
 	debrief_vbox.add_child(_label("> SORTIE: " + String(data["sortie_name"]), 24, Color(0.85, 0.8, 0.66)))
 	var mark := "v" if bool(data["primary_done"]) else "x"
 	var pcol := Color(0.55, 0.9, 0.5) if bool(data["primary_done"]) else Color(1.0, 0.42, 0.34)
@@ -310,11 +302,7 @@ func show_debrief(data: Dictionary) -> void:
 			debrief_vbox.add_child(_label("> v SQUADRON: %d/%d DOWN — BROKEN  (+%d)" % [sk, sg, int(data.get("squad_bonus", 0))], 21, Color(1.0, 0.85, 0.4)))
 		else:
 			debrief_vbox.add_child(_label("> x SQUADRON: %d/%d down (goal %d)" % [sk, sg, sg], 21, Color(0.6, 0.57, 0.5)))
-	if bool(data.get("ghost_offer", false)):
-		debrief_next_btn.text = "FACE THE GHOST"
-	elif bool(data.get("mythic", false)):
-		debrief_next_btn.text = "RETURN TO TITLE" if bool(data["win"]) else "RETRY"
-	elif bool(data["campaign_done"]):
+	if bool(data["campaign_done"]):
 		debrief_next_btn.text = "RETURN TO TITLE"
 	elif bool(data["win"]):
 		debrief_next_btn.text = "NEXT SORTIE"

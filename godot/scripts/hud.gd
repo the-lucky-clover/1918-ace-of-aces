@@ -22,7 +22,6 @@ var brief_label: Label
 var squad_label: Label
 var _brief_tween: Tween = null
 var _score_tween: Tween = null  # flicker guard: one score flash at a time
-var _hull_tween: Tween = null   # flicker guard: one hull bleed at a time
 var _fuel_frac := 1.0
 var _blink := 0.0
 var _last_hp := 100.0
@@ -67,11 +66,14 @@ func _build() -> void:
 	sortie_label.size = Vector2(400, 30)
 	sortie_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(sortie_label)
-	# hull bar
+	# hull bar — v22: retired (1942 one-hit model). Hidden, not removed,
+	# so layout anchors below stay stable.
 	var hl := _mk_label("HULL", 18)
 	hl.position = Vector2(16, 62)
+	hl.visible = false
 	add_child(hl)
 	hull_bar = ProgressBar.new()
+	hull_bar.visible = false
 	hull_bar.min_value = 0.0
 	hull_bar.max_value = 100.0
 	hull_bar.value = 100.0
@@ -188,23 +190,8 @@ func set_minimap_theme(theme: String) -> void:
 
 
 func update_integrity(hp: float, max_hp: float) -> void:
-	var frac := clampf(hp / max_hp, 0.0, 1.0)
-	hull_bar.value = frac * 100.0
-	if hp < _last_hp:
-		# damage flash: the bar bleeds red for a beat.
-		# flicker guard: kill the previous bleed so stacked hits never stack.
-		if _hull_tween != null and _hull_tween.is_valid():
-			_hull_tween.kill()
-		hull_bar.modulate = Color(2.2, 0.7, 0.7)
-		_hull_tween = create_tween()
-		_hull_tween.tween_property(hull_bar, "modulate", Color.WHITE, 0.3)
-	_last_hp = hp
-	if frac > 0.5:
-		hull_fill.bg_color = Color(0.3, 0.75, 0.35)
-	elif frac > 0.25:
-		hull_fill.bg_color = Color(0.9, 0.65, 0.2)
-	else:
-		hull_fill.bg_color = Color(0.85, 0.25, 0.22)
+	# v22: retired — the 1942 one-hit model has no hull bar. No-op.
+	pass
 
 
 func update_bombs(n: int) -> void:
@@ -289,14 +276,17 @@ func mark_primary_done() -> void:
 		l.add_theme_color_override("font_color", Color(0.5, 1.0, 0.55))
 
 
-func show_boss(bname: String, hp: float, max_hp: float) -> void:
+func show_boss(bname: String, hp: float = 0.0, max_hp: float = 1.0) -> void:
+	# v22: no boss HP meter — damage states only. Name banner for the call.
 	boss_container.visible = true
 	boss_label.text = bname
-	update_boss(hp, max_hp)
+	if boss_bar:
+		boss_bar.visible = false
 
 
 func update_boss(hp: float, max_hp: float) -> void:
-	boss_bar.value = clampf(hp / max_hp, 0.0, 1.0) * 100.0
+	# v22: retired — damage states replace the meter. No-op.
+	pass
 
 
 func hide_boss() -> void:

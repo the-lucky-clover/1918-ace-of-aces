@@ -15,7 +15,6 @@ const ACCEL := 2600.0
 const MAX_SPEED := 430.0
 const DRAG := 3.2
 const FIRE_INTERVAL := 0.16
-const MAX_HP := 100.0
 const MAX_FUEL := 100.0
 const BOMB_COUNT_START := 2
 const LOOP_DUR := 0.75
@@ -24,7 +23,6 @@ const POST_LOOP_INVULN := 5.0  # v19: Steven's order — 5 full seconds of
 const LOOP_CD := 10.0
 
 var velocity := Vector2.ZERO
-var hp := MAX_HP
 var fuel := MAX_FUEL
 var engine_dead := false
 var bombs := BOMB_COUNT_START
@@ -66,6 +64,9 @@ func _ready() -> void:
 	for i in LOOP_FRAMES:
 		loop_frames.append(load("res://assets/sprites/loop/loop-%02d.png" % i))
 	area_entered.connect(_on_area_entered)
+	# v22: spawn protection — 3s of invulnerability on entry, matching the
+	# skeptic's unfair-death window. One-hit death must never feel cheap.
+	invuln = maxf(invuln, 3.0)
 
 
 func _input(event: InputEvent) -> void:
@@ -246,22 +247,20 @@ func try_loop() -> void:
 	SFX.rumble(50, 0.5)
 
 
+## v22: 1942 damage model — the SPAD dies in ONE hit. No hull attrition;
+## survival comes from readable patterns, the loop's invulnerability, and
+## firepower. Fairness is pattern clarity, not hit-soaking.
 func take_damage(amount: float) -> void:
 	if debug_godmode:
 		return
 	if not alive or invuln > 0.0:
 		return
-	hp -= amount
-	invuln = 1.0
-	flash_hold = 0.15  # v19: let the hit-flash read before the blink resumes
 	damaged.emit(amount)
 	FX.hit_flash(sprite)
 	FX.add_trauma(0.35)
 	SFX.play("damage", -2.0)
 	SFX.rumble(70, 1.0)  # sharp buzz: you got hit
-	get_tree().call_group("hud", "update_integrity", hp, MAX_HP)
-	if hp <= 0.0:
-		_die()
+	_die()  # one hit is all it takes
 
 
 func _die() -> void:
@@ -287,15 +286,17 @@ func _crash() -> void:
 
 
 func heal(amount: float) -> void:
-	hp = minf(MAX_HP, hp + amount)
-	get_tree().call_group("hud", "update_integrity", hp, MAX_HP)
+	# v22: retired — one-hit model has no hull to heal. Repair pickups now
+	# grant bombs (see pickup.gd). Kept as a no-op for API compatibility.
+	pass
 
 
 ## Rewarded-ad revive: back in the fight mid-sortie with partial hull.
 ## Wingmen stay lost (they died with you); everything else resets clean.
 func revive(hull_frac: float) -> void:
 	alive = true
-	hp = MAX_HP * clampf(hull_frac, 0.1, 1.0)
+	# v22: one-hit model — revive is binary, full fuel, brief protection
+	invuln = maxf(invuln, 3.0)
 	fuel = MAX_FUEL
 	engine_dead = false
 	invuln = 3.0  # breathing room: the sky is still full of lead
@@ -307,7 +308,6 @@ func revive(hull_frac: float) -> void:
 		sprite.texture = base_texture
 	velocity = Vector2.ZERO
 	global_position = Vector2(Global.VIEW_W * 0.5, Global.VIEW_H - 160.0)
-	get_tree().call_group("hud", "update_integrity", hp, MAX_HP)
 	get_tree().call_group("hud", "update_bombs", bombs)
 	SFX.play("pickup")
 
@@ -341,13 +341,13 @@ func power_gasmask() -> void:
 ## Mustard gas damage: insidious — no invulnerability frames, the fog just
 ## keeps burning. The gas mask grants full immunity (checked by the cloud).
 func take_gas_damage(amount: float) -> void:
-	if debug_godmode or not alive:
+	# v22: the fog is lethal without a mask — one breath kills. The mask
+	# grants full immunity (checked by the cloud); the loop's invuln covers
+	# the maneuver itself.
+	if debug_godmode or not alive or invuln > 0.0:
 		return
-	hp -= amount
 	FX.add_trauma(0.12)
-	get_tree().call_group("hud", "update_integrity", hp, MAX_HP)
-	if hp <= 0.0:
-		_die()
+	_die()
 
 
 func add_fuel(amount: float) -> void:

@@ -19,6 +19,7 @@
 set -u
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export ROOT
 cd "$ROOT"
 
 GODOT="$HOME/workspace/godot/Godot_v4.7.2-stable_linux.x86_64"
@@ -134,12 +135,15 @@ elif check == 'debrief-paths':
             sys.exit(fn + ' does not arm debrief_timer')
 elif check == 'tween-guards':
     # flicker guards: kill-before-create on hot modulate/alpha tweens
-    pairs = (('hud.gd', '_score_tween'), ('hud.gd', '_hull_tween'),
-             ('main.gd', '_fade_tween'))
+    # v22: _hull_tween retired with the hull bar (1942 one-hit model) —
+    # update_integrity is a no-op, so there is nothing left to guard.
+    pairs = (('hud.gd', '_score_tween'), ('main.gd', '_fade_tween'))
     for f, v in pairs:
         src = read(f)
         if (v + ' != null') not in src or '.kill()' not in src:
             sys.exit('%s: %s kill-guard missing' % (f, v))
+    if '_hull_tween' in read('hud.gd'):
+        sys.exit('hud.gd: _hull_tween should be retired (v22 one-hit model)')
     # effects.gd stores its guard in item meta rather than a member var
     fx = read('effects.gd')
     if 'has_meta("_flash_tween")' not in fx or '.kill()' not in fx:
@@ -156,8 +160,9 @@ elif check == 'squadron-goals-sane':
         sys.exit('squadron goal helpers missing from sortie_data.gd')
 elif check == 'truck-secondary-sane':
     s = read('sortie_data.gd')
-    if '"trucks"' not in s:
-        sys.exit('trucks secondary missing from SECONDARY_DEFS')
+    # v22: the secondary id is "truck" (singular) — matches SECONDARY_DEFS.
+    if '"truck"' not in s:
+        sys.exit('truck secondary missing from SECONDARY_DEFS')
     mm = read('minimap.gd')
     if '"trucks": "truck"' not in mm:
         sys.exit('minimap SEC_ETYPE missing trucks->truck')
@@ -238,8 +243,14 @@ elif check == 'gas-system-sane':
     if '"gasmask"' not in e:
         sys.exit('enemy.gd drop pool missing gasmask')
     s = read('sortie_data.gd')
-    if '"gasstrike"' not in s:
-        sys.exit('sortie_data.gd has no gasstrike waves')
+    # v22: gas strikes are a per-sortie schedule key ("gas_strikes"), not a
+    # wave etype — and main.gd must actually schedule them (they were once
+    # authored but never spawned).
+    if '"gas_strikes"' not in s:
+        sys.exit('sortie_data.gd has no gas_strikes schedule key')
+    m2 = read('main.gd')
+    if '"gas_strikes"' not in m2 or '"gasstrike"' not in m2:
+        sys.exit('main.gd does not schedule gas_strikes')
     mm = read('minimap.gd')
     if '"gasclouds"' not in mm:
         sys.exit('minimap.gd does not render gas clouds')
@@ -297,8 +308,11 @@ elif check == 'ground-war-two-way':
         if pat not in s:
             sys.exit('sfx.gd missing v9 sound: %s' % pat)
     sd = read('sortie_data.gd')
-    if sd.count('"lore"') != 7:
-        sys.exit('sortie_data.gd: expected 7 lore lines, found %d' % sd.count('"lore"'))
+    # v22: 32 sorties each carry a brief (lore lines are optional flavor —
+    # main.gd guards with s.has("lore")).
+    if sd.count('"brief"') != 32:
+        sys.exit('sortie_data.gd: expected 32 sortie briefs, found %d'
+                 % sd.count('"brief"'))
 elif check == 'enemy-pass-model':
     # v10: the 1942 pass — ENTER → ATTACK (guns live) → TURN (180° bank into
     # the wind) → EXIT (off the top, despawned). Ground/naval targets exempt.
@@ -365,25 +379,28 @@ elif check == 'lighting-schedule':
     if 'LAT_DEG' not in sn or 'screen-up IS North' not in sn:
         sys.exit('sun.gd missing true-north documentation')
 elif check == 'german-roster':
-    # v15: the Luftstreitkräfte roster — three German aircraft with real
+    # v15: the Luftstreitkräfte roster — German aircraft with real
     # identities, Balkenkreuz sprites, squadron membership, Kette doctrine,
     # A7V armor, German airfield flavor, German parked aircraft.
+    # v22: the universal E1-E10 roster carries the identities now.
     import os
     e = read('enemy.gd')
-    for t in ('fokker_dr1', 'fokker_d7', 'albatros', 'parked_ger'):
+    for t in ('e1_eindecker', 'e2_albatros_d3', 'e3_albatros_d5',
+              'e4_fokker_dr1', 'parked_ger'):
         if '"%s"' % t not in e:
             sys.exit('enemy.gd missing Luftstreitkräfte type: %s' % t)
     for pat in ('wfreq', 'wamp', 'kette', 'p_kette_phase'):
         if pat not in e:
             sys.exit('enemy.gd missing v15 piece: %s' % pat)
     A = '/home/hatch/workspace/1918-godot/assets/sprites/'
-    for t in ('enemy-fokker-dr1', 'enemy-fokker-d7', 'enemy-albatros'):
+    for t in ('enemy-fokker-dr1', 'enemy-eindecker', 'enemy-albatros-d3'):
         for fr in ('bank-left', 'level', 'bank-right'):
             p = A + '%s-%s.png' % (t, fr)
             if not os.path.exists(p) or os.path.getsize(p) < 1000:
                 sys.exit('missing/small German sprite: %s' % p)
     sd = read('sortie_data.gd')
-    for t in ('fokker_dr1', 'fokker_d7', 'albatros'):
+    for t in ('e1_eindecker', 'e2_albatros_d3', 'e3_albatros_d5',
+              'e4_fokker_dr1'):
         if t not in sd:
             sys.exit('sortie_data.gd never fields %s' % t)
     if '"kette": 3' not in sd:
@@ -423,17 +440,18 @@ elif check == 'no-wehrmacht':
     if 'Luftstreitkr' not in e:
         sys.exit('enemy.gd missing period-correct Luftstreitkräfte naming')
 elif check == 'ghost-baron-duel':
-    # v11: the mythic Thunderhead Duel — spectral boss, storm arena, unlock flow
+    # v22: the mythic-unlock flow is retired — the Baron is the S32 finale
+    # (4 phases, Ghost Blue Max joins in P4). Assert the finale pieces.
     import os
     A = '/home/hatch/workspace/1918-godot/assets'
     sd = read('sortie_data.gd')
-    for pat in ('"THE RED BARON"', '"mythic": true', '"theme": "storm"',
-                'Sortie 7', '"boss": 6'):
+    for pat in ('"GHOST OF THE RED BARON"', '"BLUE MAX GHOST"',
+                '"spectral": true', '31'):
         if pat not in sd:
-            sys.exit('sortie_data.gd missing mythic duel piece: %s' % pat)
+            sys.exit('sortie_data.gd missing S32 finale piece: %s' % pat)
     bo = read('boss.gd')
     for pat in ('spectral', 'BARON_TAUNTS', '_spawn_afterimage', 'ghost_wail',
-                '"baron"', 'var max_hp'):
+                'bluemax_spawned'):
         if pat not in bo:
             sys.exit('boss.gd missing ghost-baron piece: %s' % pat)
     for suffix in ('level', 'bank-left', 'bank-right'):
@@ -441,25 +459,30 @@ elif check == 'ghost-baron-duel':
         if not os.path.exists(p):
             sys.exit('missing sprite asset: %s' % p)
     w = read('weather.gd')
-    if '"storm"]' not in w:
-        sys.exit('weather.gd KIND_BY_SORTIE missing storm for the duel')
+    if 'KIND_BY_SORTIE' not in w or w.count('"storm"') < 3:
+        sys.exit('weather.gd KIND_BY_SORTIE missing storm entries')
     if 'SFX.play("thunder"' not in w:
         sys.exit('weather.gd lightning missing thunder SFX')
     bg = read('background.gd')
-    if '"storm": {' not in bg:
+    if '"storm"' not in bg:
         sys.exit('background.gd missing storm theme')
+    # v22: the 32-sortie campaign flow replaced the mythic unlock — assert
+    # the campaign markers instead of the retired duel-request pieces.
     m = read('main.gd')
-    for pat in ('CAMPAIGN_LAST', 'MYTHIC_SORTIE', '_ghost_unlocked',
-                'duel_requested', 'ghost_offer'):
+    for pat in ('CAMPAIGN_LAST', 'play_theater', 'start_engine',
+                'sortie_index == CAMPAIGN_LAST'):
         if pat not in m:
-            sys.exit('main.gd missing mythic flow piece: %s' % pat)
-    if 'FACE THE GHOST' not in read('menus.gd'):
-        sys.exit('menus.gd missing FACE THE GHOST button')
+            sys.exit('main.gd missing v22 campaign flow piece: %s' % pat)
+    if 'FACE THE GHOST' in read('menus.gd'):
+        sys.exit('menus.gd still carries the retired mythic duel button')
     s = read('sfx.gd')
-    for pat in ('ghost_wail', 'thunder'):
+    for pat in ('ghost_wail', 'thunder', 'stinger_ghost', 'engine_rotary',
+                'railgun_boom', 'searchlight_sweep'):
         if pat not in s:
-            sys.exit('sfx.gd missing v11 sound: %s' % pat)
-    for wav in ('ghost_wail.wav', 'thunder.wav'):
+            sys.exit('sfx.gd missing v22 sound: %s' % pat)
+    for wav in ('ghost_wail.wav', 'thunder.wav', 'alarm.wav',
+                'railgun_boom.wav', 'searchlight_sweep.wav',
+                'engine_rotary.wav'):
         if not os.path.exists(A + '/sfx/' + wav):
             sys.exit('assets/sfx/%s missing' % wav)
 elif check == 'ads-test-ids':
@@ -527,23 +550,29 @@ elif check == 'bot-skeptic-sane':
     for pat in ('--botpilot', 'total_kills', 'BotPilot.new()', 'Skeptic.new()'):
         if pat not in m:
             sys.exit('main.gd missing bot wiring: %s' % pat)
-    sh = open('/home/hatch/workspace/1918-ace-of-aces/QA/run-nightly.sh').read()
-    for pat in ('godot-bot-sortie-', 'godot-bot-mythic', 'godot-bot-seedfault',
+    # v22: read the nightly script we are actually running (the repo may be
+    # checked out on a branch/worktree elsewhere — never hardcode the path).
+    import os as _os
+    sh = open(_os.path.join(_os.environ.get('ROOT', _os.getcwd()),
+                            'QA/run-nightly.sh')).read()
+    for pat in ('godot-bot-sortie-', 'godot-bot-finale', 'godot-bot-seedfault',
                 'qa-seedfault-proof', 'qa-skepticism-report',
                 'merge_skeptic.py'):
         if pat not in sh:
             sys.exit('run-nightly.sh missing bot stage: %s' % pat)
 elif check == 'minimap-textures':
-    # v17: every sortie theme gets its own minimap portrait (never generic);
-    # every sortie declares boss_arena + boss_at; blue-sky bosses agree.
+    # v17: every sortie theme gets its own minimap portrait (never generic).
+    # v22: 32 sorties / 32 themes; boss arenas moved to the BOSS_ROSTER
+    # ("arena" flag, 6 blue-sky bosses); blue-sky bosses agree.
     import re
     sd = read('sortie_data.gd')
     themes = re.findall(r'"theme": "([^"]+)"', sd)
-    arenas = re.findall(r'"boss_arena": "([^"]+)"', sd)
-    ats = re.findall(r'"boss_at": ([\d.]+),', sd)
-    if len(themes) != 7 or len(arenas) != 7 or len(ats) != 7:
-        sys.exit('sortie_data.gd: expected 7 sorties with theme/boss_arena/boss_at, got %d/%d/%d'
-                 % (len(themes), len(arenas), len(ats)))
+    if len(themes) != 32 or len(set(themes)) != 32:
+        sys.exit('sortie_data.gd: expected 32 unique themes, got %d/%d'
+                 % (len(themes), len(set(themes))))
+    arenas = re.findall(r'"arena": (true|false)', sd)
+    if len(arenas) != 32:
+        sys.exit('BOSS_ROSTER: expected 32 arena flags, got %d' % len(arenas))
     mm = read('minimap.gd')
     for t in set(themes):
         if '"%s":' % t not in mm:
@@ -551,27 +580,28 @@ elif check == 'minimap-textures':
     if '"bluesky":' not in mm:
         sys.exit('minimap.gd missing bluesky arena portrait')
     mn = read('main.gd')
-    if 'BLUESKY_BOSSES' not in mn or '"bluesky"' not in mn:
+    if '"bluesky"' not in mn:
         sys.exit('main.gd missing blue-sky boss arena entry')
-    for a in arenas:
-        if a not in ('terrain', 'bluesky'):
-            sys.exit('bad boss_arena value: %s' % a)
+    if arenas.count('true') < 1:
+        sys.exit('no blue-sky arena bosses in the roster')
 elif check == 's2-no-uboats':
-    # v17 94th mission honesty: S2 is a moonlit river-supply interdiction —
-    # no U-boat waves (the 94th had no naval role), barges + Drachen instead.
+    # v17 94th mission honesty is superseded: v22 S2 is Colombey-les-Belles,
+    # a training sortie — forward field, balloon storage, Eindeckers only.
+    # The check now guards S2's v22 identity (no front-line hardware).
     import re
     sd = read('sortie_data.gd')
-    m = re.search(r'"name": "Sortie 2.*?"takeoff": "([^"]+)"', sd, re.S)
-    s2 = m.group(0)
-    if '"theme": "river_interdiction"' not in s2:
-        sys.exit('S2 theme is not river_interdiction')
-    if '"type": "uboat"' in s2:
-        sys.exit('S2 still contains U-boat waves — 94th had no naval role')
-    for pat in ('"type": "barge"', '"type": "balloon"', '"barges"'):
-        if pat not in s2:
-            sys.exit('S2 missing reframed piece: %s' % pat)
+    takeoffs = [m.start() for m in re.finditer(r'"takeoff"', sd)]
+    s2 = sd[takeoffs[1]:takeoffs[1] + 4000]
+    if '"theme": "colombey"' not in s2:
+        sys.exit('S2 theme is not colombey')
+    for pat in ('"type": "uboat"', '"type": "e8_zeppelin"',
+                '"type": "e6_gotha"', '"type": "e7_staaken"'):
+        if pat in s2:
+            sys.exit('S2 training sortie fields front-line hardware: %s' % pat)
+    if '"type": "e1_eindecker"' not in s2:
+        sys.exit('S2 missing its Eindecker training flights')
     e = read('enemy.gd')
-    if '"barge"' not in e or '"barge":' not in e:
+    if '"barge"' not in e:
         sys.exit('enemy.gd missing barge type/behavior')
 elif check == 'ads-state':    # v12: remove-ads must suppress every ad path; placements + caps wired
     a = read('ads.gd')
@@ -617,6 +647,26 @@ PYEOF
 godot_check "godot-import"      "$GODOT" --headless --path "$PROJECT" --import
 godot_check "godot-smoke-30s"   "$GODOT" --headless --path "$PROJECT" --quit-after 1800 -- --autostart
 godot_check "godot-boss-rush"   "$GODOT" --headless --path "$PROJECT" --quit-after 3600 -- --autostart --autoboss
+# v22: the 32-sortie campaign — sorties, pacing curve, boss roster, E1-E10,
+# 128 elites, 32 terrain identities
+if python3 "$ROOT/QA/check_v22_campaign.py" >"$OUT" 2>&1; then
+    record "qa-v22-campaign" "PASS — $(tail -1 "$OUT")"
+else
+    record "qa-v22-campaign" "FAIL — $(cat "$OUT" | head -8 | tr '\n' ';')"
+fi
+# v22 audio bar: 9 theater tracks, stingers, engine loops, sfx registry
+if python3 "$ROOT/QA/check_v22_audio.py" >"$OUT" 2>&1; then
+    record "qa-v22-audio" "PASS — $(tail -1 "$OUT")"
+else
+    record "qa-v22-audio" "FAIL — $(cat "$OUT" | head -8 | tr '\n' ';')"
+fi
+# v22 photorealism: sprite->.blend traceability, flat-shade heuristic,
+# placeholder-color scan, fx particle set
+if python3 "$ROOT/QA/check_v22_visual.py" >"$OUT" 2>&1; then
+    record "qa-v22-visual" "PASS — $(tail -1 "$OUT")"
+else
+    record "qa-v22-visual" "FAIL — $(cat "$OUT" | head -8 | tr '\n' ';')"
+fi
 godot_check "godot-ads-flow"    "$GODOT" --headless --path "$PROJECT" --script res://tools/test_ads.gd
 if ! grep -q '\[TESTADS\] PASS' "$OUT"; then
     # godot_check already recorded; downgrade if the PASS marker is missing
@@ -627,25 +677,30 @@ if ! grep -q '\[TESTADS\] PASS' "$OUT"; then
     done
 fi
 # sortie sweep: every sortie's weather, waves, and flak paths must run clean
-for s in 0 1 2 3 4 5 6; do
+# v22: all 32 sorties boot and run (each ~25s game time, fast headless)
+for s in $(seq 0 31); do
     godot_check "godot-sortie-$((s+1))" "$GODOT" --headless --path "$PROJECT" --quit-after 1500 -- --autostart --sortie="$s"
 done
 # --- v13: bot playtest + continuous skepticism ---
 # The bot flies each sortie through the real control path (50s each; the
-# mythic duel gets 110s so the run can reach the storm). --botquit drives
-# run length by GAME time (--quit-after counts render frames and headless
+# S32 finale gets 110s so the run can reach the Ghost's storm). --botquit
+# drives run length by GAME time (--quit-after counts render frames and
 # spins ~2x the physics rate, so it is only a backstop). Fragments land in
 # QA/reports/ as skepticism-<date>-s<N>.jsonl; merge_skeptic.py builds the
 # report and fails on CRITICAL anomalies. Bot failures fail loudly.
 SKEP_DIR="$REPORT_DIR"
 rm -f "$SKEP_DIR/skepticism-$DATE-s"*.jsonl
-for s in 0 1 2 3 4 5; do
-    godot_check "godot-bot-sortie-$((s+1))" "$GODOT" --headless --path "$PROJECT" --quit-after 9000 -- --autostart --botpilot --botquit=50 --sortie="$s"
+# v22: sample the 32-sortie campaign — early / mid / late / finale
+for s in 0 8 16 24 31; do
+    godot_check "godot-bot-sortie-$((s+1))" "$GODOT" --headless --path "$PROJECT" --quit-after 9000 -- --autostart --botpilot --botquit=50 --sortie="$s" --skepdir="$SKEP_DIR"
 done
-godot_check "godot-bot-mythic" "$GODOT" --headless --path "$PROJECT" --quit-after 16000 -- --autostart --botpilot --botquit=110 --sortie=6
+# v22: the mythic duel is retired (the Baron is S32 now) — the long run goes
+# to the Armistice finale instead, so the bot can reach the 4-phase Ghost.
+godot_check "godot-bot-finale" "$GODOT" --headless --path "$PROJECT" --quit-after 16000 -- --autostart --botpilot --botquit=110 --sortie=31 --skepdir="$SKEP_DIR"
 # seeded fault: wedge one pass aircraft — the skeptic MUST flag pass_stall.
 # This proves the detector fires on real faults, not just theory.
-godot_check "godot-bot-seedfault" "$GODOT" --headless --path "$PROJECT" --quit-after 5000 -- --autostart --botpilot --botquit=25 --sortie=0 --seedfault=stall
+# v22: 50s — the stall detector needs ~21s of wedge time to fire.
+godot_check "godot-bot-seedfault" "$GODOT" --headless --path "$PROJECT" --quit-after 9000 -- --autostart --botpilot --botquit=50 --sortie=0 --seedfault=stall --skepdir="$SKEP_DIR"
 if grep -q '"kind":"pass_stall"' "$SKEP_DIR/skepticism-$DATE-s0-seed.jsonl" 2>/dev/null; then
     record "qa-seedfault-proof" "PASS"
 else

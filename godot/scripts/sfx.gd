@@ -22,6 +22,19 @@ const FILES := {
 	"bank_whoosh": "res://assets/sfx/bank_whoosh.wav",
 	"ghost_wail": "res://assets/sfx/ghost_wail.wav",
 	"thunder": "res://assets/sfx/thunder.wav",
+	"alarm": "res://assets/sfx/alarm.wav",
+	# v22 audio bar: per-family engine loops, searchlight signature,
+	# railway-gun signature, boss stingers (tools/make_sfx.py,
+	# tools/make_music.py — all synthesized, no external audio).
+	"engine_rotary": "res://assets/sfx/engine_rotary.wav",
+	"engine_inline": "res://assets/sfx/engine_inline.wav",
+	"engine_bomber": "res://assets/sfx/engine_bomber.wav",
+	"engine_zeppelin": "res://assets/sfx/engine_zeppelin.wav",
+	"searchlight_sweep": "res://assets/sfx/searchlight_sweep.wav",
+	"railgun_boom": "res://assets/sfx/railgun_boom.wav",
+	"stinger_ace": "res://assets/music/stinger_ace.wav",
+	"stinger_heavy": "res://assets/music/stinger_heavy.wav",
+	"stinger_ghost": "res://assets/music/stinger_ghost.wav",
 }
 
 const POOL := 10
@@ -39,6 +52,9 @@ var _next := 0
 var muted := false
 var _mobile := false
 var _rumble_cd := 0.0
+# v22: dedicated engine loop player (not part of the one-shot pool).
+var engine_p: AudioStreamPlayer
+var _engine_kind := ""
 # v13 skepticism hooks: ring buffers of recent play/rumble calls (capped).
 # Rumble calls are logged even on non-mobile so headless runs can verify
 # the call sites fire; the _mobile gate still controls actual vibration.
@@ -52,6 +68,17 @@ func _ready() -> void:
 		or OS.has_feature("web_ios")
 	for key in FILES.keys():
 		streams[key] = load(String(FILES[key]))
+	# v22: engine loops run LOOP_FORWARD on a dedicated player.
+	for ek in ["engine_rotary", "engine_inline", "engine_bomber",
+			"engine_zeppelin"]:
+		var es: AudioStreamWAV = streams[ek]
+		es.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		es.loop_begin = 0
+		es.loop_end = es.get_data().size() / 2
+	engine_p = AudioStreamPlayer.new()
+	engine_p.volume_db = -13.0
+	engine_p.bus = "Master"
+	add_child(engine_p)
 	for i in POOL:
 		var p := AudioStreamPlayer.new()
 		add_child(p)
@@ -64,6 +91,32 @@ func _process(delta: float) -> void:
 
 func set_muted(m: bool) -> void:
 	muted = m
+	engine_p.volume_db = -80.0 if muted else -13.0
+
+
+## v22: continuous engine voice. kind in rotary/inline/bomber/zeppelin.
+## The SPAD flies inline (Hispano-Suiza V8); rotary scouts putter, heavy
+## bombers drone, the Zeppelin hums near subsonic.
+func start_engine(kind: String) -> void:
+	if muted:
+		_engine_kind = kind
+		return
+	if _engine_kind == kind and engine_p.playing:
+		return
+	_engine_kind = kind
+	engine_p.stream = streams.get("engine_" + kind, streams["engine_inline"])
+	if not engine_p.playing:
+		engine_p.play()
+
+
+func stop_engine() -> void:
+	_engine_kind = ""
+	engine_p.stop()
+
+
+## Pause menu: hold the drone without losing the voice.
+func set_engine_paused(paused: bool) -> void:
+	engine_p.stream_paused = paused
 
 
 ## Play a named effect. `vary` adds a touch of organic pitch wobble.

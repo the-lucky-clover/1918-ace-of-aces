@@ -83,6 +83,11 @@ KNOWN = {
     "enemy-balloon", "zeppelin",
     "boss-1-red", "boss-2-checker", "boss-3-stripes", "boss-4-tiger",
     "boss-5-jester", "boss-6-ghost", "boss-7-baron",
+    # v22 roster (render_v22.py): E1-E10 types + ace liveries
+    "enemy-eindecker", "enemy-albatros-d3", "enemy-rumpler", "enemy-gotha",
+    "enemy-staaken", "enemy-searchlight",
+    "boss-bluemax", "boss-noir", "boss-lozenge", "boss-silver",
+    "boss-green", "boss-crimson", "boss-sand",
     # render_sprites.py / build_locales.py pipelines
     "enemy-aagun", "enemy-railwaygun",
     "ammodepot", "uboat", "subpen", "train", "arty",

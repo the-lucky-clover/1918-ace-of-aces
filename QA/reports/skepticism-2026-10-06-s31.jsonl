@@ -1,0 +1,9 @@
+{"date":"2026-10-06","seedfault":"","sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","type":"meta","version":"22"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":0,"kpm":0.0,"score":0,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":0.0,"touch_path":true,"type":"snapshot"}
+{"boss_spawned":false,"deaths":0,"dmg":0.0,"dmg_per_min":0.0,"kills":1,"kpm":6.0,"score":300,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":10.0308889999999,"touch_path":true,"type":"snapshot"}
+{"detail":"e4_fokker_dr1 spawned 90px from the player","etype":"e4_fokker_dr1","kind":"spawn_camp","seedfault":false,"sev":"MED","sortie":31,"t":15.3477049999994,"type":"anomaly"}
+{"detail":"killed by rammed by e4_fokker_dr1 (37px)","kind":"death","sortie":31,"t":15.8649049999994,"type":"event"}
+{"detail":"e4_fokker_dr1 spawned 91px from the player","etype":"e4_fokker_dr1","kind":"spawn_camp","seedfault":false,"sev":"MED","sortie":31,"t":16.2303929999994,"type":"anomaly"}
+{"boss_spawned":false,"deaths":1,"dmg":25.0,"dmg_per_min":75.0,"kills":4,"kpm":12.0,"score":1410,"seedfault":false,"sortie":31,"sortie_name":"Sortie 32 — ARMISTICE","t":20.030089,"touch_path":true,"type":"snapshot"}
+{"detail":"killed by enemy tracer (17px)","kind":"death","sortie":31,"t":23.6642810000005,"type":"event"}
+{"deaths":2,"dmg":37.0,"kills":4,"run_s":110.0,"score":1450,"seedfault":false,"sortie":31,"t":25.6710170000008,"type":"run_end"}

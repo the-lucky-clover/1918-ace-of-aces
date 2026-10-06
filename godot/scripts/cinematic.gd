@@ -36,6 +36,7 @@ var _emitted := false
 var _time := 0.0
 var _takeoff := "12:00"
 var _sortie_name := ""
+var _aerodrome := "ALLIED AERODROME"
 var _shadow := Vector2(-8, -4)
 var _mood := Color(1, 1, 1, 0)
 
@@ -60,6 +61,7 @@ func play_landing(sortie: Dictionary) -> void:
 func _configure(sortie: Dictionary, kind: String) -> void:
 	_takeoff = String(sortie.get("takeoff", "12:00"))
 	_sortie_name = String(sortie.get("name", "SORTIE"))
+	_aerodrome = String(sortie.get("aerodrome", "ALLIED AERODROME"))
 	_shadow = Sun.shadow_for_takeoff(_takeoff)
 	_mood = Sun.mood_tint(_takeoff)
 	_shots = (REELS[kind] as Array).duplicate(true)
@@ -279,7 +281,7 @@ func _shot_aerodrome(t01: float) -> void:
 	_draw_aerodrome_detail(Vector2(360, 560), 1.0)
 	_plane(Vector2(360, 880), 0.0, 0.5)
 	_draw_shadow(Vector2(360, 880), 26.0, _shadow * 0.4, 0.30)
-	_draw_caption_text(_sortie_name, "TAKEOFF " + _takeoff + " — ALLIED AERODROME")
+	_draw_caption_text(_sortie_name, "TAKEOFF " + _takeoff + " — " + _aerodrome.to_upper())
 
 
 func _shot_roll(t01: float) -> void:

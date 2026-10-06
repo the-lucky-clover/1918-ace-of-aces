@@ -102,7 +102,7 @@ func _open_fire(player: Node2D) -> void:
 		SFX.play("rifle_pop", -10.0)
 
 
-func take_damage(amount: float) -> void:
+func take_damage(amount: float, heavy: bool = false, hit_pos: Vector2 = Vector2.ZERO) -> void:
 	if dead:
 		return
 	hp -= amount

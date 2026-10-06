@@ -16,7 +16,7 @@ extends Node2D
 
 # sortie index -> weather kind (varied across the six, fixed per sortie).
 # Index 6 is the mythic Thunderhead Duel — always a storm.
-const KIND_BY_SORTIE := ["clear", "windy", "rain", "storm", "windy", "clear", "storm"]
+const KIND_BY_SORTIE := ["clear", "windy", "clear", "windy", "clear", "rain", "windy", "rain", "clear", "windy", "rain", "windy", "rain", "storm", "rain", "storm", "clear", "windy", "clear", "clear", "windy", "rain", "clear", "windy", "clear", "windy", "rain", "storm", "windy", "rain", "storm", "storm"]
 
 var kind := "clear"
 var intensity := 0.0        # 0 = calm .. 1 = rough (mild ceiling)

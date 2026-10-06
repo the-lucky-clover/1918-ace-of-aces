@@ -88,9 +88,11 @@ func collect(player: Area2D) -> void:
 			player.power_up()
 			burst_col = Color.YELLOW
 		"repair":
-			player.heal(30.0)
-			FX.popup(get_parent(), global_position, "+HULL", Color.GREEN)
-			burst_col = Color.GREEN
+			# v22: retired pickup — grants a bomb (one-hit model, no hull)
+			if player.has_method("add_bomb"):
+				player.add_bomb()
+			FX.popup(get_parent(), global_position, "+BOMB", Color.CYAN)
+			burst_col = Color.CYAN
 		"bomb":
 			player.add_bomb()
 			FX.popup(get_parent(), global_position, "+BOMB", Color.CYAN)

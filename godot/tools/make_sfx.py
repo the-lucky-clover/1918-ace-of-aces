@@ -215,4 +215,87 @@ thunder = lowpass(brown, 160.0) * env_ar(n, 0.08, 1.8) * 0.9
 thunder += lowpass(noise(n, 556), 500.0) * env_exp(n, 2.2) * 0.25
 write_wav("thunder.wav", thunder)
 
+# ------------------------------------------------- v22: engine loops ----
+# One 2.0s seamless loop per aircraft family. Integer-cycle components so
+# the loop point is click-free; noise gets a 60ms raised-cosine crossfade
+# of tail into head. Character: rotary = uneven putter (radial wobble),
+# inline = smooth V8 growl (the SPAD's Hispano-Suiza), bomber = deep twin
+# drone, zeppelin = near-subsonic hum with slow beating.
+ENG_DUR = 2.0
+
+
+def _seamless(x: np.ndarray, xf: float = 0.06) -> np.ndarray:
+    n = len(x)
+    m = int(xf * SR)
+    w = 0.5 - 0.5 * np.cos(np.linspace(0, np.pi, m))
+    x[:m] = x[:m] * (1.0 - w) + x[n - m:] * w
+    return x[:n - m]
+
+
+def _engine_loop(name: str, carriers: list, am_hz: float, am_depth: float,
+                 noise_vol: float, noise_cut: float, vol: float, seed: int):
+    n = int(ENG_DUR * SR)
+    t = np.arange(n) / SR
+    x = np.zeros(n)
+    for f, a in carriers:
+        x += a * np.sin(2.0 * np.pi * f * t)
+    # uneven putter: slow phase wobble on the AM for radials
+    wob = 1.0 + 0.18 * np.sin(2.0 * np.pi * (am_hz / 2.0) * t + 0.7)
+    am = (1.0 - am_depth) + am_depth * (0.5 + 0.5 * np.sin(
+        2.0 * np.pi * am_hz * t)) * wob
+    x *= am
+    nz = lowpass(noise(n, seed), noise_cut) * noise_vol
+    x += nz * (0.6 + 0.4 * am)
+    write_wav(name, _seamless(x * vol))
+
+
+_engine_loop("engine_rotary.wav",
+             carriers=[(55.0, 0.50), (110.0, 0.26), (165.0, 0.12)],
+             am_hz=11.0, am_depth=0.55, noise_vol=0.10, noise_cut=900.0,
+             vol=0.55, seed=701)
+_engine_loop("engine_inline.wav",
+             carriers=[(80.0, 0.44), (160.0, 0.22), (240.0, 0.10)],
+             am_hz=20.0, am_depth=0.30, noise_vol=0.05, noise_cut=1400.0,
+             vol=0.50, seed=702)
+_engine_loop("engine_bomber.wav",
+             carriers=[(45.0, 0.55), (90.0, 0.28), (135.0, 0.12)],
+             am_hz=7.0, am_depth=0.50, noise_vol=0.14, noise_cut=420.0,
+             vol=0.60, seed=703)
+_engine_loop("engine_zeppelin.wav",
+             carriers=[(35.0, 0.60), (70.0, 0.24)],
+             am_hz=0.5, am_depth=0.40, noise_vol=0.04, noise_cut=240.0,
+             vol=0.55, seed=704)
+
+# searchlight sweep: eerie rising theremin tone when the beam finds you.
+n = int(2.5 * SR)
+t = np.arange(n) / SR
+f = 280.0 + (950.0 - 280.0) * (t / 2.5)
+ph = 2.0 * np.pi * np.cumsum(f) / SR + 3.0 * np.sin(2.0 * np.pi * 6.0 * t)
+sweep = np.sin(ph) * env_ar(n, 0.5, 0.9) * 0.4
+sweep += np.sin(ph * 2.0) * env_ar(n, 0.5, 0.9) * 0.12
+write_wav("searchlight_sweep.wav", sweep)
+
+# railway gun: the big one — deeper sub than tank_boom, longer rolling
+# tail, distant-crack echo. Nathan/Samuel/Bruno's signature.
+n = int(3.0 * SR)
+t = np.arange(n) / SR
+sub = np.sin(2.0 * np.pi * np.cumsum(60.0 - 36.0 * (t / 3.0)) / SR)
+sub *= env_exp(n, 2.6) * 0.75
+body = lowpass(noise(n, 801), 420.0) * env_exp(n, 2.0) * 0.6
+crack = highpass(noise(n, 802), 1800.0) * env_exp(n, 26.0) * 0.35
+# faint echo slap 0.35s later
+echo = np.zeros(n)
+es = int(0.35 * SR)
+echo[es:] = (lowpass(noise(n - es, 803), 300.0) * env_exp(n - es, 3.0))[:n - es] * 0.25
+write_wav("railgun_boom.wav", sub + body + crack + echo)
+
+# alarm: klaxon two-tone for reinforcement warnings (was a dead call —
+# main.gd played "alarm" but no such file existed; now it exists).
+n = int(1.2 * SR)
+t = np.arange(n) / SR
+tone = np.where((t % 0.4) < 0.2, 660.0, 520.0)
+alarm = np.sign(np.sin(2.0 * np.pi * tone * t)) * 0.35
+alarm *= env_ar(n, 0.03, 0.15)
+write_wav("alarm.wav", alarm)
+
 print("ALL SFX DONE")

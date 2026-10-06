@@ -62,8 +62,13 @@ for f in sorted(expected):
 # no orphans: every airframe-ish png on disk must be rostered in v16.
 # Ground units (aagun, railwaygun) come from the legacy render_sprites.py
 # pipeline — they are not v16 airframes and are not flagged.
+# v22: the 13 render_v22.py models (E1-E10 roster + ace liveries).
 LEGACY_GROUND = {"enemy-aagun", "enemy-railwaygun"}
-roster_stems = set(model_ids)
+V22_MODELS = {"enemy-eindecker", "enemy-albatros-d3", "enemy-rumpler",
+              "enemy-gotha", "enemy-staaken", "enemy-searchlight",
+              "boss-bluemax", "boss-noir", "boss-lozenge", "boss-silver",
+              "boss-green", "boss-crimson", "boss-sand"}
+roster_stems = set(model_ids) | V22_MODELS
 for f in os.listdir(SPRITES):
     if not f.endswith(".png"):
         continue

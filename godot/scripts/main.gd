@@ -17,10 +17,9 @@ const GasCloudScript := preload("res://scripts/gas_cloud.gd")
 
 var state: int = State.TITLE
 var sortie_index := 0
-## Campaign structure: sorties 0-5 are the campaign; index 6 is the mythic
-## Thunderhead Duel — a secret boss, never reached via NEXT SORTIE.
-const CAMPAIGN_LAST := 5
-const MYTHIC_SORTIE := 6
+## Campaign structure (v22): 32 sorties, S1..S32 (0-based 0..31). The v11
+## mythic-unlock flow is retired — the Baron is the S32 finale.
+const CAMPAIGN_LAST := 31
 const SAVE_PATH := "user://1918.cfg"
 var score := 0
 var total_kills := 0  # v13 skepticism hook: every enemy kill, all types
@@ -108,9 +107,8 @@ func _ready() -> void:
 	# dynamic weather rig: wind, turbulence, rain, lightning (per-sortie)
 	_weather = WeatherScript.new()
 	add_child(_weather)
-	$MenuLayer.show_title(_ghost_unlocked())
+	$MenuLayer.show_title(_campaign_progress())
 	$MenuLayer.start_requested.connect(_on_menu_start)
-	$MenuLayer.duel_requested.connect(_on_menu_duel)
 	$MenuLayer.resume_requested.connect(_on_menu_resume)
 	$MenuLayer.next_requested.connect(_on_menu_next)
 	$MenuLayer.revive_requested.connect(_on_revive_requested)
@@ -253,12 +251,16 @@ func start_sortie(i: int) -> void:
 	hud.hide_boss()
 	hud.set_minimap_theme(String(s["theme"]))
 	hud.update_squadron(0, squad_goal, false)
-	# wave schedule
+	# wave schedule (v22: elites ride the schedule too — 4 minibosses/sortie)
 	schedule.clear()
 	for w in s["waves"]:
 		for n in int(w["count"]):
 			schedule.append({"at": float(w["t"]) + n * float(w["gap"]), "type": String(w["type"]),
-				"kette": int(w.get("kette", 0))})
+				"kette": int(w.get("kette", 0)), "elite": 1 if (n == 0 and int(w.get("elites", 0)) > 0) else 0})
+	# v22: gas strikes ride the schedule (were authored but never spawned)
+	for gt in s.get("gas_strikes", []):
+		schedule.append({"at": float(gt), "type": "gasstrike",
+			"kette": 0, "elite": 0})
 	schedule.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["at"]) < float(b["at"]))
 	sortie_time = 0.0
 	strafe_streak = 0
@@ -281,7 +283,8 @@ func _begin_play() -> void:
 	var s: Dictionary = Sorties.SORTIES[sortie_index]
 	state = State.PLAYING
 	_fade_to(0.0, 0.6)
-	Music.play_game()
+	Music.play_theater(sortie_index)  # v22: per-theater score
+	SFX.start_engine("inline")  # v22: the SPAD's Hispano-Suiza voice
 	Music.unduck_game()  # in case a previous boss left it ducked
 	# memoir flavor: a loose line from the era rides under the brief
 	var brief_txt := String(s["name"]) + "\n" + String(s["brief"])
@@ -309,13 +312,15 @@ func _pause() -> void:
 	Global.touch_wish = Vector2.ZERO
 	get_tree().paused = true
 	Music.play_pause()
+	SFX.set_engine_paused(true)  # v22: hold the drone, keep the voice
 	$MenuLayer.show_pause(objectives)
 
 
 func _resume() -> void:
 	state = State.PLAYING
 	get_tree().paused = false
-	Music.play_game()
+	Music.play_theater(sortie_index)
+	SFX.set_engine_paused(false)
 	$MenuLayer.hide_pause()
 
 
@@ -327,7 +332,6 @@ func _show_debrief() -> void:
 		Ads.note_sortie_completed()
 	var s: Dictionary = Sorties.SORTIES[sortie_index]
 	var last := sortie_index == CAMPAIGN_LAST
-	var mythic := sortie_index == MYTHIC_SORTIE
 	$MenuLayer.show_debrief({
 		"win": debrief_win,
 		"sortie_name": String(s["name"]),
@@ -336,9 +340,6 @@ func _show_debrief() -> void:
 		"objectives": objectives,
 		"score": score,
 		"campaign_done": debrief_win and last,
-		"mythic": mythic,
-		"mythic_win": debrief_win and mythic,
-		"ghost_offer": debrief_win and last,
 		"squad_kills": squad_kills,
 		"squad_goal": squad_goal,
 		"squad_strength": squad_strength,
@@ -354,7 +355,7 @@ func _to_title() -> void:
 		c.queue_free()
 	$HUDLayer.hide_boss()
 	Music.play_splash()
-	$MenuLayer.show_title(_ghost_unlocked())
+	$MenuLayer.show_title(_campaign_progress())
 
 
 # ---------------------------------------------------------------- input ---
@@ -447,26 +448,19 @@ func _on_menu_start() -> void:
 		start_sortie(0)
 
 
-## The mythic duel: only from the title's duel button (unlocked) or the
-## S6 debrief's FACE THE GHOST offer — never from NEXT SORTIE.
-func _on_menu_duel() -> void:
-	if state == State.TITLE and _ghost_unlocked():
-		_fade_to(1.0, 0.25)
-		start_sortie(MYTHIC_SORTIE)
-
-
-## Persistent unlock: beating S6 opens the Thunderhead Duel for good.
-func _ghost_unlocked() -> bool:
+## v22: campaign progress — furthest sortie reached (0-based), saved
+## locally. The v11 mythic-unlock flow is retired: the Baron is S32 now.
+func _campaign_progress() -> int:
 	var cfg := ConfigFile.new()
 	if cfg.load(SAVE_PATH) != OK:
-		return false
-	return bool(cfg.get_value("progress", "ghost_unlocked", false))
+		return 0
+	return int(cfg.get_value("progress", "sortie", 0))
 
 
-func _set_ghost_unlocked() -> void:
+func _set_campaign_progress(i: int) -> void:
 	var cfg := ConfigFile.new()
 	cfg.load(SAVE_PATH)  # keep any other keys
-	cfg.set_value("progress", "ghost_unlocked", true)
+	cfg.set_value("progress", "sortie", maxi(i, _campaign_progress()))
 	cfg.save(SAVE_PATH)
 
 
@@ -479,13 +473,11 @@ func _on_menu_next() -> void:
 	if state != State.DEBRIEF:
 		return
 	if debrief_win and sortie_index == CAMPAIGN_LAST:
-		# the campaign is won — the thunderheads gather: FACE THE GHOST
-		_set_ghost_unlocked()
-		start_sortie(MYTHIC_SORTIE)
-	elif debrief_win and sortie_index == MYTHIC_SORTIE:
 		# legend complete — the ghost is laid to rest
+		_set_campaign_progress(CAMPAIGN_LAST)
 		_to_title()
 	elif debrief_win:
+		_set_campaign_progress(sortie_index)
 		# natural break: sortie cleared, next one ahead — the one place an
 		# interstitial may appear (cooldown + session caps enforced in Ads).
 		var nxt := sortie_index + 1
@@ -508,7 +500,8 @@ func _on_revive_reward() -> void:
 	player.revive(0.6)
 	state = State.PLAYING
 	get_tree().paused = false
-	Music.play_game()
+	Music.play_theater(sortie_index)
+	SFX.start_engine("inline")  # v22: back in the fight, engine restarts
 	FX.popup(world, player.global_position + Vector2(0, -70), "BACK IN THE FIGHT!", Color(0.5, 1.0, 0.5))
 	print("[Main] rewarded revive granted — player back at 60% hull")
 
@@ -549,7 +542,7 @@ func _process(delta: float) -> void:
 	var s: Dictionary = Sorties.SORTIES[sortie_index]
 	while not schedule.is_empty() and float(schedule[0]["at"]) <= sortie_time:
 		var item: Dictionary = schedule.pop_front()
-		_spawn_enemy(String(item["type"]), int(item.get("kette", 0)))
+		_spawn_enemy(String(item["type"]), int(item.get("kette", 0)), int(item.get("elite", 0)) == 1)
 	if not boss_spawned and sortie_time >= float(s["boss_at"]):
 		boss_spawned = true
 		_spawn_boss(int(s["boss"]))
@@ -582,18 +575,19 @@ func _process(delta: float) -> void:
 				_show_debrief()
 
 
-func _spawn_enemy(etype: String, kette_n: int = 0) -> void:
+func _spawn_enemy(etype: String, kette_n: int = 0, p_elite: bool = false) -> void:
 	# v15 Kette: a disciplined German Vic — leader plus wingmen stepped back
 	# and out, sharing one weave phase and one fire rhythm. They fly as one
 	# body, hit as one volley, and never go ragged. Fair: same total
 	# firepower, just synchronized.
-	if kette_n >= 3 and etype in ["fokker_dr1", "fokker_d7", "albatros", "fighter", "triplane", "scout"]:
+	if kette_n >= 3 and etype in ["fokker_dr1", "fokker_d7", "albatros", "fighter", "triplane", "scout",
+			"e1_eindecker", "e2_albatros_d3", "e3_albatros_d5", "e4_fokker_dr1", "e5_rumpler"]:
 		var phase := randf() * TAU
 		var cx := randf_range(140.0, Global.VIEW_W - 140.0)
 		var offs := [Vector2(0, 0), Vector2(-58, 40), Vector2(58, 40)]
 		for o in offs:
 			var ke := EnemyScene.instantiate()
-			ke.configure(etype, true, phase)
+			ke.configure(etype, true, phase, p_elite)
 			world.add_child(ke)
 			ke.global_position = Vector2(clampf(cx + o.x, 70.0, Global.VIEW_W - 70.0), -90.0 + o.y)
 			ke.killed.connect(_on_enemy_killed)
@@ -631,34 +625,73 @@ func _spawn_enemy(etype: String, kette_n: int = 0) -> void:
 			e.killed.connect(_on_enemy_killed)
 		return
 	var e := EnemyScene.instantiate()
-	e.configure(etype)
+	e.configure(etype, false, 0.0, p_elite)
 	world.add_child(e)
 	e.global_position = Vector2(randf_range(70.0, Global.VIEW_W - 70.0), -90.0)
+	# v22: spawn fairness — never materialize on top of the player. If the
+	# roll lands within 300px, push the spawn laterally away (the v23
+	# skeptic caught 106px spawns ramming 0.5s later on S32).
+	if player != null and is_instance_valid(player):
+		var d: float = e.global_position.distance_to(player.global_position)
+		if d < 300.0:
+			var push := 300.0 - d
+			var dir := signf(e.global_position.x - player.global_position.x)
+			if dir == 0.0:
+				dir = 1.0 if randf() < 0.5 else -1.0
+			e.global_position.x = clampf(e.global_position.x + dir * push,
+				70.0, Global.VIEW_W - 70.0)
 	e.killed.connect(_on_enemy_killed)
 
 
 func _spawn_boss(idx: int) -> void:
 	boss_spawned = true
 	var b := BossScene.instantiate()
-	b.configure(idx, String(Sorties.BOSS_NAMES[idx]))
+	b.configure(idx)  # v22: roster-driven (SortieData.BOSS_ROSTER)
 	world.add_child(b)
 	b.global_position = Vector2(Global.VIEW_W * 0.5, -100.0)
 	boss_ref = b
 	b.killed.connect(_on_boss_killed)
-	# v17: the three biggest baddest duel in the seamless blue-sky cyclical
+	# v17: the biggest baddest duel in the seamless blue-sky cyclical
 	# arena — brief sky-transition beat (flash + the INBOUND call), no popup
 	# ceremony. The ground war stands down; the sky is the arena now.
-	if idx in Sorties.BLUESKY_BOSSES:
+	var entry: Dictionary = SortieData.BOSS_ROSTER[clampi(idx, 0, SortieData.BOSS_ROSTER.size() - 1)]
+	if bool(entry["arena"]):
 		$Background.setup("bluesky")
 		$GroundWar.setup("bluesky")
 		$HUDLayer.set_minimap_theme("bluesky")
 		FX.shockwave(world, Vector2(Global.VIEW_W * 0.5, Global.VIEW_H * 0.5))
 		FX.add_trauma(0.2)
 	FX.popup(world, Vector2(Global.VIEW_W * 0.5, 420.0),
-		String(Sorties.BOSS_NAMES[idx]) + " INBOUND", Color.RED)
+		String(entry["name"]) + " INBOUND", Color.RED)
 	FX.add_trauma(0.3)
 	Music.duck_game()  # the duel gets sonic room
-	$HUDLayer.show_brief(String(Sorties.BOSS_NAMES[idx]) + " INBOUND")
+	# v22 audio bar: boss stinger + engine voice by boss kind. Ghosts wail,
+	# heavies slam, aces rise; rotary scouts putter, bombers drone, the
+	# Zeppelin hums. Ground emplacements keep the SPAD's inline.
+	var bname := String(entry["name"])
+	var bkind := String(entry["kind"])
+	if "GHOST" in bname:
+		SFX.play("stinger_ghost")
+	elif bkind == "heavy":
+		SFX.play("stinger_heavy")
+	else:
+		SFX.play("stinger_ace")
+	if bkind == "heavy":
+		SFX.start_engine("zeppelin" if bname == "ZEPPELIN AIRSHIP" else "bomber")
+	elif bkind == "ace":
+		SFX.start_engine("rotary")
+	$HUDLayer.show_brief(String(entry["name"]) + " INBOUND")
+
+
+## v22: Rumpler recon calls reinforcements — capped, telegraphed, fair.
+func request_reinforcements(etype: String, count: int) -> void:
+	if state != State.PLAYING:
+		return
+	FX.popup(world, Vector2(Global.VIEW_W * 0.5, 200.0),
+		"ENEMY REINFORCEMENTS INBOUND", Color(1.0, 0.6, 0.3))
+	for i in count:
+		_spawn_enemy(etype)
+	SFX.play("alarm", -8.0)
 
 
 # --------------------------------------------------------------- events ---
@@ -709,6 +742,18 @@ func _on_enemy_killed(e: Area2D) -> void:
 			sec_id = "trucks"
 		"barge":
 			sec_id = "barges"
+		"e9_searchlight":
+			sec_id = "searchlights"
+		"train":
+			sec_id = "trains"
+		"e6_gotha":
+			sec_id = "bombers"
+		"e7_staaken":
+			sec_id = "bombers"
+		"e8_zeppelin":
+			sec_id = "zeppelins"
+		"e10_archy":
+			sec_id = "flak"
 	if sec_id != "" and objectives.has(sec_id):
 		var o: Dictionary = objectives[sec_id]
 		if not bool(o["done"]):
@@ -786,11 +831,13 @@ func _on_boss_killed(_b: Area2D) -> void:
 	primary_done = true
 	debrief_win = true
 	debrief_timer = 2.5
+	SFX.start_engine("inline")  # v22: ace down, back to the SPAD's voice
 
 
 func _on_player_died() -> void:
 	debrief_win = false
 	debrief_timer = 2.0
+	SFX.stop_engine()  # v22: the engine dies with the pilot
 
 
 ## Player bomb: heavy damage to all non-boss enemies, chip damage to the
@@ -808,7 +855,7 @@ func screen_bomb() -> void:
 			b.queue_free()
 	for e in get_tree().get_nodes_in_group("enemies"):
 		if is_instance_valid(e) and e.has_method("take_damage") and not e.is_in_group("bosses"):
-			e.take_damage(220.0)
+			e.take_damage(220.0, true)  # v22: heavy ordnance — zeppelin hydrogen cells take double
 	if boss_ref != null and is_instance_valid(boss_ref):
 		boss_ref.take_damage(120.0)
 	if player != null and is_instance_valid(player):

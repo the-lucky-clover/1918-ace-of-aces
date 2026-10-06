@@ -1,7 +1,15 @@
 extends Node2D
 ## Big punchy explosion: white-hot flash, orange fireball, debris sparks,
 ## a rising smoke column that lingers, and a shockwave ring on big blasts.
-## Pure _draw — no textures needed, runs anywhere (including headless).
+## v22 photorealism: a Blender-rendered fireball/smoke sprite layer sits
+## UNDER the readable canvas core (v20 4-layer tracer template).
+
+const FIRE := [
+	preload("res://assets/sprites/fx/fx-explosion-0.png"),
+	preload("res://assets/sprites/fx/fx-explosion-1.png"),
+	preload("res://assets/sprites/fx/fx-explosion-2.png"),
+]
+const SMOKE_SPR := preload("res://assets/sprites/fx/fx-smoke.png")
 
 var big: bool = false
 var age: float = 0.0
@@ -44,11 +52,19 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	var t := clampf(age / life, 0.0, 1.0)
 	var rmax := 120.0 if big else 58.0
-	# rising smoke column — dark, thickens as the fireball dies
+	# v22: photoreal fireball frame under the canvas core — churns as it burns
+	var fi: int = clampi(int(t * 3.0), 0, 2)
+	var fs := rmax * 2.4
+	draw_texture_rect(FIRE[fi], Rect2(-fs * 0.5, -fs * 0.5, fs, fs), false,
+		Color(1, 1, 1, 0.9 * (1.0 - t)))
+	# rising smoke column — photoreal puffs, thicken as the fireball dies
 	var sa := 0.55 * t * (1.0 - t * 0.45)
 	for s in smoke:
 		var sp: Vector2 = s["p"]
-		draw_circle(sp, float(s["r"]), Color(0.08, 0.075, 0.075, sa))
+		var pr: float = float(s["r"]) * 2.6
+		draw_texture_rect(SMOKE_SPR,
+			Rect2(sp.x - pr * 0.5, sp.y - pr * 0.5, pr, pr), false,
+			Color(1, 1, 1, sa))
 		draw_circle(sp + Vector2(-4, -5), float(s["r"]) * 0.6,
 			Color(0.16, 0.14, 0.13, sa * 0.8))
 	# shockwave ring on big detonations
