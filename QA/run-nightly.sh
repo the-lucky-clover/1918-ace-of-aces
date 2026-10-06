@@ -534,9 +534,17 @@ elif check == 'bot-skeptic-sane':
     for pat in ('pass_stall', 'pass_overlife', 'pass_no_turn', 'softlock',
                 'unfair_death_early', 'iframes_broken', 'sfx_spam',
                 'rumble_storm', 'spawn_camp', 'bot_zero_progress',
-                'wave_stall', 'debug_freeze_pass', 'skepticism-'):
+                'wave_stall', 'debug_freeze_pass', 'skepticism-',
+                # v23: new detectors + fault library + archetypes
+                'dead_air', 'threat_saturation', 'kette_broken',
+                'unfair_kill', 'perf_sag', 'node_leak', 'mixer_cap_held',
+                'botarchetype', 'seedfault'):
         if pat not in sk:
             sys.exit('skeptic.gd missing detector/hook: %s' % pat)
+    sa = read('skeptic_archetypes.gd')  # v23: four bot brains
+    for pat in ('novice', 'expert', 'survivalist', 'params_for'):
+        if pat not in sa:
+            sys.exit('skeptic_archetypes.gd missing: %s' % pat)
     p = read('player.gd')
     if 'signal damaged' not in p or 'damaged.emit' not in p:
         sys.exit('player.gd missing damaged signal')
@@ -557,7 +565,10 @@ elif check == 'bot-skeptic-sane':
                             'QA/run-nightly.sh')).read()
     for pat in ('godot-bot-sortie-', 'godot-bot-finale', 'godot-bot-seedfault',
                 'qa-seedfault-proof', 'qa-skepticism-report',
-                'merge_skeptic.py'):
+                'merge_skeptic.py',
+                # v23: archetype matrix, fault library, terrain hygiene
+                'godot-bot-novice', 'godot-bot-seedfault-stall',
+                '--botarchetype=', 'check_terrain.py', 'qa-terrain-hygiene'):
         if pat not in sh:
             sys.exit('run-nightly.sh missing bot stage: %s' % pat)
 elif check == 'minimap-textures':
@@ -697,20 +708,40 @@ done
 # v22: the mythic duel is retired (the Baron is S32 now) — the long run goes
 # to the Armistice finale instead, so the bot can reach the 4-phase Ghost.
 godot_check "godot-bot-finale" "$GODOT" --headless --path "$PROJECT" --quit-after 16000 -- --autostart --botpilot --botquit=110 --sortie=31 --skepdir="$SKEP_DIR"
-# seeded fault: wedge one pass aircraft — the skeptic MUST flag pass_stall.
-# This proves the detector fires on real faults, not just theory.
-# v22: 50s — the stall detector needs ~21s of wedge time to fire.
-godot_check "godot-bot-seedfault" "$GODOT" --headless --path "$PROJECT" --quit-after 9000 -- --autostart --botpilot --botquit=50 --sortie=0 --seedfault=stall --skepdir="$SKEP_DIR"
-if grep -q '"kind":"pass_stall"' "$SKEP_DIR/skepticism-$DATE-s0-seed.jsonl" 2>/dev/null; then
-    record "qa-seedfault-proof" "PASS"
-else
-    record "qa-seedfault-proof" "FAIL — pass_stall not flagged in the seedfault run"
-fi
-# merge fragments into QA/reports/skepticism-<date>.md (exits 1 on CRITICAL)
+# --- v23: archetype matrix — novice / expert / survivalist on early / mid /
+# finale (average is covered by the base sample above). 40s game time each.
+for a in novice expert survivalist; do
+    for s in 0 16 31; do
+        godot_check "godot-bot-$a-s$((s+1))" "$GODOT" --headless --path "$PROJECT" --quit-after 8000 -- --autostart --botpilot --botquit=40 --botarchetype="$a" --sortie="$s" --skepdir="$SKEP_DIR"
+    done
+done
+# --- v23: seeded-fault library — every detector must catch its fault.
+# Proof is gated by merge_skeptic.py's per-fault table (exit 1 when any
+# detector fails to fire); no separate grep needed. 35s runs: the stall
+# fault needs ~25s of pinned time before pass_stall's margin expires.
+for f in stall unfair spawncamp glow edge sfx rumble earlydeath; do
+    godot_check "godot-bot-seedfault-$f" "$GODOT" --headless --path "$PROJECT" --quit-after 7000 -- --autostart --botpilot --botquit=35 --sortie=0 --seedfault="$f" --skepdir="$SKEP_DIR"
+done
+# merge fragments into QA/reports/skepticism-<date>.md
+# (v23: archetype-aware stats, per-fault proof table, trends, bug autofile;
+#  exits 1 on CRITICAL anomalies or missing detector proof)
 if python3 "$PROJECT/tools/merge_skeptic.py" "$SKEP_DIR" "$DATE" >"$OUT" 2>&1; then
     record "qa-skepticism-report" "PASS — $(grep -o 'SKEPTIC:.*' "$OUT" | head -1)"
 else
     record "qa-skepticism-report" "FAIL — $(grep -o 'SKEPTIC:.*' "$OUT" | head -1)"
+fi
+# v23: the merge gates detector proof — record its tally here so the
+# long-standing qa-seedfault-proof stage keeps its name and meaning.
+if grep -q 'proof 8/8' "$OUT" 2>/dev/null; then
+    record "qa-seedfault-proof" "PASS — 8/8 detectors proved"
+else
+    record "qa-seedfault-proof" "FAIL — $(grep -o 'proof [0-9]*/8' "$OUT" | head -1)"
+fi
+# --- v23: terrain hygiene — the 32 minimap identities under the iron rule ---
+if python3 "$ROOT/QA/skeptic/check_terrain.py" "$PROJECT/scripts" >"$OUT" 2>&1; then
+    record "qa-terrain-hygiene" "PASS — $(tail -1 "$OUT")"
+else
+    record "qa-terrain-hygiene" "FAIL — $(cat "$OUT" | head -8 | tr '\n' ';')"
 fi
 web_check   "web-photo-keyframes" photo-keyframes
 web_check   "web-intro-timeout"   intro-timeout

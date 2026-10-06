@@ -29,10 +29,21 @@ var _loop_wait_t := 0.0    # reaction delay before looping
 var _debrief_t := 0.0
 var _revive_wait := 0.0
 var _weave_phase := 0.0
+var archetype := "average"  # v23: --botarchetype=novice|average|expert|survivalist
+var _ap := {}               # v23: archetype params (SkepticArchetypes)
+
+
+func _pa(key: String) -> float:  # v23: archetype parameter lookup
+	return float(_ap.get(key, 0.0))
 
 
 func _ready() -> void:
 	_weave_phase = randf() * TAU
+	for a in OS.get_cmdline_user_args():  # v23: bot archetype
+		if a.begins_with("--botarchetype="):
+			archetype = a.get_slice("=", 1)
+	_ap = SkepticArchetypes.params_for(archetype)
+	print("[BOT] archetype: %s — %s" % [archetype, String(_ap.get("desc", ""))])
 
 
 func _physics_process(delta: float) -> void:
@@ -66,7 +77,7 @@ func _fly(delta: float) -> void:
 	_weave_phase += delta * 2.2
 	_think_t -= delta
 	if _think_t <= 0.0:
-		_think_t = SkepticConfig.BOT_THINK_S
+		_think_t = _pa("think_s")  # v23: archetype reaction speed
 		_wish = _decide(p)
 	Global.touch_wish = _wish
 	# bomb release bookkeeping (press one frame, release shortly after)
@@ -103,23 +114,23 @@ func _decide(p) -> Vector2:
 			nearest_bullet_d = dist
 			var bv: Vector2 = (b as Node2D).get("vel") if (b as Node2D).get("vel") != null else Vector2.ZERO
 			closing = dist > 1.0 and bv.dot(-d.normalized()) > 0.0
-		if dist < SkepticConfig.BOT_DODGE_PX and dist > 1.0:
-			var w := 1.0 - dist / SkepticConfig.BOT_DODGE_PX
+		if dist < _pa("dodge_px") and dist > 1.0:  # v23: archetype
+			var w := 1.0 - dist / _pa("dodge_px")
 			danger += -d.normalized() * w
 	# --- loop: a closing bullet inside the threat ring -> Immelmann ---
-	if nearest_bullet_d < SkepticConfig.BOT_LOOP_THREAT_PX and closing \
+	if nearest_bullet_d < _pa("loop_threat_px") and closing \
 			and float(p.get("loop_cd")) <= 0.0 and float(p.get("loop_t")) <= 0.0 \
 			and _loop_wait_t <= 0.0:
-		_loop_wait_t = SkepticConfig.BOT_LOOP_REACT_S
+		_loop_wait_t = _pa("loop_react_s")
 	# --- bomb: true panic — a wall of lead and bombs to spare ---
 	var panic_n := 0
 	for b in bullets:
 		if is_instance_valid(b) \
-				and (b as Node2D).global_position.distance_to(pos) < SkepticConfig.BOT_BOMB_PANIC_PX:
+				and (b as Node2D).global_position.distance_to(pos) < _pa("bomb_panic_px"):
 			panic_n += 1
-		if panic_n >= SkepticConfig.BOT_BOMB_PANIC_N:
+		if panic_n >= int(_pa("bomb_panic_n")):
 			break
-	if panic_n >= SkepticConfig.BOT_BOMB_PANIC_N and int(p.get("bombs")) > 0 \
+	if panic_n >= int(_pa("bomb_panic_n")) and int(p.get("bombs")) > 0 \
 			and _bomb_release_t <= 0.0:
 		Input.action_press("bomb")
 		_bomb_release_t = 0.15
@@ -127,7 +138,7 @@ func _decide(p) -> Vector2:
 	# --- seek: pickups first (fuel when thirsty), then targets ---
 	var seek := Vector2.ZERO
 	var fuel: float = p.get("fuel")
-	var pk = _nearest_pickup(pos, "fuel" if fuel < SkepticConfig.BOT_FUEL_THIRSTY else "")
+	var pk = _nearest_pickup(pos, "fuel" if fuel < _pa("fuel_thirsty") else "")
 	if pk != null:
 		seek = ((pk as Node2D).global_position - pos).normalized() * 1.0
 	else:
@@ -149,19 +160,20 @@ func _decide(p) -> Vector2:
 			if gd.length() < 260.0 and gd.length() > 1.0:
 				danger += -gd.normalized() * 1.2
 	# --- centering + weave: stay in the fight, look alive, bank the wings ---
-	var center := Vector2(Global.VIEW_W * 0.5, Global.VIEW_H * 0.62) - pos
-	var wish := danger * 1.7 + seek * 0.9 + center.normalized() * 0.25 \
-		+ Vector2(sin(_weave_phase), cos(_weave_phase * 0.7)) * 0.3
+	var center := Vector2(Global.VIEW_W * 0.5, Global.VIEW_H * _pa("home_y")) - pos
+	var wish := danger * _pa("danger_w") + seek * _pa("seek_w") \
+		+ center.normalized() * _pa("center_w") \
+		+ Vector2(sin(_weave_phase), cos(_weave_phase * 0.7)) * _pa("weave_amp")
 	if wish.length() > 1.0:
 		wish = wish.normalized()
-	# steering noise: the bot is mid-skill, not a machine
-	wish = wish.rotated(randf_range(-SkepticConfig.BOT_STEER_NOISE, SkepticConfig.BOT_STEER_NOISE))
+	# steering noise: the bot's hands, per archetype
+	wish = wish.rotated(randf_range(-_pa("steer_noise"), _pa("steer_noise")))
 	return wish.limit_length(1.0)
 
 
 func _nearest_pickup(pos: Vector2, kind: String):
 	var best = null
-	var best_d := SkepticConfig.BOT_PICKUP_PX if kind == "" else SkepticConfig.BOT_FUEL_PX
+	var best_d := _pa("pickup_px") if kind == "" else _pa("fuel_px")
 	for pk in get_tree().get_nodes_in_group("pickups"):
 		if not is_instance_valid(pk):
 			continue

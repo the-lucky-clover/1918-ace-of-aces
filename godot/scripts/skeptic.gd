@@ -58,6 +58,25 @@ var _boss_done := false
 var _run_t := 0.0          # wall/game budget clock (survives sortie retries)
 var _quit_at := -1.0       # --botquit=N: deterministic run length in seconds
 var _quit_fired := false
+# --- v23: archetype, pacing, formation, perf, seeded faults ---
+var archetype := "average"
+var _pace_t := 0.0
+var _form_t := 0.0
+var _perf_t := 0.0
+var _deadair_t := 0.0
+var _deadair_fired := false
+var _sat_t := 0.0
+var _sat_fired := false
+var _kette_break := {}      # instance_id -> break start time
+var _kette_fired := {}      # instance_id -> true (one report per member)
+var _fps_ema := 60.0
+var _perf_low_t := 0.0
+var _perf_fired := false
+var _node_warmmin := 0  # v23: min node count over the t=[15,30] warmup window
+var _node_fired := false
+var _fault_t0 := 0.0        # when the active pin-type fault started
+var _fault_done := false
+var _fault_armed := false   # delayed one-shot faults (unfair, earlydeath)
 
 
 func setup(main_ref, si: int) -> void:
@@ -68,10 +87,19 @@ func setup(main_ref, si: int) -> void:
 			seedfault = a.get_slice("=", 1)
 		if a.begins_with("--botquit="):
 			_quit_at = float(a.get_slice("=", 1))
+		if a.begins_with("--botarchetype="):  # v23
+			archetype = a.get_slice("=", 1)
 	var date := Time.get_date_string_from_system()
 	var frag := "s%d" % si
+	if archetype != "average":
+		# v23: non-average archetypes share sorties with the base sample —
+		# the archetype belongs in the fragment so runs never overwrite
+		# each other (same lesson as the v21 seedfault keying).
+		frag += "-" + archetype
 	if seedfault != "":
-		frag += "-seed"
+		# v23: fault name in the fragment — one seeded run per detector,
+		# keyed (sortie, archetype, fault) so nothing collides (v21 lesson).
+		frag += "-seed-" + seedfault
 	# v22: report dir is configurable (--skepdir=); defaults to the repo so
 	# bare runs still land somewhere sane. Never hardcode a checkout path.
 	var skepdir := "/home/hatch/workspace/1918-ace-of-aces/QA/reports"
@@ -85,6 +113,7 @@ func setup(main_ref, si: int) -> void:
 		"type": "meta", "sortie": si,
 		"sortie_name": String(Sorties.SORTIES[si]["name"]),
 		"version": Global.VERSION, "seedfault": seedfault, "date": date,
+		"archetype": archetype,
 	})
 
 
@@ -172,6 +201,8 @@ func _physics_process(delta: float) -> void:
 	var now_ms := Time.get_ticks_msec()
 	var dt_ms := now_ms - _last_tick
 	_last_tick = now_ms
+	# v23: fps EMA feeds the perf_sag detector (headless should hold 60)
+	_fps_ema = _fps_ema * 0.95 + (1000.0 / maxf(float(dt_ms), 0.01)) * 0.05
 	if _t() > 2.0 and dt_ms > SkepticConfig.HITCH_MS * 10.0:
 		_hitch_n += 1
 		if _hitch_big_logged < 10:
@@ -205,12 +236,9 @@ func _physics_process(delta: float) -> void:
 					and (g as Node2D).global_position.distance_to(ppos) < 140.0:
 				_last_gas_t = _t()
 				break
-	# --- seeded fault: wedge one pass aircraft, then watch the detector ---
-	if seedfault == "stall":
-		if not _fault_applied:
-			_apply_seedfault()
-		elif is_instance_valid(_fault_enemy):
-			(_fault_enemy as Node2D).global_position = _fault_pos
+	# --- v23: seeded-fault library (one fault per detector) ---
+	# (the v13 stall pin lives in _fault_tick now — same behavior)
+	_fault_tick(delta)
 	# --- boss fight timing (for the ideas section) ---
 	var bs := bool(main.get("boss_spawned"))
 	if bs and not _boss_seen:
@@ -228,6 +256,19 @@ func _physics_process(delta: float) -> void:
 	_check_softlock(alive, delta)
 	_check_wave_stall()
 	_check_zero_progress()
+	# --- v23: pacing, formation, perf ---
+	_pace_t -= delta
+	if _pace_t <= 0.0:
+		_pace_t = 1.0
+		_check_wave_pacing(alive)
+	_form_t -= delta
+	if _form_t <= 0.0:
+		_form_t = 2.0
+		_check_formation_integrity()
+	_perf_t -= delta
+	if _perf_t <= 0.0:
+		_perf_t = 5.0
+		_check_perf()
 	_sfx_check_t -= delta
 	if _sfx_check_t <= 0.0:
 		_sfx_check_t = 0.5
@@ -292,18 +333,30 @@ func _on_died() -> void:
 		anomaly("unfair_death_early", "CRITICAL",
 			"died %.1fs after (re)spawn — spawn protection or pacing feels wrong" % since_spawn, extra)
 		return
-	# cause attribution: was there anything near the corpse?
-	var cause := _nearest_threat(pos)
-	if cause == "":
+	# v23: ONE-HIT FAIRNESS — every death must trace to a visible,
+	# telegraphed threat. The one-hit model is only fair if the killing
+	# blow could have been seen and dodged.
+	var k := _killing_threat(pos)
+	if k["node"] == null:
 		anomaly("death_no_visible_cause", "HIGH",
 			"died with no bullet, flak, gas, or enemy within %dpx — damage came from nowhere?" % int(SkepticConfig.DEATH_NO_SOURCE_PX), extra)
+		return
+	var why := _fairness_violation(k, pos)
+	if why != "":
+		anomaly("unfair_kill", "CRITICAL", why, extra)
 	else:
 		_write({"type": "event", "t": _t(), "kind": "death",
-			"detail": "killed by " + cause, "sortie": sortie_idx})
+			"detail": "killed by " + String(k["label"]), "sortie": sortie_idx})
 
 
-func _nearest_threat(pos: Vector2) -> String:
-	var best := ""
+## v23: nearest threat that could have dealt the killing blow, with its node
+## so the fairness gates can interrogate it (position, shooter, telegraph).
+## Returns {"node": Node|null, "kind": "bullet"|"flak"|"gas"|"ram"|"",
+##          "label": String}.
+func _killing_threat(pos: Vector2) -> Dictionary:
+	var best = null
+	var kind := ""
+	var label := ""
 	var best_d := SkepticConfig.DEATH_NO_SOURCE_PX
 	for b in get_tree().get_nodes_in_group("ebullets"):
 		if not is_instance_valid(b):
@@ -311,14 +364,18 @@ func _nearest_threat(pos: Vector2) -> String:
 		var d: float = (b as Node2D).global_position.distance_to(pos)
 		if d < best_d:
 			best_d = d
-			best = "enemy tracer (%dpx)" % int(d)
+			best = b
+			kind = "bullet"
+			label = "enemy tracer (%dpx)" % int(d)
 	for b in get_tree().get_nodes_in_group("flakshells"):
 		if not is_instance_valid(b):
 			continue
 		var d: float = (b as Node2D).global_position.distance_to(pos)
 		if d < best_d:
 			best_d = d
-			best = "flak shell (%dpx)" % int(d)
+			best = b
+			kind = "flak"
+			label = "flak shell (%dpx)" % int(d)
 	for g in get_tree().get_nodes_in_group("gasclouds"):
 		if not is_instance_valid(g):
 			continue
@@ -327,15 +384,79 @@ func _nearest_threat(pos: Vector2) -> String:
 		var d: float = (g as Node2D).global_position.distance_to(pos)
 		if d < best_d:
 			best_d = d
-			best = "mustard gas (%dpx)" % int(d)
+			best = g
+			kind = "gas"
+			label = "mustard gas (%dpx)" % int(d)
 	for e in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(e):
 			continue
 		var d: float = (e as Node2D).global_position.distance_to(pos)
 		if d < best_d:
 			best_d = d
-			best = "rammed by %s (%dpx)" % [_estr(e, "etype"), int(d)]
-	return best
+			best = e
+			kind = "ram"
+			label = "rammed by %s (%dpx)" % [_estr(e, "etype"), int(d)]
+	return {"node": best, "kind": kind, "label": label}
+
+
+## v23: fairness gates for the one-hit model. Returns "" when the death was
+## fair (visible, attributable, telegraphed), else the violation evidence.
+func _fairness_violation(k: Dictionary, pos: Vector2) -> String:
+	var n = k["node"]
+	var npos: Vector2 = (n as Node2D).global_position
+	var m := SkepticConfig.UNFAIR_OFFSCREEN_M
+	if npos.x < -m or npos.x > Global.VIEW_W + m \
+			or npos.y < -m or npos.y > Global.VIEW_H + m:
+		return "killing blow from off-screen %s at (%d,%d) — no telegraph was possible" % [
+			String(k["label"]), int(npos.x), int(npos.y)]
+	if String(k["kind"]) == "bullet" or String(k["kind"]) == "flak":
+		# every round must be attributable to a visible shooter: air
+		# tracers come from attacking aircraft, flak from ground batteries.
+		# v23: ground MG nests and infantry also fire visible pot-shots
+		# (trench_target.gd) — their positions are on the map, so their
+		# fire is attributable too.
+		var want_air := String(k["kind"]) == "bullet"
+		var limit := SkepticConfig.UNFAIR_SHOOTER_PX if want_air \
+			else SkepticConfig.UNFAIR_FLAK_PX
+		var shooter := false
+		for e in get_tree().get_nodes_in_group("enemies"):
+			if not is_instance_valid(e):
+				continue
+			var ep: Vector2 = (e as Node2D).global_position
+			if ep.x < -m or ep.x > Global.VIEW_W + m \
+					or ep.y < -m or ep.y > Global.VIEW_H + m:
+				continue
+			var is_air := _ebool(e, "pass_mode") and not _ebool(e, "pass_exempt")
+			if want_air:
+				if is_air and _eint(e, "pass_state") != PS_ATTACK:
+					continue  # air tracers need an attacking aircraft
+			elif is_air:
+				continue  # flak comes from ground batteries only
+			if ep.distance_to(pos) < limit:
+				shooter = true
+				break
+		if not shooter:
+			return "%s with no on-screen shooter in range — unattributable fire" % String(k["label"])
+	if String(k["kind"]) == "ram":
+		# rams are only fair once the attacker has shown itself: mid-pass,
+		# not still entering, and on the field long enough to be seen.
+		# Only pass aircraft can commit an untelegraphed ram: ground/naval
+		# targets don't fly passes (flying into one is the pilot's fault),
+		# boss escorts linger by design, boss entrances are duels, and
+		# non-shooters (Drachen balloons) are terrain — a balloon can't
+		# telegraph an attack it doesn't have.
+		if not _ebool(n, "pass_mode") or _ebool(n, "pass_exempt") \
+				or (n as Node).is_in_group("bosses") \
+				or float(n.get("fire_interval", 1.0)) <= 0.0:
+			return ""
+		var rec: Dictionary = _tracked.get((n as Node).get_instance_id(), {})
+		var age := 999.0
+		if not rec.is_empty():
+			age = _t() - float(rec.get("spawn_t", 0.0))
+		if _eint(n, "pass_state") == 0 or age < SkepticConfig.UNFAIR_TELEGRAPH_S:
+			return "%s during ENTER (%.1fs on field) — the attack had no telegraph yet" % [
+				_estr(n, "etype"), age]
+	return ""
 
 
 func _track_pass_model() -> void:
@@ -528,28 +649,347 @@ func _check_rumble_storm() -> void:
 			"%d haptic calls in one second — the phone is a jackhammer" % n)
 
 
+## v23: wave pacing — 1942 kept the sky busy. Two failure modes:
+## dead air (nothing to shoot, nothing shooting, next wave far off) and
+## threat saturation (too many attackers at once to read the screen).
+func _check_wave_pacing(alive: bool) -> void:
+	if not alive:
+		_deadair_t = 0.0
+		_sat_t = 0.0
+		return
+	if bool(main.get("boss_spawned")):
+		return  # the duel is its own pacing
+	var live_air := 0
+	var live_any := 0
+	for e in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(e):
+			continue
+		live_any += 1
+		if not _ebool(e, "pass_exempt"):
+			live_air += 1
+	var projectiles := 0
+	for grp in ["ebullets", "flakshells"]:
+		for b in get_tree().get_nodes_in_group(grp):
+			if is_instance_valid(b):
+				projectiles += 1
+	var next_gap := 1.0e9
+	var sched: Array = main.get("schedule")
+	if not sched.is_empty():
+		next_gap = float((sched[0] as Dictionary)["at"]) - _t()
+	# dead air: the sky is empty AND staying empty
+	if live_any == 0 and projectiles == 0 \
+			and next_gap > SkepticConfig.DEAD_AIR_WAVE_GAP_S:
+		_deadair_t += 1.0
+		if not _deadair_fired and _deadair_t >= SkepticConfig.DEAD_AIR_S:
+			_deadair_fired = true
+			anomaly("dead_air", "MED",
+				"%.0fs with nothing to shoot and nothing shooting (next wave %.0fs out) — 1942 kept the sky busy" % [_deadair_t, next_gap])
+	else:
+		_deadair_t = 0.0
+	# threat saturation: more attackers than a human can track
+	if live_air >= SkepticConfig.THREAT_SAT_N:
+		_sat_t += 1.0
+		if not _sat_fired and _sat_t >= SkepticConfig.THREAT_SAT_S:
+			_sat_fired = true
+			anomaly("threat_saturation", "HIGH",
+				"%d live air attackers sustained %.0fs — the screen is unreadable" % [live_air, _sat_t])
+	else:
+		_sat_t = 0.0
+
+
+## v23: formation integrity — a Kette flies as one body (shared weave
+## phase). A member stranded far from its Vic's centroid has broken
+## formation: the doctrine failed, not the pilot.
+func _check_formation_integrity() -> void:
+	var now := _t()
+	var groups := {}  # weave_phase key -> Array of member nodes
+	for e in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(e):
+			continue
+		if not _ebool(e, "kette") or not _ebool(e, "pass_mode"):
+			continue
+		if _eint(e, "pass_state") != PS_ATTACK:
+			continue  # turns and exits reform — judge only mid-pass
+		var key := "%.4f" % _efloat(e, "weave_phase")
+		if not groups.has(key):
+			groups[key] = []
+		(groups[key] as Array).append(e)
+	var seen := {}
+	for key in groups:
+		var members: Array = groups[key]
+		if members.size() < 2:
+			continue
+		var centroid := Vector2.ZERO
+		for m in members:
+			centroid += (m as Node2D).global_position
+		centroid /= float(members.size())
+		for m in members:
+			var id := (m as Node).get_instance_id()
+			seen[id] = true
+			var d: float = (m as Node2D).global_position.distance_to(centroid)
+			if d > SkepticConfig.KETTE_BREAK_PX:
+				var t0: float = float(_kette_break.get(id, -1.0))
+				if t0 < 0.0:
+					_kette_break[id] = now
+				elif not bool(_kette_fired.get(id, false)) \
+						and now - t0 >= SkepticConfig.KETTE_BREAK_S:
+					_kette_fired[id] = true
+					anomaly("kette_broken", "MED",
+						"%s %dpx from its Kette centroid for %.0fs — the Vic broke apart" % [
+							_estr(m, "etype"), int(d), now - t0],
+						{"etype": _estr(m, "etype")})
+			else:
+				_kette_break.erase(id)
+	for id in _kette_break.keys():
+		if not seen.has(id):
+			_kette_break.erase(id)
+
+
+## v23: perf proxy for headless runs — sustained physics-fps sag and node
+## count growth (leak proxy). Headless physics should hold full rate; a sag
+## here means the frame is doing too much work.
+func _check_perf() -> void:
+	if _t() < 10.0:
+		return
+	if _fps_ema < SkepticConfig.PERF_MIN_FPS:
+		_perf_low_t += 5.0
+		if not _perf_fired and _perf_low_t >= SkepticConfig.PERF_SAG_S:
+			_perf_fired = true
+			anomaly("perf_sag", "MED",
+				"physics fps sagged to %.0f for %.0fs headless — the frame is doing too much work" % [
+					_fps_ema, _perf_low_t])
+	else:
+		_perf_low_t = 0.0
+	var nn := get_tree().get_node_count()
+	# v23: leak proxy — unbounded growth, not level-driven variation. The
+	# baseline is the MINIMUM over the t=[15,30] warmup window: the t=0 sky
+	# is empty by construction, so a t=0 baseline false-fires on every run.
+	if _t() >= 15.0 and _t() <= 30.0:
+		if _node_warmmin == 0 or nn < _node_warmmin:
+			_node_warmmin = nn
+	elif _t() > 35.0 and not _node_fired and _node_warmmin > 0 \
+			and nn > int(float(_node_warmmin) * 1.4):
+		_node_fired = true
+		anomaly("node_leak", "MED",
+			"node count %d -> %d (+%d%% past warmup minimum) — something isn't despawning" % [
+				_node_warmmin, nn, int(100.0 * float(nn - _node_warmmin) / float(_node_warmmin))])
+
+
+## v23: seeded-fault library — one fault per detector. Every detector must
+## catch its fault every nightly (the v13 standing rule). Faults are applied
+## through the real game path (real damage, real teleports, real SFX calls);
+## pin-type faults hold for a bounded time, then release.
 func _apply_seedfault() -> void:
+	match seedfault:
+		"stall":
+			_fault_stall()
+		"unfair":
+			_fault_armed = true  # delayed: fire once spawn protection is old
+			_fault_applied = true
+		"spawncamp":
+			_fault_spawncamp()
+		"glow":
+			_fault_pin("glow")
+		"edge":
+			_fault_pin("edge")
+		"sfx":
+			_fault_sfx()
+		"rumble":
+			_fault_rumble()
+		"earlydeath":
+			_fault_armed = true  # delayed: fire 1s after (re)spawn
+			_fault_applied = true
+		_:
+			print("[SKEPTIC] unknown seedfault '%s'" % seedfault)
+			_fault_applied = true
+
+
+func _fault_tick(delta: float) -> void:
+	if seedfault == "" or main == null:
+		return
+	if not _fault_applied:
+		_apply_seedfault()
+		return
+	if _fault_done:
+		return
+	var now := _t()
+	# pin-type faults: hold the effect for the whole run (the old stall code
+	# pinned indefinitely and its proof passed; a 25s seed run is bounded).
+	if (seedfault == "stall" or seedfault == "edge") and is_instance_valid(_fault_enemy):
+		(_fault_enemy as Node2D).global_position = _fault_pos
+	elif seedfault == "glow" and is_instance_valid(_fault_enemy):
+		if now - _fault_t0 < SkepticConfig.FAULT_GLOW_S:
+			var spr = _fault_enemy.get("sprite")
+			if spr != null and is_instance_valid(spr):
+				(spr as Sprite2D).modulate = Color(2.3, 0.25, 0.25)
+		else:
+			_fault_done = true
+			print("[SKEPTIC] fault 'glow' released")
+	# delayed one-shot faults
+	if _fault_armed and _p != null and is_instance_valid(_p) and bool(_p.get("alive")):
+		var since_spawn := now - _spawn_t
+		if seedfault == "unfair" and since_spawn > SkepticConfig.UNFAIR_DEATH_WINDOW_S + 1.0:
+			_fault_unfair()
+		elif seedfault == "earlydeath" and since_spawn > 1.0 and since_spawn < 2.5:
+			_p.set("invuln", 0.0)
+			_p.take_damage(9999.0)
+			_fault_armed = false
+			_fault_done = true
+			_write({"type": "event", "t": now, "kind": "seedfault",
+				"detail": "killed the bot 1.0s after spawn (earlydeath)",
+				"sortie": sortie_idx})
+
+
+func _fault_target_in_attack():
 	# wedge a mid-run aircraft and PIN it: a frozen pass machine with stale
 	# velocity would otherwise drift off-screen and despawn before the stall
 	# timer fires — the pin keeps the fault observable.
-	var target = null
 	for e in get_tree().get_nodes_in_group("enemies"):
 		if is_instance_valid(e) and _ebool(e, "pass_mode") \
 				and not _ebool(e, "pass_exempt") \
 				and _eint(e, "pass_state") == PS_ATTACK:
-			target = e
-			break
+			return e
+	return null
+
+
+func _fault_stall() -> void:
+	var target = _fault_target_in_attack()
 	if target == null:
 		return  # no mid-run aircraft yet; try again next frame
 	target.set("debug_freeze_pass", true)
 	target.set("hp", 1.0e9)  # the fault target must survive the bot's guns
 	_fault_enemy = target
 	_fault_pos = (target as Node2D).global_position
+	_fault_t0 = _t()
 	_fault_applied = true
 	_write({"type": "event", "t": _t(), "kind": "seedfault",
 		"detail": "wedged %s pass machine (debug_freeze_pass) + pinned" % _estr(target, "etype"),
 		"sortie": sortie_idx})
 	print("[SKEPTIC] seeded fault applied: %s frozen" % _estr(target, "etype"))
+
+
+func _fault_pin(which: String) -> void:
+	var target = _fault_target_in_attack()
+	if target == null:
+		return
+	target.set("hp", 1.0e9)  # the fault target must survive the bot's guns
+	_fault_enemy = target
+	if which == "edge":
+		# pin off the playfield side (frozen: a drifting fault target would
+		# wander back on-screen before edge_linger's 3s timer fires)
+		target.set("debug_freeze_pass", true)
+		_fault_pos = Vector2(-220.0, 300.0)
+		(target as Node2D).global_position = _fault_pos
+	else:
+		# glow: do NOT freeze — a frozen aircraft would also trip
+		# pass_stall and contaminate the proof. Just hold the overdrive.
+		_fault_pos = (target as Node2D).global_position
+	_fault_t0 = _t()
+	_fault_applied = true
+	_write({"type": "event", "t": _t(), "kind": "seedfault",
+		"detail": "fault '%s' on %s" % [which, _estr(target, "etype")],
+		"sortie": sortie_idx})
+	print("[SKEPTIC] seeded fault applied: %s (%s)" % [which, _estr(target, "etype")])
+
+
+func _clear_sky_spot() -> Vector2:
+	# find the patch of sky farthest from any enemy (projectiles near the
+	# chosen spot are cleared by the caller — the fault must be airtight).
+	var best := Vector2(360.0, 900.0)
+	var best_d := -1.0
+	for gy in range(200, 1001, 160):
+		for gx in range(120, 601, 120):
+			var spot := Vector2(gx, gy)
+			var mind := 1.0e9
+			for e in get_tree().get_nodes_in_group("enemies"):
+				if is_instance_valid(e):
+					mind = minf(mind,
+						(e as Node2D).global_position.distance_to(spot))
+			if mind > best_d:
+				best_d = mind
+				best = spot
+	return best
+
+
+func _fault_unfair() -> void:
+	# kill the bot from a clear sky: no bullet, flak, gas, or enemy within
+	# range. death_no_visible_cause MUST fire — damage from nowhere.
+	var p = _p
+	if p == null or not is_instance_valid(p):
+		return
+	var spot := _clear_sky_spot()
+	(p as Node2D).global_position = spot
+	# airtight: teleport projectiles/gas away from the spot this same frame
+	# (queue_free is deferred — the death scan would still see them), so the
+	# death scan finds nothing attributable.
+	for grp in ["ebullets", "flakshells", "gasclouds"]:
+		for n in get_tree().get_nodes_in_group(grp):
+			if is_instance_valid(n):
+				(n as Node2D).global_position = Vector2(-5000.0, -5000.0)
+	p.set("invuln", 0.0)
+	p.take_damage(9999.0)
+	_fault_armed = false
+	_fault_applied = true
+	_fault_done = true
+	_write({"type": "event", "t": _t(), "kind": "seedfault",
+		"detail": "killed the bot from a clear sky (unfair)",
+		"sortie": sortie_idx})
+	print("[SKEPTIC] seeded fault applied: unfair kill from clear sky")
+
+
+func _fault_spawncamp() -> void:
+	# teleport a live enemy onto the bot and make the tracker see it as a
+	# fresh spawn — spawn_camp MUST fire.
+	var p = _p
+	if p == null or not is_instance_valid(p):
+		return
+	for e in get_tree().get_nodes_in_group("enemies"):
+		if is_instance_valid(e) and _ebool(e, "pass_mode"):
+			_tracked.erase((e as Node).get_instance_id())
+			(e as Node2D).global_position = (p as Node2D).global_position + Vector2(50, 0)
+			_fault_applied = true
+			_fault_done = true
+			_write({"type": "event", "t": _t(), "kind": "seedfault",
+				"detail": "teleported %s onto the bot (spawncamp)" % _estr(e, "etype"),
+				"sortie": sortie_idx})
+			print("[SKEPTIC] seeded fault applied: spawncamp")
+			return
+
+
+func _fault_sfx() -> void:
+	# v23: the v21 mixer cap (4 same-name plays/rolling second) means the
+	# sfx_spam detector (>6/s) can no longer fire through SFX.play — by
+	# design. This fault VERIFIES THE CAP instead: 10 plays in one frame
+	# must log at most 4. If the cap ever breaks, sfx_cap_broken fires
+	# CRITICAL (and sfx_spam becomes provable again).
+	for i in 10:
+		SFX.play("mg_chatter", 0.0)
+	var now_ms := Time.get_ticks_msec()
+	var n := 0
+	for e in SFX.play_log:
+		if String(e["name"]) == "mg_chatter" and now_ms - int(e["ms"]) <= 1000:
+			n += 1
+	_fault_applied = true
+	_fault_done = true
+	if n > 4:
+		anomaly("sfx_cap_broken", "CRITICAL",
+			"v21 mixer cap failed: %d same-name plays logged in one second (cap is 4)" % n)
+	else:
+		_write({"type": "event", "t": _t(), "kind": "mixer_cap_held",
+			"detail": "10 rapid plays collapsed to %d logged (v21 cap holds)" % n,
+			"sortie": sortie_idx})
+		print("[SKEPTIC] seeded fault: mixer cap held (%d/10 logged)" % n)
+
+
+func _fault_rumble() -> void:
+	for i in 6:
+		SFX.rumble(120, 1.0)
+	_fault_applied = true
+	_fault_done = true
+	_write({"type": "event", "t": _t(), "kind": "seedfault",
+		"detail": "6 haptic pulses in one frame (rumble)",
+		"sortie": sortie_idx})
+	print("[SKEPTIC] seeded fault applied: rumble storm")
 
 
 func _snapshot() -> void:

@@ -56,3 +56,42 @@ const BOT_FUEL_THIRSTY := 35.0        # fuel level that triggers fuel-seeking
 const IDEA_LOWRATE_FRAC := 0.6        # sortie kill-rate below 60% of median
 const IDEA_BOSS_LONG_S := 90.0        # boss duel longer than this
 const IDEA_EARLY_DEATH_S := 15.0      # deaths clustering in first 15s
+
+# --- v23: wave pacing ---
+const DEAD_AIR_S := 20.0              # nothing to shoot, nothing shooting
+const DEAD_AIR_WAVE_GAP_S := 25.0     # ...while the next wave is this far out
+const THREAT_SAT_N := 14              # live air attackers at once...
+const THREAT_SAT_S := 6.0             # ...sustained this long = saturation
+
+# --- v23: formation integrity (Kette doctrine) ---
+const KETTE_BREAK_PX := 420.0         # member this far from the Vic centroid
+const KETTE_BREAK_S := 4.0            # ...this long = the formation broke
+
+# --- v23: one-hit fairness (every death must be telegraphed) ---
+const UNFAIR_OFFSCREEN_M := 80.0      # killing blow from beyond view+margin
+const UNFAIR_SHOOTER_PX := 650.0      # bullet unattributable past this range
+const UNFAIR_FLAK_PX := 800.0         # flak unattributable past this range
+const UNFAIR_TELEGRAPH_S := 1.5       # ram before the attacker existed this long
+
+# --- v23: perf proxy (headless) ---
+const PERF_MIN_FPS := 50.0            # physics fps below this...
+const PERF_SAG_S := 10.0              # ...sustained this long = perf sag
+# (node_leak uses a warmup-minimum baseline + 40% growth, inline in
+# skeptic.gd — a fixed fraction of the t=0 count false-fired every run.)
+
+# --- v23: difficulty curve (merge-time, per archetype run) ---
+const CURVE_RUN_S := 40.0             # archetype sample run length (game s)
+const CURVE_AVG_DEATH_LIMIT := 8      # average dying more = too hot (HIGH)
+const CURVE_EXPERT_EARLY_LIMIT := 2   # expert deaths on sorties 1-8 (MED)
+
+# --- v23: seeded-fault library ---
+# stall: wedge a pass aircraft        -> pass_stall (anomaly)
+# unfair: kill from a clear sky       -> death_no_visible_cause (anomaly)
+# spawncamp: teleport enemy onto bot   -> spawn_camp (anomaly)
+# glow: full-body overdrive 1.5s       -> enemy_glow (anomaly)
+# edge: pin enemy off the side 4s      -> edge_linger (anomaly)
+# sfx: spam one name 10x in a frame   -> mixer_cap_held (event: v21 cap proof)
+# rumble: 6 haptic pulses in a frame   -> rumble_storm (anomaly)
+# earlydeath: kill 1s after spawn      -> unfair_death_early (anomaly)
+const FAULT_PIN_S := 4.0              # how long pin-type faults hold
+const FAULT_GLOW_S := 1.5             # how long the glow fault burns
