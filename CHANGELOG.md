@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v24 — 2026-10-17
+
+v24: the mission briefing goes full cinema — a hand-drawn sector map with the attack route inked live, the enemy ace revealed alongside his Blue Max citation, and rotatin' lore cards while the sortie's true assets load beneath an honest progress bar (every tick be real threaded loadin', no fakery aboard). Ken Burns drift, film grain, and a somber propaganda-ink style throughout. The boss bar returns in blood-red and gold; the pilot gets no hull bar, only a red ONE HIT warnin' — death comes in a single kiss, as is proper. Pickups shimmer, near-misses shudder the airframe. The balance refit what were scoped for v24 now sails under v25 colors. Arrr.
+
+
 ## v23 — 2026-10-06
 
 v23: the skeptic grows four pilots — novice, average, expert, an' a survivalist what dodges first an' shoots later. Eight detectors stand watch with seeded-fault proof, catchin' every scallywag: unfair kills, spawn-camp rams, conga-line stragglers, screen-floodin' hordes. Two gremlins in the spyglass itself be squashed (a crashin' spyglass query an' a wobblin' edge-pin). The 32-sortie war now sails under constant watch — three campaign squalls spotted an' logged fer the next refit. Arrr.

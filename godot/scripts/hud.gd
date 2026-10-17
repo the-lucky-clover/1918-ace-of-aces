@@ -27,6 +27,11 @@ var _blink := 0.0
 var _last_hp := 100.0
 var _last_score := 0
 var minimap: Control
+var danger_rect: ColorRect       # v24: red edge vignette (one-hit warning)
+var danger_label: Label          # v24: "ONE HIT" warning text
+var _danger_tween: Tween = null
+var _danger_label_tween: Tween = null
+var _boss_tween: Tween = null   # smooth boss-bar drain
 
 
 func _ready() -> void:
@@ -141,8 +146,15 @@ func _build() -> void:
 	boss_bar.value = 100.0
 	boss_bar.show_percentage = false
 	boss_bar.custom_minimum_size = Vector2(400, 16)
-	boss_bar.add_theme_stylebox_override("background", _bar_style(Color(0.05, 0.05, 0.06, 0.75)))
-	boss_bar.add_theme_stylebox_override("fill", _bar_style(Color(0.85, 0.2, 0.2)))
+	# v24: propaganda styling — blood-red fill, gold rule, dark ground
+	var bbg := _bar_style(Color(0.06, 0.04, 0.04, 0.85))
+	bbg.border_color = Color(0.82, 0.66, 0.30)
+	bbg.set_border_width_all(2)
+	boss_bar.add_theme_stylebox_override("background", bbg)
+	var bfill := _bar_style(Color(0.62, 0.14, 0.10))
+	bfill.border_color = Color(0.95, 0.75, 0.35)
+	bfill.set_border_width_all(1)
+	boss_bar.add_theme_stylebox_override("fill", bfill)
 	boss_container.add_child(boss_bar)
 	add_child(boss_container)
 	# brief banner
@@ -154,6 +166,61 @@ func _build() -> void:
 	brief_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	brief_label.modulate.a = 0.0
 	add_child(brief_label)
+	_build_danger_layer()
+
+
+## v24: red edge vignette + ONE HIT warning. The one-hit model has no hull
+## bar, so mortality gets a visual voice instead: a red edge-breath and a
+## warning that fades. pulse_danger() is the small version (near-misses).
+func _build_danger_layer() -> void:
+	var dl := CanvasLayer.new()
+	dl.layer = 6
+	add_child(dl)
+	danger_rect = ColorRect.new()
+	danger_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	danger_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	danger_rect.modulate.a = 0.0
+	var sh := Shader.new()
+	sh.code = """
+shader_type canvas_item;
+uniform vec4 glow_color : source_color = vec4(0.62, 0.06, 0.03, 1.0);
+void fragment(){
+	float d = distance(UV, vec2(0.5));
+	float e = smoothstep(0.32, 0.72, d);
+	COLOR = vec4(glow_color.rgb, e * glow_color.a);
+}
+"""
+	var sm := ShaderMaterial.new()
+	sm.shader = sh
+	danger_rect.material = sm
+	dl.add_child(danger_rect)
+	danger_label = _mk_label("ONE HIT — FLY LIKE IT", 34, Color(1.0, 0.42, 0.32))
+	danger_label.set_anchors_preset(Control.PRESET_CENTER)
+	danger_label.position = Vector2(Global.VIEW_W * 0.5 - 260, Global.VIEW_H * 0.30)
+	danger_label.size = Vector2(520, 48)
+	danger_label.modulate.a = 0.0
+	danger_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dl.add_child(danger_label)
+
+
+func show_one_hit_warning() -> void:
+	pulse_danger(1.0)
+	if _danger_label_tween != null and _danger_label_tween.is_valid():
+		_danger_label_tween.kill()
+	danger_label.modulate.a = 1.0
+	_danger_label_tween = create_tween()
+	_danger_label_tween.tween_interval(1.6)
+	_danger_label_tween.tween_property(danger_label, "modulate:a", 0.0, 1.0)
+
+
+func pulse_danger(strength: float = 0.5) -> void:
+	if danger_rect == null:
+		return
+	if _danger_tween != null and _danger_tween.is_valid():
+		_danger_tween.kill()
+	_danger_tween = create_tween()
+	danger_rect.modulate.a = clampf(strength, 0.0, 1.0)
+	_danger_tween.tween_property(danger_rect, "modulate:a", 0.0, 0.9)
 
 
 func update_score(s: int) -> void:
@@ -277,16 +344,25 @@ func mark_primary_done() -> void:
 
 
 func show_boss(bname: String, hp: float = 0.0, max_hp: float = 1.0) -> void:
-	# v22: no boss HP meter — damage states only. Name banner for the call.
+	# v24: the ace gets a proper propaganda-styled HP bar after all —
+	# bosses may show HP; the PLAYER still has no bar (one hit = death).
 	boss_container.visible = true
 	boss_label.text = bname
 	if boss_bar:
-		boss_bar.visible = false
+		boss_bar.visible = true
+		boss_bar.max_value = maxf(1.0, max_hp)
+		boss_bar.value = hp
 
 
 func update_boss(hp: float, max_hp: float) -> void:
-	# v22: retired — damage states replace the meter. No-op.
-	pass
+	# v24: smooth drain — one drain tween at a time, no fighting.
+	if not boss_container.visible or boss_bar == null:
+		return
+	boss_bar.max_value = maxf(1.0, max_hp)
+	if _boss_tween != null and _boss_tween.is_valid():
+		_boss_tween.kill()
+	_boss_tween = create_tween()
+	_boss_tween.tween_property(boss_bar, "value", maxf(0.0, hp), 0.25)
 
 
 func hide_boss() -> void:

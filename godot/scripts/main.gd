@@ -2,7 +2,7 @@ extends Node2D
 ## Orchestrator: game states, wave timeline, objectives, scoring,
 ## camera shake (trauma), pause, screen transitions, debrief.
 
-enum State { TITLE, PLAYING, PAUSED, DEBRIEF, CINEMATIC }
+enum State { TITLE, PLAYING, PAUSED, DEBRIEF, CINEMATIC, BRIEFING }
 
 const PlayerScene := preload("res://scenes/player.tscn")
 const EnemyScene := preload("res://scenes/enemy.tscn")
@@ -11,6 +11,7 @@ const PickupScene := preload("res://scenes/pickup.tscn")
 const TruckScript := preload("res://scripts/truck.gd")
 const AirfieldScript := preload("res://scripts/airfield.gd")
 const CinematicScript := preload("res://scripts/cinematic.gd")
+const BriefingScript := preload("res://scripts/briefing.gd")
 const WeatherScript := preload("res://scripts/weather.gd")
 const AtmosphereScript := preload("res://scripts/atmosphere.gd")
 const GasCloudScript := preload("res://scripts/gas_cloud.gd")
@@ -63,6 +64,7 @@ var fade: ColorRect
 var debug_autotest := false  # set by --autostart; enables test logging
 var _cine: Control = null    # cinematic sequencer (takeoff / landing reels)
 var _cine_mode := ""         # "takeoff" | "landing"
+var _briefing: CanvasLayer = null  # v24: cinematic briefing + loading screen
 var _weather: Node2D = null  # per-sortie dynamic weather (wind/rain/storm)
 var _atmo: Control = null   # screen-space atmosphere (grain/vignette/haze)
 var still_t := 0.0           # camping clock: stillness feeds Archie's accuracy
@@ -269,13 +271,39 @@ func start_sortie(i: int) -> void:
 	air_window = 0.0
 	graze_cd = 0.0
 	$MenuLayer.hide_all()
-	# takeoff cinematic, then gameplay begins (skipped in headless autotest)
+	# v24: cinematic mission briefing doubles as the loading screen, then
+	# the takeoff reel (skipped in headless autotest, unless --briefing-test
+	# explicitly exercises the briefing chain).
 	_cine_mode = "takeoff"
-	if debug_autotest:
+	var briefing_test := "--briefing-test" in OS.get_cmdline_user_args()
+	if debug_autotest and not briefing_test:
 		_begin_play()
 	else:
-		state = State.CINEMATIC
-		_cine.play_takeoff(s)
+		_show_briefing(s)
+
+
+## v24: the briefing overlay owns the screen until its real asset loads
+## finish and its cinematic beat elapses; then the takeoff reel plays.
+func _show_briefing(s: Dictionary) -> void:
+	state = State.BRIEFING
+	if _briefing != null and is_instance_valid(_briefing):
+		_briefing.queue_free()
+	_briefing = BriefingScript.new()
+	add_child(_briefing)
+	_briefing.setup(sortie_index)
+	_briefing.finished.connect(_on_briefing_finished)
+	_fade_to(0.0, 0.6)
+
+
+func _on_briefing_finished() -> void:
+	if debug_autotest:
+		print("[AUTOTEST] briefing finished -> takeoff reel")
+	if _briefing != null and is_instance_valid(_briefing):
+		_briefing.queue_free()
+	_briefing = null
+	var s: Dictionary = Sorties.SORTIES[sortie_index]
+	state = State.CINEMATIC
+	_cine.play_takeoff(s)
 
 
 ## Gameplay actually begins (after the takeoff reel).
@@ -283,6 +311,7 @@ func _begin_play() -> void:
 	var s: Dictionary = Sorties.SORTIES[sortie_index]
 	state = State.PLAYING
 	_fade_to(0.0, 0.6)
+	$HUDLayer.show_one_hit_warning()  # v24: no hull bar — one hit is death
 	Music.play_theater(sortie_index)  # v22: per-theater score
 	SFX.start_engine("inline")  # v22: the SPAD's Hispano-Suiza voice
 	Music.unduck_game()  # in case a previous boss left it ducked
@@ -351,6 +380,9 @@ func _show_debrief() -> void:
 
 func _to_title() -> void:
 	state = State.TITLE
+	if _briefing != null and is_instance_valid(_briefing):
+		_briefing.queue_free()
+	_briefing = null
 	for c in world.get_children():
 		c.queue_free()
 	$HUDLayer.hide_boss()
@@ -361,8 +393,8 @@ func _to_title() -> void:
 # ---------------------------------------------------------------- input ---
 
 func _input(event: InputEvent) -> void:
-	if state == State.CINEMATIC:
-		return  # the cinematic sequencer handles its own skip input
+	if state == State.CINEMATIC or state == State.BRIEFING:
+		return  # the cinematic sequencer / briefing own their input
 	if event.is_action_pressed("pause_game"):
 		if state == State.PLAYING:
 			_pause()
@@ -817,6 +849,8 @@ func award_graze(pos: Vector2) -> void:
 	graze_cd = 0.4
 	score += 10
 	FX.popup(world, pos + Vector2(0, -24), "GRAZE +10", Color(0.75, 0.85, 1.0))
+	FX.add_trauma(0.12)  # v24: near-misses shudder the airframe
+	$HUDLayer.pulse_danger(0.30)  # v24: red edge breath — mortality reminder
 	$HUDLayer.update_score(score)
 
 

@@ -77,6 +77,10 @@ func _physics_process(delta: float) -> void:
 		if to.length() < 130.0:
 			position += to.normalized() * 300.0 * delta
 	sprite.rotation = sin(age * 2.0) * 0.2
+	# v24: shimmer — gentle scale breathing + glint so pickups read
+	# instantly against any background. Cheap: one sin, no particles.
+	var sh := 1.0 + 0.09 * sin(age * 6.0)
+	sprite.scale = Vector2(sh, sh)
 	if position.y > Global.VIEW_H + 60.0:
 		queue_free()
 
