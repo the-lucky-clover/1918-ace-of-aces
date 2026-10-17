@@ -25,11 +25,16 @@ Music="*res://scripts/music.gd"
 SFX="*res://scripts/sfx.gd"
 IAPs="*res://scripts/iaps.gd"
 Ads="*res://scripts/ads.gd"
+DesktopFullscreen="*res://scripts/desktop_fullscreen.gd"
 
 [display]
 
 window/size/viewport_width=720
 window/size/viewport_height=1280
+window/size/window_width_override=540
+window/size/window_height_override=960
+window/size/resizable=true
+window/size/mode=0
 window/stretch/mode="canvas_items"
 window/stretch/aspect="keep"
 window/handheld/orientation=1
