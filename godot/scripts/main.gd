@@ -46,6 +46,13 @@ var _steer_id := -1           # touch index currently steering (mobile only)
 var _hold_armed := false      # second tap down, waiting: quick release or hold?
 var _hold_start := 0.0
 var _hold_fired := false
+# --- touch bomb: two-finger tap = bomb (mobile only). A second finger down
+# while the steering finger is held is a bomb-tap candidate, never a loop
+# or pause gesture (those stay sequential-tap only). No on-screen buttons.
+var _bomb_id := -1           # touch index of the bomb-tap candidate, -1 none
+var _bomb_start := 0.0       # press time of the candidate
+var _bomb_moved := false     # candidate dragged beyond tap slop -> not a tap
+const BOMB_TAP_T := 0.35     # s: max press duration for a bomb tap
 var strafe_streak := 0          # consecutive trench strafes
 var strafe_window := 0.0        # streak window (seconds)
 var air_streak := 0             # consecutive air kills (kill-streak callouts)
@@ -338,6 +345,7 @@ func _pause() -> void:
 	_steer_id = -1
 	_touch_anchor.clear()
 	_hold_armed = false
+	_bomb_id = -1
 	Global.touch_wish = Vector2.ZERO
 	get_tree().paused = true
 	Music.play_pause()
@@ -355,6 +363,10 @@ func _resume() -> void:
 
 func _show_debrief() -> void:
 	state = State.DEBRIEF
+	_bomb_id = -1
+	_steer_id = -1
+	_touch_anchor.clear()
+	Global.touch_wish = Vector2.ZERO
 	if debug_autotest:
 		print("[AUTOTEST] debrief: win=%s primary=%s score=%d t=%.1f" % [debrief_win, primary_done, score, sortie_time])
 	if debrief_win:
@@ -425,25 +437,42 @@ func _input(event: InputEvent) -> void:
 
 
 ## Touch gestures, tap-vs-drag aware:
-##  - quick double-tap -> loop-de-loop
-##  - double-tap-and-hold (>= HOLD_PAUSE_T) -> pause menu
+##  - quick double-tap (sequential) -> loop-de-loop
+##  - double-tap-and-hold (sequential) -> pause menu
+##  - two-finger tap (second finger while steering) -> bomb
 ##  - sustained drag -> relative steering (mobile only; desktop keeps WASD)
 func _touch_event(event: InputEventScreenTouch) -> void:
 	var now := Time.get_ticks_msec() / 1000.0
 	if event.pressed:
 		_touch_anchor[event.index] = event.position
-		if _steer_id == -1 and Global.on_touch_device():
+		var fresh_tap := _steer_id == -1
+		if fresh_tap and Global.on_touch_device():
 			_steer_id = event.index
-		if now - last_tap_t < DOUBLE_TAP_T:
-			_hold_armed = true
-			_hold_fired = false
-			_hold_start = now
-		last_tap_t = now
+		if fresh_tap:
+			# sequential taps only: double-tap = loop, double-tap-hold = pause
+			if now - last_tap_t < DOUBLE_TAP_T:
+				_hold_armed = true
+				_hold_fired = false
+				_hold_start = now
+			last_tap_t = now
+		elif Global.on_touch_device() and event.index != _steer_id and _bomb_id == -1:
+			# second finger down while steering: bomb-tap candidate. This
+			# never arms the loop/pause gestures — those stay sequential.
+			_bomb_id = event.index
+			_bomb_start = now
+			_bomb_moved = false
 	else:
 		_touch_anchor.erase(event.index)
 		if event.index == _steer_id:
 			_steer_id = -1
 			Global.touch_wish = Vector2.ZERO
+		if event.index == _bomb_id:
+			_bomb_id = -1
+			if now - _bomb_start < BOMB_TAP_T and not _bomb_moved:
+				# two-finger tap -> bomb, through the normal bomb action so
+				# player.gd's is_action_just_pressed("bomb") path fires it.
+				Input.action_press("bomb")
+				Callable(self, "_release_bomb_action").call_deferred()
 		if _hold_armed and not _hold_fired:
 			# quick release of the second tap: it's a double-tap -> loop
 			_hold_armed = false
@@ -451,7 +480,18 @@ func _touch_event(event: InputEventScreenTouch) -> void:
 				player.try_loop()
 
 
+## Deferred one frame so the press is visible to is_action_just_pressed().
+func _release_bomb_action() -> void:
+	Input.action_release("bomb")
+
+
 func _touch_drag(event: InputEventScreenDrag) -> void:
+	if event.index == _bomb_id:
+		# the bomb-tap candidate moved: beyond tap slop it's a drag, not a tap
+		var anchor: Vector2 = _touch_anchor.get(event.index, event.position)
+		if (event.position - anchor).length() > TAP_SLOP:
+			_bomb_moved = true
+		return
 	if event.index != _steer_id or not Global.on_touch_device():
 		return
 	var anchor: Vector2 = _touch_anchor.get(event.index, event.position)
@@ -549,6 +589,14 @@ func _process(delta: float) -> void:
 		camera.offset = Vector2(randf_range(-sh, sh), randf_range(-sh, sh))
 	else:
 		camera.offset = Vector2.ZERO
+	# --- touch auto-fire: on phones the guns blaze while steering (mobile
+	# shmup convention: drag steers, guns fire). Desktop physical input owns
+	# the fire action; we never touch it there.
+	if Global.on_touch_device():
+		if state == State.PLAYING and not get_tree().paused:
+			Input.action_press("fire")
+		else:
+			Input.action_release("fire")
 	if get_tree().paused or state != State.PLAYING:
 		return
 	# double-tap-and-hold -> pause menu (the second tap is still down)

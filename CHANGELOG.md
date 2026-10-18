@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v25 — 2026-10-18
+
+v25: touch controls for the coming iPhone campaign — guns blaze on their own while a finger steers (the mobile shmup way), and a two-finger tap looses a bomb, all without breakin' the double-tap loop nor the hold-for-pause parley. An iOS export preset joins the fleet (bundle com.luckyclover.aceofaces), awaitin' only the Captain's App Store Team ID afore the Xcode project can be struck. The balance refit what were scoped for v25 now sails under v26 colors, still awaitin' the Captain's one-hit verdict. Arrr.
+
+
 ## v24 — 2026-10-17
 
 v24: the mission briefing goes full cinema — a hand-drawn sector map with the attack route inked live, the enemy ace revealed alongside his Blue Max citation, and rotatin' lore cards while the sortie's true assets load beneath an honest progress bar (every tick be real threaded loadin', no fakery aboard). Ken Burns drift, film grain, and a somber propaganda-ink style throughout. The boss bar returns in blood-red and gold; the pilot gets no hull bar, only a red ONE HIT warnin' — death comes in a single kiss, as is proper. Pickups shimmer, near-misses shudder the airframe. The balance refit what were scoped for v24 now sails under v25 colors. Arrr.
