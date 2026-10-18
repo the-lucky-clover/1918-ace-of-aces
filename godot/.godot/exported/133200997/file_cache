@@ -1,0 +1,8 @@
+res://scenes/boss.tscn::c8d63eb30e6eec7cc236f0987abf93e6::1791016804::res://.godot/exported/133200997/export-7649a76be24b0454ff92379a9b1bf3ce-boss.scn
+res://scenes/bullet.tscn::0d69ee8eb2fbc623ee2279aa1effcbc5::1791016804::res://.godot/exported/133200997/export-6d8e6ff1e6f20a36e0402d27c623c86c-bullet.scn
+res://scenes/enemy.tscn::3f3a747a7cbfaec445a1f5953212f58a::1791016804::res://.godot/exported/133200997/export-a930820ec0ab16db6719aff4daa500f9-enemy.scn
+res://scenes/flak_shell.tscn::11f1253364737eece80441c8668a93fd::1791016804::res://.godot/exported/133200997/export-27b420f15dd0c1fc2be85c07883931c6-flak_shell.scn
+res://scenes/main.tscn::70d0a9bb6d8b1c92ee9f902618bf4109::1791018408::res://.godot/exported/133200997/export-3ad5c15c4f3250da0cc7c1af1770d85f-main.scn
+res://scenes/pickup.tscn::8cf857782e57284bb4b8d092210c7913::1791016804::res://.godot/exported/133200997/export-8900950b1005f15db57ffea5c2c1225f-pickup.scn
+res://scenes/player.tscn::cbe842b4b0344ea39ce15b5eebdf29f8::1791016804::res://.godot/exported/133200997/export-234fb6894ec6226e856ab7f825500d3d-player.scn
+res://scenes/wingman.tscn::19b0fbbe133406610005b74be42b7b4f::1791018330::res://.godot/exported/133200997/export-482587d5be1f31883f10dc84a504dce9-wingman.scn

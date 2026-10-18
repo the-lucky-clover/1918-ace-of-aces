@@ -9,8 +9,10 @@ extends CanvasLayer
 ## fake/timed fill. The bar is the mean of ResourceLoader threaded-load
 ## progress across the sortie's actual assets (theme set-piece sprites,
 ## boss scene, boss livery art). A minimum cinematic beat keeps the briefing
-## readable; then it auto-continues into the takeoff reel. No skip button,
-## no input needed, no way to soft-lock.
+## readable; then it auto-continues into the takeoff reel. Tap/click
+## anywhere skips straight to the sortie (0.5s grace so the title-screen
+## tap can't accidentally skip). Skipping is safe: unfinished threaded
+## loads fall back to synchronous loading later, per _poll_loads.
 ##
 ## Portrait 720x1280. GL Compatibility-safe: canvas_item shaders only,
 ## cheap _draw work, no per-frame texture generation.
@@ -114,6 +116,11 @@ func _build() -> void:
 	_loadbar.position = Vector2(60, 1128)
 	_loadbar.size = Vector2(600, 96)
 	add_child(_loadbar)
+	# tap-anywhere-to-skip hint, below the bar
+	var skip_hint := _mk_label("TAP ANYWHERE TO SKIP", 20, Color(0.62, 0.55, 0.40))
+	skip_hint.position = Vector2(0, 1232)
+	skip_hint.size = Vector2(VIEW.x, 28)
+	add_child(skip_hint)
 	# film grain + vignette over everything
 	var grain := ColorRect.new()
 	grain.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -201,6 +208,24 @@ func _poll_loads() -> void:
 
 
 # ------------------------------------------------------------------ frame --
+
+const SKIP_GRACE := 0.5  # s: stray taps from the title screen can't skip
+
+
+## Tap/click anywhere skips the briefing straight to the sortie.
+func _input(event: InputEvent) -> void:
+	if _finished:
+		return
+	var tapped := false
+	if event is InputEventScreenTouch and event.pressed:
+		tapped = true
+	elif event is InputEventMouseButton and event.pressed \
+			and event.button_index == MOUSE_BUTTON_LEFT:
+		tapped = true
+	if tapped and _elapsed > SKIP_GRACE:
+		_finished = true
+		finished.emit()
+
 
 func _process(delta: float) -> void:
 	if _finished:

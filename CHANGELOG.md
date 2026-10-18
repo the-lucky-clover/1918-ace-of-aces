@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v26 — 2026-10-18
+
+v26: the KISS touch refit — the clever finger-tricks walk the plank (no more double-tap loop, hold-for-pause, nor two-finger bomb). In their stead stand two big honest buttons: PAUSE aloft in the top corner, BOMB in the bottom corner where the thumb rests, plain as day. Drag steers, guns fire on their own, and the briefing now yields to a tap anywhere. The balance refit what were scoped for v26 now sails under v27 colors, still awaitin' the Captain's one-hit verdict. Arrr.
+
+
 ## v25 — 2026-10-18
 
 v25: touch controls for the coming iPhone campaign — guns blaze on their own while a finger steers (the mobile shmup way), and a two-finger tap looses a bomb, all without breakin' the double-tap loop nor the hold-for-pause parley. An iOS export preset joins the fleet (bundle com.luckyclover.aceofaces), awaitin' only the Captain's App Store Team ID afore the Xcode project can be struck. The balance refit what were scoped for v25 now sails under v26 colors, still awaitin' the Captain's one-hit verdict. Arrr.

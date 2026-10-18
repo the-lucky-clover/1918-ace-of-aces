@@ -34,25 +34,18 @@ var primary_done := false
 var debrief_win := false
 var debrief_timer := -1.0
 var fuel_cd := 24.0             # steady fuel-pickup pressure valve
-var last_tap_t := -10.0         # double-tap -> loop-de-loop
-# --- touch gestures: double-tap = loop, double-tap-and-hold = pause,
-# relative drag = steer (mobile only). No on-screen buttons, ever. ---
+var last_tap_t := -10.0         # desktop double-click -> loop-de-loop
+# --- touch input (v26 KISS): single-finger relative-drag steering only.
+# No gestures: double-tap/hold/two-finger tricks are gone. Two big obvious
+# buttons (PAUSE, BOMB) live in _touch_ui; auto-fire is handled in _process.
 const TAP_SLOP := 28.0        # px: beyond this a touch is a drag, not a tap
-const HOLD_PAUSE_T := 0.55    # s: second-tap hold duration that opens pause
-const DOUBLE_TAP_T := 0.35    # s: max gap between the two taps
+const DOUBLE_TAP_T := 0.35    # s: max gap for the desktop double-click loop
 const DRAG_FULL := 140.0      # px of drag = full stick deflection
 var _touch_anchor := {}       # touch index -> press position
 var _steer_id := -1           # touch index currently steering (mobile only)
-var _hold_armed := false      # second tap down, waiting: quick release or hold?
-var _hold_start := 0.0
-var _hold_fired := false
-# --- touch bomb: two-finger tap = bomb (mobile only). A second finger down
-# while the steering finger is held is a bomb-tap candidate, never a loop
-# or pause gesture (those stay sequential-tap only). No on-screen buttons.
-var _bomb_id := -1           # touch index of the bomb-tap candidate, -1 none
-var _bomb_start := 0.0       # press time of the candidate
-var _bomb_moved := false     # candidate dragged beyond tap slop -> not a tap
-const BOMB_TAP_T := 0.35     # s: max press duration for a bomb tap
+var _consumed := {}           # touch index -> true: landed on a UI button
+const TouchUIScript := preload("res://scripts/touch_ui.gd")
+var _touch_ui: Control = null  # PAUSE / BOMB buttons, touch devices only
 var strafe_streak := 0          # consecutive trench strafes
 var strafe_window := 0.0        # streak window (seconds)
 var air_streak := 0             # consecutive air kills (kill-streak callouts)
@@ -113,6 +106,15 @@ func _ready() -> void:
 	_cine.set_anchors_preset(Control.PRESET_FULL_RECT)
 	cine_layer.add_child(_cine)
 	_cine.finished.connect(_on_cine_finished)
+	# v26 KISS touch buttons: PAUSE top-right, BOMB bottom-right. Own layer
+	# (7) above the HUD (5), below the cinematic (8). Purely visual; input
+	# is hit-tested in _input. Hidden unless a touch device is playing.
+	var touch_layer := CanvasLayer.new()
+	touch_layer.layer = 7
+	add_child(touch_layer)
+	_touch_ui = TouchUIScript.new()
+	touch_layer.add_child(_touch_ui)
+	_touch_ui.visible = false
 	# dynamic weather rig: wind, turbulence, rain, lightning (per-sortie)
 	_weather = WeatherScript.new()
 	add_child(_weather)
@@ -341,11 +343,10 @@ func _on_cine_finished() -> void:
 
 func _pause() -> void:
 	state = State.PAUSED
-	# a held finger must not keep steering (or fire a loop) after resume
+	# a held finger must not keep steering after resume
 	_steer_id = -1
 	_touch_anchor.clear()
-	_hold_armed = false
-	_bomb_id = -1
+	_consumed.clear()
 	Global.touch_wish = Vector2.ZERO
 	get_tree().paused = true
 	Music.play_pause()
@@ -363,9 +364,9 @@ func _resume() -> void:
 
 func _show_debrief() -> void:
 	state = State.DEBRIEF
-	_bomb_id = -1
 	_steer_id = -1
 	_touch_anchor.clear()
+	_consumed.clear()
 	Global.touch_wish = Vector2.ZERO
 	if debug_autotest:
 		print("[AUTOTEST] debrief: win=%s primary=%s score=%d t=%.1f" % [debrief_win, primary_done, score, sortie_time])
@@ -428,56 +429,37 @@ func _input(event: InputEvent) -> void:
 		last_tap_t = now
 	elif state == State.PLAYING and event is InputEventScreenTouch \
 			and Global.on_touch_device():
-		# touch devices only: desktop mouse clicks arrive here as emulated
-		# touches and must not drive gestures.
+		# v26 KISS: the two on-screen buttons own their taps. A press that
+		# lands on a button is consumed — it never starts steering.
+		if event.pressed and _touch_ui != null and _touch_ui.visible:
+			if _touch_ui.hit_pause(event.position):
+				_pause()
+				return
+			if _touch_ui.hit_bomb(event.position):
+				_consumed[event.index] = true
+				_touch_anchor[event.index] = event.position
+				Input.action_press("bomb")
+				Callable(self, "_release_bomb_action").call_deferred()
+				return
 		_touch_event(event)
 	elif state == State.PLAYING and event is InputEventScreenDrag \
 			and Global.on_touch_device():
 		_touch_drag(event)
 
 
-## Touch gestures, tap-vs-drag aware:
-##  - quick double-tap (sequential) -> loop-de-loop
-##  - double-tap-and-hold (sequential) -> pause menu
-##  - two-finger tap (second finger while steering) -> bomb
-##  - sustained drag -> relative steering (mobile only; desktop keeps WASD)
+## Touch input, v26 KISS: first finger down steers (relative drag);
+## anything else is ignored. Buttons are hit-tested in _input above.
 func _touch_event(event: InputEventScreenTouch) -> void:
-	var now := Time.get_ticks_msec() / 1000.0
 	if event.pressed:
 		_touch_anchor[event.index] = event.position
-		var fresh_tap := _steer_id == -1
-		if fresh_tap and Global.on_touch_device():
+		if _steer_id == -1 and Global.on_touch_device():
 			_steer_id = event.index
-		if fresh_tap:
-			# sequential taps only: double-tap = loop, double-tap-hold = pause
-			if now - last_tap_t < DOUBLE_TAP_T:
-				_hold_armed = true
-				_hold_fired = false
-				_hold_start = now
-			last_tap_t = now
-		elif Global.on_touch_device() and event.index != _steer_id and _bomb_id == -1:
-			# second finger down while steering: bomb-tap candidate. This
-			# never arms the loop/pause gestures — those stay sequential.
-			_bomb_id = event.index
-			_bomb_start = now
-			_bomb_moved = false
 	else:
 		_touch_anchor.erase(event.index)
+		_consumed.erase(event.index)
 		if event.index == _steer_id:
 			_steer_id = -1
 			Global.touch_wish = Vector2.ZERO
-		if event.index == _bomb_id:
-			_bomb_id = -1
-			if now - _bomb_start < BOMB_TAP_T and not _bomb_moved:
-				# two-finger tap -> bomb, through the normal bomb action so
-				# player.gd's is_action_just_pressed("bomb") path fires it.
-				Input.action_press("bomb")
-				Callable(self, "_release_bomb_action").call_deferred()
-		if _hold_armed and not _hold_fired:
-			# quick release of the second tap: it's a double-tap -> loop
-			_hold_armed = false
-			if player != null and is_instance_valid(player):
-				player.try_loop()
 
 
 ## Deferred one frame so the press is visible to is_action_just_pressed().
@@ -486,18 +468,10 @@ func _release_bomb_action() -> void:
 
 
 func _touch_drag(event: InputEventScreenDrag) -> void:
-	if event.index == _bomb_id:
-		# the bomb-tap candidate moved: beyond tap slop it's a drag, not a tap
-		var anchor: Vector2 = _touch_anchor.get(event.index, event.position)
-		if (event.position - anchor).length() > TAP_SLOP:
-			_bomb_moved = true
-		return
 	if event.index != _steer_id or not Global.on_touch_device():
 		return
 	var anchor: Vector2 = _touch_anchor.get(event.index, event.position)
 	var drag := event.position - anchor
-	if drag.length() > TAP_SLOP:
-		_hold_armed = false  # it's a steering drag, not a tap gesture
 	Global.touch_wish = (drag / DRAG_FULL).limit_length(1.0)
 
 
@@ -597,15 +571,13 @@ func _process(delta: float) -> void:
 			Input.action_press("fire")
 		else:
 			Input.action_release("fire")
+	# v26 KISS: the PAUSE / BOMB buttons show only while a touch device
+	# is actively playing. Desktop never sees them.
+	if _touch_ui != null:
+		_touch_ui.visible = Global.on_touch_device() and state == State.PLAYING \
+			and not get_tree().paused
 	if get_tree().paused or state != State.PLAYING:
 		return
-	# double-tap-and-hold -> pause menu (the second tap is still down)
-	if _hold_armed and not _hold_fired:
-		if Time.get_ticks_msec() / 1000.0 - _hold_start >= HOLD_PAUSE_T:
-			_hold_armed = false
-			_hold_fired = true
-			_pause()
-			return
 	sortie_time += delta
 	# camping punishment: holding still feeds Archie's accuracy. Moving with
 	# intent bleeds it off. Fair warning when the guns find the range.
