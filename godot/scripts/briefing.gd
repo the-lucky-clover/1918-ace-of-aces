@@ -247,7 +247,7 @@ const LORE_POOL: Array = [
 	"The average scout pilot's war was measured in weeks, not years. The veterans were nineteen.",
 	"Observation balloons were the eyes of the artillery. Killing one meant flying straight into its guns.",
 	"The Tommies called the German anti-aircraft fire 'Archie', after a music-hall song. Below ten thousand feet, Archie owned the sky.",
-	"Richthofen's circus painted their machines scarlet so the enemy would know exactly who was killing them.",
+	"The Crimson Circus painted their machines scarlet so the enemy would know exactly who was killing them.",
 	"A Fokker triplane could hang on its propeller and turn inside anything the Allies flew. Speed was the only answer.",
 	"Gas went where the wind took it. Masks fogged, filters clogged, and men learned to dread a yellow-green haze on the horizon.",
 	"The SPAD's Hispano-Suiza engine gave it speed in the dive — the one advantage its pilots trusted with their lives.",
@@ -729,8 +729,8 @@ class LoreCarousel extends Control:
 			 "body": "April 1917: the Royal Flying Corps lost a third of its strength in thirty days. The average replacement lasted eleven days at the front."},
 			{"title": "OBSERVATION BALLOON", "art": "balloon",
 			 "body": "The artillery's eyes, winched down at the first sign of trouble and ringed with guns. Balloon-busters were either brave or already dead."},
-			{"title": "RICHTHOFEN", "art": "triplane",
-			 "body": "Eighty victories in a red triplane. The most feared hunter of the war — mourned, strangely, by the men he hunted."},
+			{"title": "THE CRIMSON CIRCUS", "art": "triplane",
+			 "body": "A scarlet triplane, and a name the whole front learned to fear. The most feared hunter of the war — mourned, strangely, by the men he hunted."},
 		]
 		# rotate the deck by sortie so repeat briefings feel fresh
 		var out: Array = []

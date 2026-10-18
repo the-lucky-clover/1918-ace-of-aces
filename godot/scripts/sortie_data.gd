@@ -32,7 +32,7 @@ const SECONDARY_DEFS: Dictionary = {
 # Boss callsigns: Steven's directive names, fictional/inspired per standing rule.
 # v22 1942 damage model: hits to destroy (1 bullet = 1 hit).
 # kind: ace (fighter duel) | heavy (drifting gunship) | ground (stationary).
-# The Ghost of the Red Baron (S32) is spectral, 4 phases; phase 3 the
+# The Crimson Ghost (S32) is spectral, 4 phases; phase 3 the
 # GHOST BLUE MAX joins. Blue Max is now a character (S5, S14 ghost, S32 P3).
 const BOSS_ROSTER: Array = [
 	{"name": "FOKKER PATROL LEADER", "hits": 25, "hp": 300, "kind": "ace", "sprite": "boss-sand",
@@ -159,7 +159,7 @@ const BOSS_ROSTER: Array = [
 	 "frames": "bank", "arena": true, "phases": 3, "spectral": false,
 	 "escort": ["e4_fokker_dr1", "e4_fokker_dr1", "e3_albatros_d5", "e3_albatros_d5"], "shared": true, "phantom": false,
 	 "regions": []},
-	{"name": "GHOST OF THE RED BARON", "hits": 500, "hp": 6000, "kind": "ace", "sprite": "boss-7-baron",
+	{"name": "THE CRIMSON GHOST", "hits": 500, "hp": 6000, "kind": "ace", "sprite": "boss-7-baron",
 	 "frames": "bank", "arena": true, "phases": 4, "spectral": true,
 	 "escort": ["ghost-bluemax"], "shared": false, "phantom": false,
 	 "regions": []},
@@ -197,7 +197,7 @@ const BOSS_NAMES: Array = [
 	"IMPERIAL BOMBER COMMAND",
 	"ZEPPELIN-STAAKEN SQUADRON",
 	"THE FLYING CIRCUS",
-	"GHOST OF THE RED BARON",
+	"THE CRIMSON GHOST",
 ]
 
 # Boss entry convention (v17, kept): top-center of the frame, North on

@@ -35,17 +35,23 @@ var debrief_win := false
 var debrief_timer := -1.0
 var fuel_cd := 24.0             # steady fuel-pickup pressure valve
 var last_tap_t := -10.0         # desktop double-click -> loop-de-loop
-# --- touch input (v26 KISS): single-finger relative-drag steering only.
-# No gestures: double-tap/hold/two-finger tricks are gone. Two big obvious
-# buttons (PAUSE, BOMB) live in _touch_ui; auto-fire is handled in _process.
+# --- touch input (v27): tap+drag steers; tap-hold = Immelmann roll;
+# double-tap-hold = pause. No buttons, no other gestures. Auto-fire is
+# handled in _process. Desktop input is untouched.
 const TAP_SLOP := 28.0        # px: beyond this a touch is a drag, not a tap
 const DOUBLE_TAP_T := 0.35    # s: max gap for the desktop double-click loop
 const DRAG_FULL := 140.0      # px of drag = full stick deflection
+const HOLD_IMMEL_T := 0.3     # s: tap held this long (no drag) = Immelmann
+const QUICK_TAP_T := 0.3      # s: first tap must release within this (double)
+const DOUBLE_WINDOW := 0.4    # s: max gap first-release -> second-press
+const HOLD_PAUSE_T := 0.55    # s: second tap held this long = pause menu
 var _touch_anchor := {}       # touch index -> press position
 var _steer_id := -1           # touch index currently steering (mobile only)
-var _consumed := {}           # touch index -> true: landed on a UI button
-const TouchUIScript := preload("res://scripts/touch_ui.gd")
-var _touch_ui: Control = null  # PAUSE / BOMB buttons, touch devices only
+var _press_t := {}            # touch index -> press timestamp (s)
+var _dragged := {}            # touch index -> true once beyond TAP_SLOP
+var _hold_fired := {}         # touch index -> Immelmann already fired
+var _double_cand := {}        # touch index -> second tap of a quick double
+var _last_quick_release := -10.0  # s: last quick-tap release timestamp
 var strafe_streak := 0          # consecutive trench strafes
 var strafe_window := 0.0        # streak window (seconds)
 var air_streak := 0             # consecutive air kills (kill-streak callouts)
@@ -106,15 +112,6 @@ func _ready() -> void:
 	_cine.set_anchors_preset(Control.PRESET_FULL_RECT)
 	cine_layer.add_child(_cine)
 	_cine.finished.connect(_on_cine_finished)
-	# v26 KISS touch buttons: PAUSE top-right, BOMB bottom-right. Own layer
-	# (7) above the HUD (5), below the cinematic (8). Purely visual; input
-	# is hit-tested in _input. Hidden unless a touch device is playing.
-	var touch_layer := CanvasLayer.new()
-	touch_layer.layer = 7
-	add_child(touch_layer)
-	_touch_ui = TouchUIScript.new()
-	touch_layer.add_child(_touch_ui)
-	_touch_ui.visible = false
 	# dynamic weather rig: wind, turbulence, rain, lightning (per-sortie)
 	_weather = WeatherScript.new()
 	add_child(_weather)
@@ -343,10 +340,13 @@ func _on_cine_finished() -> void:
 
 func _pause() -> void:
 	state = State.PAUSED
-	# a held finger must not keep steering after resume
+	# a held finger must not keep steering (or fire a gesture) after resume
 	_steer_id = -1
 	_touch_anchor.clear()
-	_consumed.clear()
+	_press_t.clear()
+	_dragged.clear()
+	_hold_fired.clear()
+	_double_cand.clear()
 	Global.touch_wish = Vector2.ZERO
 	get_tree().paused = true
 	Music.play_pause()
@@ -366,7 +366,10 @@ func _show_debrief() -> void:
 	state = State.DEBRIEF
 	_steer_id = -1
 	_touch_anchor.clear()
-	_consumed.clear()
+	_press_t.clear()
+	_dragged.clear()
+	_hold_fired.clear()
+	_double_cand.clear()
 	Global.touch_wish = Vector2.ZERO
 	if debug_autotest:
 		print("[AUTOTEST] debrief: win=%s primary=%s score=%d t=%.1f" % [debrief_win, primary_done, score, sortie_time])
@@ -429,42 +432,39 @@ func _input(event: InputEvent) -> void:
 		last_tap_t = now
 	elif state == State.PLAYING and event is InputEventScreenTouch \
 			and Global.on_touch_device():
-		# v26 KISS: the two on-screen buttons own their taps. A press that
-		# lands on a button is consumed — it never starts steering.
-		if event.pressed and _touch_ui != null and _touch_ui.visible:
-			if _touch_ui.hit_pause(event.position):
-				_pause()
-				return
-			if _touch_ui.hit_bomb(event.position):
-				_consumed[event.index] = true
-				_touch_anchor[event.index] = event.position
-				Input.action_press("bomb")
-				Callable(self, "_release_bomb_action").call_deferred()
-				return
 		_touch_event(event)
 	elif state == State.PLAYING and event is InputEventScreenDrag \
 			and Global.on_touch_device():
 		_touch_drag(event)
 
 
-## Touch input, v26 KISS: first finger down steers (relative drag);
-## anything else is ignored. Buttons are hit-tested in _input above.
+## Touch input, v27: first finger down steers (relative drag). Timing
+## gestures are evaluated in _process: tap-hold = Immelmann, double-tap-hold
+## = pause. A drag cancels gesture arming (it's steering, not a gesture).
 func _touch_event(event: InputEventScreenTouch) -> void:
+	var now := Time.get_ticks_msec() / 1000.0
 	if event.pressed:
 		_touch_anchor[event.index] = event.position
+		_press_t[event.index] = now
+		_dragged[event.index] = false
+		_hold_fired[event.index] = false
+		# second tap of a quick double: suppress the Immelmann, watch for
+		# the long hold that opens pause instead.
+		_double_cand[event.index] = (now - _last_quick_release) < DOUBLE_WINDOW
 		if _steer_id == -1 and Global.on_touch_device():
 			_steer_id = event.index
 	else:
+		var held: float = now - float(_press_t.get(event.index, now))
+		if held < QUICK_TAP_T and not bool(_dragged.get(event.index, false)):
+			_last_quick_release = now
 		_touch_anchor.erase(event.index)
-		_consumed.erase(event.index)
+		_press_t.erase(event.index)
+		_dragged.erase(event.index)
+		_hold_fired.erase(event.index)
+		_double_cand.erase(event.index)
 		if event.index == _steer_id:
 			_steer_id = -1
 			Global.touch_wish = Vector2.ZERO
-
-
-## Deferred one frame so the press is visible to is_action_just_pressed().
-func _release_bomb_action() -> void:
-	Input.action_release("bomb")
 
 
 func _touch_drag(event: InputEventScreenDrag) -> void:
@@ -472,6 +472,9 @@ func _touch_drag(event: InputEventScreenDrag) -> void:
 		return
 	var anchor: Vector2 = _touch_anchor.get(event.index, event.position)
 	var drag := event.position - anchor
+	if drag.length() > TAP_SLOP:
+		# it's steering now — cancel any hold/double-tap arming
+		_dragged[event.index] = true
 	Global.touch_wish = (drag / DRAG_FULL).limit_length(1.0)
 
 
@@ -571,11 +574,24 @@ func _process(delta: float) -> void:
 			Input.action_press("fire")
 		else:
 			Input.action_release("fire")
-	# v26 KISS: the PAUSE / BOMB buttons show only while a touch device
-	# is actively playing. Desktop never sees them.
-	if _touch_ui != null:
-		_touch_ui.visible = Global.on_touch_device() and state == State.PLAYING \
-			and not get_tree().paused
+	# --- touch gestures (v27): evaluated per-frame on the steering finger.
+	# tap+hold = Immelmann; double-tap+hold = pause. A drag cancels arming.
+	# A single tap-hold fires the Immelmann once and never arms pause; a
+	# double candidate suppresses the Immelmann and watches for the pause
+	# hold instead.
+	if Global.on_touch_device() and state == State.PLAYING \
+			and not get_tree().paused and _steer_id != -1 \
+			and not bool(_dragged.get(_steer_id, false)):
+		var held: float = Time.get_ticks_msec() / 1000.0 \
+			- float(_press_t.get(_steer_id, 0.0))
+		if bool(_double_cand.get(_steer_id, false)):
+			if held >= HOLD_PAUSE_T:
+				_pause()
+				return
+		elif not bool(_hold_fired.get(_steer_id, false)) and held >= HOLD_IMMEL_T:
+			if player != null and is_instance_valid(player):
+				player.try_loop()
+			_hold_fired[_steer_id] = true
 	if get_tree().paused or state != State.PLAYING:
 		return
 	sortie_time += delta

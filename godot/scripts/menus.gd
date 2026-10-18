@@ -82,6 +82,15 @@ func _centered_vbox(root: Control) -> VBoxContainer:
 
 
 func _build_title() -> void:
+	# photorealistic 9:16 title backdrop (v27): SPAD over the Western Front
+	# trenches at dawn. Original art with 1942-arcade title energy — bold
+	# stacked title over the warplane — no borrowed assets, no logos.
+	var bg := TextureRect.new()
+	bg.texture = preload("res://assets/title_bg.png")
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	bg.modulate = Color(0.82, 0.82, 0.82)  # knocked back for text legibility
+	title_root.add_child(bg)
 	# embers rise behind the title text — dread-soaked atmosphere
 	var embers := EmberField.new()
 	embers.area = Vector2(720, 1280)
@@ -101,7 +110,7 @@ func _build_title() -> void:
 	vb.add_child(_label("WASD / ARROWS — fly      SPACE / CLICK — fire", 22))
 	vb.add_child(_label("X / SHIFT — bomb      ESC — pause", 22))
 	if Global.on_touch_device():
-		vb.add_child(_label("DRAG — fly      DOUBLE-TAP — loop", 22, Color(0.9, 0.8, 0.5)))
+		vb.add_child(_label("DRAG — fly      HOLD — Immelmann roll", 22, Color(0.9, 0.8, 0.5)))
 		vb.add_child(_label("DOUBLE-TAP + HOLD — pause", 22, Color(0.9, 0.8, 0.5)))
 	vb.add_child(_label("Complete the MANDATORY duel. Optionals earn bonus points.", 22, Color(0.9, 0.8, 0.5)))
 	blink_label = _label("— PRESS ENTER OR TAP TO FLY —", 28, Color(1.0, 0.85, 0.4))

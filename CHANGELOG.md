@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v27 — 2026-10-18
+
+v27: touch controls rebuilt to Steven's spec — drag steers, hold fires the Immelmann roll, double-tap-hold opens pause, no buttons nor hidden tricks; photorealistic 9:16 dawn title art over the trenches; the Red Baron name be scrubbed to the Crimson Ghost so the blasted content review clears. The balance refit now sails under v28.
+
+
 ## v26 — 2026-10-18
 
 v26: the KISS touch refit — the clever finger-tricks walk the plank (no more double-tap loop, hold-for-pause, nor two-finger bomb). In their stead stand two big honest buttons: PAUSE aloft in the top corner, BOMB in the bottom corner where the thumb rests, plain as day. Drag steers, guns fire on their own, and the briefing now yields to a tap anywhere. The balance refit what were scoped for v26 now sails under v27 colors, still awaitin' the Captain's one-hit verdict. Arrr.

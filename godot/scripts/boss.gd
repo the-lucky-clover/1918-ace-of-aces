@@ -17,8 +17,8 @@ var hp := MAX_HP
 var max_hp := MAX_HP
 var phase := 1
 var dead := false
-## Spectral mode (v11, now S32): the Ghost of the Red Baron — translucent
-## crimson triplane, afterimage trails, ghost wail, baron taunts. Same fair
+## Spectral mode (v11, now S32): the Crimson Ghost — translucent
+## crimson triplane, afterimage trails, ghost wail, ghost taunts. Same fair
 ## duel framework; the thunderheads are atmosphere, not gods.
 var spectral := false
 var _hailed := false
@@ -65,13 +65,13 @@ const TAUNTS: Array = [
 	"Watch the master at work!",
 ]
 
-# The Baron's voice: a duelist's respect, not a villain's rant. A ghost
+# The Ghost's voice: a duelist's respect, not a villain's rant. A ghost
 # story, not a history claim — the thunder keeps his score.
 const BARON_TAUNTS: Array = [
 	"One last dance, Herr Pilot!",
 	"The clouds remember me.",
-	"Eighty victories... shall we make it eighty-one?",
-	"April 1918 — I never left!",
+	"The clouds keep count... shall we add one more?",
+	"I never left the sky!",
 	"Fly well, young eagle.",
 	"The thunder keeps my score!",
 	"Come, let us finish it properly!",
