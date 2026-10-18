@@ -107,11 +107,16 @@ func _build_title() -> void:
 	vb.add_child(_label("OVER THE TRENCHES — 1918", 24, Color(0.75, 0.42, 0.28)))
 	vb.add_child(_label("32 SORTIES · 32 ACES · NO PARACHUTES", 22, Color(0.55, 0.5, 0.45)))
 	vb.add_child(_label("3,200 KILLS · 128 SECONDARIES · 32 BOSSES = 100%", 20, Color(0.55, 0.5, 0.45)))
-	vb.add_child(_label("WASD / ARROWS — fly      SPACE / CLICK — fire", 22))
-	vb.add_child(_label("X / SHIFT — bomb      ESC — pause", 22))
+	# v28: each device sees only its own controls. Touch (Steven's spec):
+	# no bomb, no buttons — drag steers, hold = Immelmann, double-tap+hold
+	# = pause, guns fire on their own. Desktop keeps its keyboard lines.
 	if Global.on_touch_device():
-		vb.add_child(_label("DRAG — fly      HOLD — Immelmann roll", 22, Color(0.9, 0.8, 0.5)))
+		vb.add_child(_label("DRAG — fly      guns fire on their own", 22, Color(0.9, 0.8, 0.5)))
+		vb.add_child(_label("HOLD — Immelmann roll", 22, Color(0.9, 0.8, 0.5)))
 		vb.add_child(_label("DOUBLE-TAP + HOLD — pause", 22, Color(0.9, 0.8, 0.5)))
+	else:
+		vb.add_child(_label("WASD / ARROWS — fly      SPACE / CLICK — fire", 22))
+		vb.add_child(_label("X / SHIFT — bomb      ESC — pause", 22))
 	vb.add_child(_label("Complete the MANDATORY duel. Optionals earn bonus points.", 22, Color(0.9, 0.8, 0.5)))
 	blink_label = _label("— PRESS ENTER OR TAP TO FLY —", 28, Color(1.0, 0.85, 0.4))
 	vb.add_child(blink_label)

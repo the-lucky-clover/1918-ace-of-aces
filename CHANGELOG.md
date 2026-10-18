@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v28 — 2026-10-18
+
+v28: the title screen learns its manners — a phone now reads only its own orders (drag to fly, guns barkin' on their own, hold for the Immelmann, double-tap-hold for parley-pause; no bomb, no buttons, no keyboard ghost-lines), whilst desktop keeps its WASD charts. The v27 gesture rig and photoreal dawn title sail on unchanged. Arrr.
+
+
 ## v27 — 2026-10-18
 
 v27: touch controls rebuilt to Steven's spec — drag steers, hold fires the Immelmann roll, double-tap-hold opens pause, no buttons nor hidden tricks; photorealistic 9:16 dawn title art over the trenches; the Red Baron name be scrubbed to the Crimson Ghost so the blasted content review clears. The balance refit now sails under v28.
