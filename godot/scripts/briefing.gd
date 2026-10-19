@@ -730,7 +730,7 @@ class LoreCarousel extends Control:
 			{"title": "OBSERVATION BALLOON", "art": "balloon",
 			 "body": "The artillery's eyes, winched down at the first sign of trouble and ringed with guns. Balloon-busters were either brave or already dead."},
 			{"title": "THE CRIMSON CIRCUS", "art": "triplane",
-			 "body": "A scarlet triplane, and a name the whole front learned to fear. The most feared hunter of the war — mourned, strangely, by the men he hunted."},
+			 "body": "Scarlet triplanes wheeling in formation like a traveling circus. When you see red on the horizon, climb for the sun — or run for home."},
 		]
 		# rotate the deck by sortie so repeat briefings feel fresh
 		var out: Array = []
