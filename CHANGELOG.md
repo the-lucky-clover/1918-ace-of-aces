@@ -4,6 +4,11 @@
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
 
+## v29 — 2026-10-19
+
+v29: the war gets its horror — burnin' craters an' shockwave scars scar the minimap an' the mud, crash sites bloom with fire an' smoke, pilots take to silk (and ye can shoot the chutes, by order o' the Captain), mini blood spurts when rounds find flesh, four death-dances per airframe, snow falls on the November sorties, chateaux burn on the horizon, tanks an' horse limbers join the ground war, an' trenches spit muzzle-flash at each other while ye watch. If it don't look real, it walks the plank. Arrr.
+
+
 ## v28 — 2026-10-18
 
 v28: the title screen learns its manners — a phone now reads only its own orders (drag to fly, guns barkin' on their own, hold for the Immelmann, double-tap-hold for parley-pause; no bomb, no buttons, no keyboard ghost-lines), whilst desktop keeps its WASD charts. The v27 gesture rig and photoreal dawn title sail on unchanged. Arrr.
