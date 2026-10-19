@@ -31,6 +31,17 @@ In the **Team** dropdown, choose your team (your name).
 **Step 6.** Confirm the **Bundle Identifier** field reads
 `com.luckyclover.aceofaces`. If it doesn't, type it in exactly.
 
+**Step 6b.** The ad libraries install via CocoaPods — do this once in Terminal:
+open **Terminal** (in Applications → Utilities), paste this line, press Enter:
+
+```bash
+cd ~/workspace/1918-ace-of-aces/native/ios/App && pod install
+```
+
+(If it says `command not found: pod`, first run `sudo gem install cocoapods`,
+type your Mac password, then run the line above again.) When it finishes,
+quit Xcode completely and re-open `App.xcworkspace` from Step 2.
+
 ## PART 2 — Add Mac as a destination (for the Mac App Store)
 
 **Step 7.** Still on the App target, click the **General** tab at the top.
