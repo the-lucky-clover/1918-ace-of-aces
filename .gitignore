@@ -1,2 +1,17 @@
 blender/models/*.blend1
 blender/__pycache__/
+
+# macOS
+.DS_Store
+
+# Node / Capacitor (native wrapper)
+node_modules/
+native/ios/App/Pods/
+
+# Xcode
+DerivedData/
+xcuserdata/
+*.xcuserdata
+
+# Godot export temp
+.godot/
