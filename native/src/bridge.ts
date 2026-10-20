@@ -24,6 +24,7 @@
 
 import { AdMob } from '@capacitor-community/admob';
 import { Preferences } from '@capacitor/preferences';
+import { FirebaseAnalytics } from '@capacitor-firebase/analytics';
 
 // ---------------------------------------------------------------------------
 // CONFIG — Google TEST ad unit IDs. Swap for real IDs per ADMOB_IDS.md.
@@ -38,6 +39,7 @@ const INTERSTITIAL_MIN_GAP_MS = 90_000; // honest frequency cap
 declare const CdvPurchase: any; // cordova-plugin-purchase (may be absent)
 
 let adsRemoved = false;
+let purchaseTracked = false; // analytics: count each purchase once
 let lastInterstitialAt = 0;
 let inNativeShell = false;
 let pendingBuy: ((ok: boolean) => void) | null = null;
@@ -56,6 +58,29 @@ async function initAdMob(): Promise<void> {
   await safe(() => AdMob.prepareRewardVideoAd({ adId: REWARDED_AD_ID }));
 }
 
+// ---------------------------------------------------------------------------
+// Google Analytics (Firebase) — standard events only, NO PII, NO user IDs.
+// The native side stays silent (and never crashes) until Steven drops his own
+// GoogleService-Info.plist into the app — see ANALYTICS_SETUP.md and the
+// guarded FirebaseApp.configure() patch described there.
+//
+// Today the bridge can only observe events that flow through it:
+//   shell_boot            — bridge started inside the native shell
+//   ad_shown              — an interstitial or rewarded actually displayed
+//   reward_earned         — a rewarded ad was watched to completion
+//   remove_ads_purchased  — the $2.99 unlock completed (once per purchase)
+// `app_open` is collected automatically by Firebase; we never log it by hand.
+// A future game build can call the same tracker for sortie_start /
+// sortie_complete via GameBridge.trackEvent(name, params).
+// ---------------------------------------------------------------------------
+async function trackEvent(
+  name: string,
+  params?: Record<string, string | number | boolean>,
+): Promise<void> {
+  if (!inNativeShell) return;
+  await safe(() => FirebaseAnalytics.logEvent({ name, params: params ?? {} }));
+}
+
 async function showInterstitial(): Promise<boolean> {
   if (adsRemoved) return false;
   if (Date.now() - lastInterstitialAt < INTERSTITIAL_MIN_GAP_MS) return false;
@@ -64,6 +89,7 @@ async function showInterstitial(): Promise<boolean> {
     lastInterstitialAt = Date.now();
     // Pre-load the next one in the background.
     safe(() => AdMob.prepareInterstitial({ adId: INTERSTITIAL_AD_ID }));
+    void trackEvent('ad_shown', { format: 'interstitial' });
     return true;
   } catch {
     return false;
@@ -76,7 +102,12 @@ async function showRewardedAd(): Promise<boolean> {
     const reward = await AdMob.showRewardVideoAd();
     safe(() => AdMob.prepareRewardVideoAd({ adId: REWARDED_AD_ID }));
     // showRewardVideoAd resolves with the reward item ONLY if earned.
-    return !!reward;
+    const earned = !!reward;
+    if (earned) {
+      void trackEvent('ad_shown', { format: 'rewarded' });
+      void trackEvent('reward_earned', {});
+    }
+    return earned;
   } catch {
     return false; // dismissed early / failed -> game shows "Reward not completed"
   }
@@ -96,6 +127,11 @@ function purchasePlugin(): any | null {
 async function setAdsRemoved(on: boolean): Promise<void> {
   adsRemoved = on;
   await Preferences.set({ key: PREF_ADS_REMOVED, value: on ? '1' : '0' });
+  // Log the purchase exactly once (restores re-read the pref but skip re-log).
+  if (on && !purchaseTracked) {
+    purchaseTracked = true;
+    void trackEvent('remove_ads_purchased', { price_usd: 2.99 });
+  }
   if (pendingBuy) {
     pendingBuy(on);
     pendingBuy = null;
@@ -105,7 +141,10 @@ async function setAdsRemoved(on: boolean): Promise<void> {
 async function initIAP(): Promise<void> {
   // Restore the persisted entitlement first (fast path, works offline).
   const { value } = await Preferences.get({ key: PREF_ADS_REMOVED });
-  if (value === '1') adsRemoved = true;
+  if (value === '1') {
+    adsRemoved = true;
+    purchaseTracked = true; // restore, not a new purchase — don't re-log
+  }
 
   const Cdv = purchasePlugin();
   if (!Cdv) return;
@@ -137,7 +176,10 @@ async function initIAP(): Promise<void> {
     })
     .owned((p: any) => {
       const id = typeof p === 'string' ? p : p.id;
-      if (id === REMOVE_ADS_PRODUCT_ID) void setAdsRemoved(true);
+      if (id === REMOVE_ADS_PRODUCT_ID) {
+        purchaseTracked = true; // restore path — don't re-log the purchase
+        void setAdsRemoved(true);
+      }
     });
 
   await store.initialize([Platform.APPLE_APPSTORE]);
@@ -205,7 +247,15 @@ async function boot(): Promise<void> {
     showRewardedAd: () => showRewardedAd(),
     buyRemoveAds: () => buyRemoveAds(),
     restorePurchases: () => restorePurchases(),
+    // Reserved for a future game build: lets the game log analytics events
+    // it can see (e.g. sortie_start / sortie_complete) through the shell.
+    trackEvent: (name: string, params?: Record<string, string | number | boolean>) =>
+      trackEvent(name, params),
   };
+
+  if (inNativeShell) {
+    void trackEvent('shell_boot', {});
+  }
 
   // The game listens for this to refresh its store UI.
   window.dispatchEvent(new Event('gamebridge:ready'));

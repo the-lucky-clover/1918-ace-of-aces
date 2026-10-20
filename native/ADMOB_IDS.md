@@ -35,7 +35,8 @@ const REWARDED_AD_ID = 'ca-app-pub-3940256099942544/1712485313'; // TEST
 Replace with your real IDs. Then rebuild the bridge:
 
 ```bash
-cd ~/workspace/1918-ace-of-aces/native
+# In Terminal: type cd, press Space, drag your unzipped 'native' folder
+# from Finder into the window, press Enter — then run:
 npx esbuild src/bridge.ts --bundle --format=iife --outfile=www/bridge.js --minify
 npx cap sync ios
 ```

@@ -12,6 +12,7 @@ def capacitor_pods
   pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'
   pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/ios'
   pod 'CapacitorCommunityAdmob', :path => '../../node_modules/@capacitor-community/admob'
+  pod 'CapacitorFirebaseAnalytics', :path => '../../node_modules/@capacitor-firebase/analytics'
   pod 'CapacitorApp', :path => '../../node_modules/@capacitor/app'
   pod 'CapacitorPreferences', :path => '../../node_modules/@capacitor/preferences'
   pod 'CordovaPlugins', :path => '../capacitor-cordova-ios-plugins'
@@ -20,6 +21,10 @@ end
 target 'App' do
   capacitor_pods
   # Add your Pods here
+  # 1918: Firebase Analytics native SDK (the cap sync-managed pod above only
+  # pulls the Lite subspec — no Firebase linked. This line links the real SDK.)
+  # NOTE: if you ever run `npx cap sync` and it rewrites this file, re-add this line.
+  pod 'CapacitorFirebaseAnalytics/Analytics', :path => '../../node_modules/@capacitor-firebase/analytics'
 end
 
 post_install do |installer|
