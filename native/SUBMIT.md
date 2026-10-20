@@ -104,7 +104,9 @@ A window called **Organizer** opens when it finishes.
 Click **Create**.
 
 **Step 18.** You're on the new app's page. Click **App Information** (left).
-Set **Category** to **Games**. Leave the rest, click **Save** (top right).
+Set **Category** to **Games**. Set **Privacy Policy URL** to
+`https://the-lucky-clover.github.io/1918-site/privacy.html`.
+Leave the rest, click **Save** (top right).
 
 **Step 19.** Click **Pricing and Availability** (left). Confirm **Price** is
 **Free**. Click **Save**.
@@ -158,7 +160,8 @@ you uploaded in Part 4. (If no build is listed, Apple's still processing it —
 wait 10–30 minutes and come back.)
 
 **Step 29.** Fill **Description**, **Keywords** (`wwi,shooter,arcade,biplane,1918`),
-and **Support URL** (any page you own).
+**Marketing URL:** `https://the-lucky-clover.github.io/1918-site/`,
+and **Support URL:** `https://the-lucky-clover.github.io/1918-site/`.
 
 **Step 30.** Top right: click **Submit for Review**. Done — Apple reviews in
 ~1–2 days. You'll get an email.
