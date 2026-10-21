@@ -1,0 +1,21 @@
+# Bundler (fastlane toolchain)
+.bundle/
+vendor/bundle/
+
+# Fastlane output — regenerated every run, never commit
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+fastlane/README.md
+
+# Build products from fastlane archives
+build/
+*.ipa
+*.pkg
+*.dSYM.zip
+
+# Secrets & personal device data — Mac-only, never commit
+.env
+fastlane/.env
+fastlane/devices.txt

@@ -1,0 +1,99 @@
+# 1918 — Fastlane lanes. Run everything from the `native` folder:
+#   bundle exec fastlane beta    → build + upload to TestFlight
+#   bundle exec fastlane test    → run the automated smoke tests
+#   bundle exec fastlane devices → (optional) register phones by UDID
+# Steven's step-by-step is TESTING.md — these comments are for future editors.
+
+default_platform(:ios)
+
+WORKSPACE = "ios/App/App.xcworkspace"
+XCODEPROJ = "ios/App/App.xcodeproj"
+SCHEME    = "App"
+
+before_all do
+  # Keep the iOS project in sync with the newest web game bundle:
+  # copies www/ into the Xcode project AND runs pod install.
+  sh("npx", "cap", "sync", "ios")
+end
+
+platform :ios do
+  desc "Bump the build number, archive, and upload to TestFlight. " \
+       "Both iPhones then install the same build from the TestFlight app — " \
+       "no cables, no UDID juggling."
+  lane :beta do
+    increment_build_number(xcodeproj: XCODEPROJ)
+    build_app(
+      workspace: WORKSPACE,
+      scheme: SCHEME,
+      export_method: "app-store",
+      output_directory: "build"
+    )
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+    UI.success("Uploaded! After Apple finishes processing (a few minutes), " \
+               "the build shows up in the TestFlight app on both iPhones.")
+  end
+
+  desc "Same as beta, but archives the Mac (Catalyst) version for the " \
+       "Mac App Store / Mac TestFlight. Only works AFTER 'Turn on Mac' " \
+       "from SUBMIT.md has been done in Xcode — before that, this lane " \
+       "errors out, and that error is expected."
+  lane :beta_mac do
+    increment_build_number(xcodeproj: XCODEPROJ)
+    build_app(
+      workspace: WORKSPACE,
+      scheme: SCHEME,
+      destination: "generic/platform=macOS,variant=Mac Catalyst",
+      export_method: "app-store",
+      output_directory: "build",
+      output_name: "1918-Mac"
+    )
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+  end
+
+  desc "Run the automated smoke tests on the iPhone 17 Pro Max simulator, " \
+       "then try the Mac Catalyst destination too."
+  lane :test do
+    run_tests(
+      workspace: WORKSPACE,
+      scheme: SCHEME,
+      devices: ["iPhone 17 Pro Max"],
+      output_directory: "fastlane/test_output/ios"
+    )
+    begin
+      run_tests(
+        workspace: WORKSPACE,
+        scheme: SCHEME,
+        destination: "platform=macOS,variant=Mac Catalyst",
+        output_directory: "fastlane/test_output/mac"
+      )
+    rescue => ex
+      UI.important("Mac Catalyst tests did not run (#{ex.message}).")
+      UI.important("That is EXPECTED until 'Turn on Mac' from SUBMIT.md is " \
+                   "done in Xcode. The iPhone test results above are the " \
+                   "ones that count today.")
+    end
+  end
+
+  desc "OPTIONAL — register Steven's physical iPhones by UDID. TestFlight " \
+       "internal testing does NOT need this; it only matters for direct " \
+       "cable installs outside the App Store. Reads fastlane/devices.txt."
+  lane :devices do
+    devices_file = File.expand_path("devices.txt", __dir__)
+    UI.header("Registering devices for direct (cable) installs")
+    UI.message("Reminder: you do NOT need this for TestFlight. Both phones " \
+               "get builds from the TestFlight app with zero UDID setup.")
+    if File.exist?(devices_file)
+      register_devices(devices_file: devices_file)
+      UI.success("Devices from devices.txt are registered to your team.")
+    else
+      UI.important("No fastlane/devices.txt yet — nothing registered.")
+      UI.message("To add a phone later:")
+      UI.message("  1. Plug the iPhone into the Mac with a cable.")
+      UI.message("  2. Open Xcode → Window → Devices and Simulators.")
+      UI.message("  3. Click the phone, copy its 'Identifier' (the UDID).")
+      UI.message("  4. Copy fastlane/devices.txt.example to fastlane/devices.txt")
+      UI.message("     and paste the UDID in, one phone per line.")
+      UI.message("  5. Run this lane again: bundle exec fastlane devices")
+    end
+  end
+end
