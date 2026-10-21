@@ -15,3 +15,6 @@ xcuserdata/
 
 # Godot export temp
 .godot/
+
+# Windows builds live in the Library, not git (GitHub 100MB limit)
+dist/windows/*.exe
