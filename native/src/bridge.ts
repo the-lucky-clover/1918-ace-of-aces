@@ -14,24 +14,28 @@
  * wrapper already handles `available:false`).
  *
  * HONEST MONETIZATION RULES (do not weaken):
+ * - Banner: persistent at the bottom of the gameplay screen (adaptive,
+ *   full-width), shown in the native shell on boot unless ads are removed.
  * - Interstitials: only between sorties (the game calls showInterstitial on
  *   the retry/briefing path), never mid-combat, never on the title screen.
  *   Frequency-capped: max 1 per 90 seconds.
  * - Rewarded ads: always opt-in (the player taps "Continue" first).
- * - Remove-ads IAP ($2.99, non-consumable) permanently disables ALL ads.
+ * - Remove-ads IAP ($2.99, non-consumable) permanently disables ALL ads,
+ *   including the banner.
  *   Entitlement persisted in Preferences + re-checked from the store receipt.
  */
 
-import { AdMob } from '@capacitor-community/admob';
+import { AdMob, BannerAdPosition, BannerAdSize } from '@capacitor-community/admob';
 import { Preferences } from '@capacitor/preferences';
 import { FirebaseAnalytics } from '@capacitor-firebase/analytics';
 
 // ---------------------------------------------------------------------------
-// CONFIG — Google TEST ad unit IDs. Swap for real IDs per ADMOB_IDS.md.
-// These are Google's official test IDs; they always serve test ads.
+// CONFIG — Steven's real AdMob IDs (2026-10-30). Interstitial / Rewarded are
+// still Google's official TEST IDs until he creates those ad units.
 // ---------------------------------------------------------------------------
-const INTERSTITIAL_AD_ID = 'ca-app-pub-3940256099942544/4411468910'; // TEST
-const REWARDED_AD_ID = 'ca-app-pub-3940256099942544/1712485313'; // TEST
+const BANNER_AD_ID = 'ca-app-pub-4389055403972993/6403273070'; // REAL — persistent bottom banner
+const INTERSTITIAL_AD_ID = 'ca-app-pub-4389055403972993/6670866381'; // REAL — between sorties
+const REWARDED_AD_ID = 'ca-app-pub-4389055403972993/2272456375'; // REAL — continue-after-death
 const REMOVE_ADS_PRODUCT_ID = 'com.luckyclover.aceofaces.removeads'; // $2.99 non-consumable
 const PREF_ADS_REMOVED = 'ace1918_ads_removed_v1';
 const INTERSTITIAL_MIN_GAP_MS = 90_000; // honest frequency cap
@@ -39,6 +43,7 @@ const INTERSTITIAL_MIN_GAP_MS = 90_000; // honest frequency cap
 declare const CdvPurchase: any; // cordova-plugin-purchase (may be absent)
 
 let adsRemoved = false;
+let bannerVisible = false;
 let purchaseTracked = false; // analytics: count each purchase once
 let lastInterstitialAt = 0;
 let inNativeShell = false;
@@ -49,13 +54,39 @@ let pendingBuy: ((ok: boolean) => void) | null = null;
 // ---------------------------------------------------------------------------
 async function initAdMob(): Promise<void> {
   await AdMob.initialize({
-    initializeForTesting: true, // TEST MODE — remove when real IDs go live
+    initializeForTesting: false, // REAL IDs live — test units still serve test ads by design
   });
   // iOS 14+ App Tracking Transparency prompt (separate call in this plugin).
   await safe(() => AdMob.requestTrackingAuthorization());
   // Pre-load both formats so show* never stalls the game.
   await safe(() => AdMob.prepareInterstitial({ adId: INTERSTITIAL_AD_ID }));
   await safe(() => AdMob.prepareRewardVideoAd({ adId: REWARDED_AD_ID }));
+  // Persistent banner: bottom of the gameplay screen, unless ads removed.
+  await safe(showBanner);
+}
+
+// Persistent bottom banner (adaptive, full-width). Best-effort: the game
+// must never break if an ad fails to load.
+async function showBanner(): Promise<void> {
+  if (adsRemoved || bannerVisible) return;
+  try {
+    await AdMob.showBanner({
+      adId: BANNER_AD_ID,
+      adSize: BannerAdSize.ADAPTIVE_BANNER,
+      position: BannerAdPosition.BOTTOM_CENTER,
+      margin: 0,
+    });
+    bannerVisible = true;
+    void trackEvent('ad_shown', { format: 'banner' });
+  } catch {
+    bannerVisible = false;
+  }
+}
+
+async function hideBanner(): Promise<void> {
+  if (!bannerVisible) return;
+  bannerVisible = false;
+  await safe(() => AdMob.removeBanner());
 }
 
 // ---------------------------------------------------------------------------
@@ -127,6 +158,9 @@ function purchasePlugin(): any | null {
 async function setAdsRemoved(on: boolean): Promise<void> {
   adsRemoved = on;
   await Preferences.set({ key: PREF_ADS_REMOVED, value: on ? '1' : '0' });
+  // Remove Ads hides EVERY ad, including the persistent banner.
+  if (on) await hideBanner();
+  else if (inNativeShell) await safe(showBanner);
   // Log the purchase exactly once (restores re-read the pref but skip re-log).
   if (on && !purchaseTracked) {
     purchaseTracked = true;

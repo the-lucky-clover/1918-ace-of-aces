@@ -45,9 +45,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<!-- AdMob: Google TEST App ID. Replace with Steven's real App ID per ADMOB_IDS.md -->
+	<!-- AdMob: Steven's real App ID (2026-10-30) -->
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<string>ca-app-pub-4389055403972993~3549879028</string>
 	<!-- App Tracking Transparency prompt text (iOS 14+) -->
 	<key>NSUserTrackingUsageDescription</key>
 	<string>1918 uses ads to stay free. Allowing tracking lets advertisers show more relevant ads; the game plays the same either way.</string>

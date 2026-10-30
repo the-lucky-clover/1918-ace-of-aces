@@ -1,7 +1,16 @@
 # AdMob: Swapping TEST IDs for Real IDs
 
-Right now the app uses **Google's official TEST ad unit IDs**. Test ads always
-show. Real ads (that pay you) need your own IDs from your AdMob account.
+**DONE 2026-10-30:** Steven's real App ID (`ca-app-pub-4389055403972993~3549879028`) is in
+`ios/App/App/Info.plist`, and his real Banner ad unit
+(`ca-app-pub-4389055403972993/6403273070`) is wired in `src/bridge.ts` as a
+persistent adaptive banner at the bottom of the gameplay screen. Test mode is
+OFF (`initializeForTesting: false`). The banner hides when Remove Ads ($2.99)
+is owned. **Also done 2026-10-30:** real Interstitial
+(`ca-app-pub-4389055403972993/6670866381`) and real Rewarded
+(`ca-app-pub-4389055403972993/2272456375`) — no TEST AdMob IDs remain in the wrapper.
+
+Right now the app uses **Google's official TEST ad unit IDs** for interstitial
+and rewarded. Test ads always show. Real ads (that pay you) need your own IDs from your AdMob account.
 
 ## Step 1 — Create your AdMob App ID
 
