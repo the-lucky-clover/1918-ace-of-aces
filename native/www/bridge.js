@@ -1,4 +1,4040 @@
-(()=>{var hr=Object.defineProperty;var b=(t,e,n)=>()=>{if(n)throw n[0];try{return t&&(e=t(t=0)),e}catch(r){throw n=[r],r}};var Me=(t,e)=>{for(var n in e)hr(t,n,{get:e[n],enumerable:!0})};var pr,mr,Lt,mo,go,Q,oe,gr,br,yr,he,F,bo,P,Rt,kt,$e,yo,wr,vr,Er,_r,Fe,wo,z=b(()=>{pr=t=>{let e=new Map;e.set("web",{name:"web"});let n=t.CapacitorPlatforms||{currentPlatform:{name:"web"},platforms:e},r=(s,o)=>{n.platforms.set(s,o)},i=s=>{n.platforms.has(s)&&(n.currentPlatform=n.platforms.get(s))};return n.addPlatform=r,n.setPlatform=i,n},mr=t=>t.CapacitorPlatforms=pr(t),Lt=mr(typeof globalThis<"u"?globalThis:typeof self<"u"?self:typeof window<"u"?window:typeof global<"u"?global:{}),mo=Lt.addPlatform,go=Lt.setPlatform;(function(t){t.Unimplemented="UNIMPLEMENTED",t.Unavailable="UNAVAILABLE"})(Q||(Q={}));oe=class extends Error{constructor(e,n,r){super(e),this.message=e,this.code=n,this.data=r}},gr=t=>{var e,n;return t?.androidBridge?"android":!((n=(e=t?.webkit)===null||e===void 0?void 0:e.messageHandlers)===null||n===void 0)&&n.bridge?"ios":"web"},br=t=>{var e,n,r,i,s;let o=t.CapacitorCustomPlatform||null,a=t.Capacitor||{},c=a.Plugins=a.Plugins||{},l=t.CapacitorPlatforms,h=()=>o!==null?o.name:gr(t),u=((e=l?.currentPlatform)===null||e===void 0?void 0:e.getPlatform)||h,v=()=>u()!=="web",y=((n=l?.currentPlatform)===null||n===void 0?void 0:n.isNativePlatform)||v,ke=f=>{let p=Le.get(f);return!!(p?.platforms.has(u())||Pt(f))},ir=((r=l?.currentPlatform)===null||r===void 0?void 0:r.isPluginAvailable)||ke,sr=f=>{var p;return(p=a.PluginHeaders)===null||p===void 0?void 0:p.find(Y=>Y.name===f)},Pt=((i=l?.currentPlatform)===null||i===void 0?void 0:i.getPluginHeader)||sr,or=f=>t.console.error(f),ar=(f,p,Y)=>Promise.reject(`${Y} does not have an implementation of "${p}".`),Le=new Map,cr=(f,p={})=>{let Y=Le.get(f);if(Y)return console.warn(`Capacitor plugin "${f}" already registered. Cannot register plugins twice.`),Y.proxy;let H=u(),Z=Pt(f),x,dr=async()=>(!x&&H in p?x=typeof p[H]=="function"?x=await p[H]():x=p[H]:o!==null&&!x&&"web"in p&&(x=typeof p.web=="function"?x=await p.web():x=p.web),x),ur=(g,w)=>{var D,M;if(Z){let $=Z?.methods.find(A=>w===A.name);if($)return $.rtype==="promise"?A=>a.nativePromise(f,w.toString(),A):(A,ue)=>a.nativeCallback(f,w.toString(),A,ue);if(g)return(D=g[w])===null||D===void 0?void 0:D.bind(g)}else{if(g)return(M=g[w])===null||M===void 0?void 0:M.bind(g);throw new oe(`"${f}" plugin is not implemented on ${H}`,Q.Unimplemented)}},Ne=g=>{let w,D=(...M)=>{let $=dr().then(A=>{let ue=ur(A,g);if(ue){let fe=ue(...M);return w=fe?.remove,fe}else throw new oe(`"${f}.${g}()" is not implemented on ${H}`,Q.Unimplemented)});return g==="addListener"&&($.remove=async()=>w()),$};return D.toString=()=>`${g.toString()}() { [capacitor code] }`,Object.defineProperty(D,"name",{value:g,writable:!1,configurable:!1}),D},Ot=Ne("addListener"),xt=Ne("removeListener"),fr=(g,w)=>{let D=Ot({eventName:g},w),M=async()=>{let A=await D;xt({eventName:g,callbackId:A},w)},$=new Promise(A=>D.then(()=>A({remove:M})));return $.remove=async()=>{console.warn("Using addListener() without 'await' is deprecated."),await M()},$},Be=new Proxy({},{get(g,w){switch(w){case"$$typeof":return;case"toJSON":return()=>({});case"addListener":return Z?fr:Ot;case"removeListener":return xt;default:return Ne(w)}}});return c[f]=Be,Le.set(f,{name:f,proxy:Be,platforms:new Set([...Object.keys(p),...Z?[H]:[]])}),Be},lr=((s=l?.currentPlatform)===null||s===void 0?void 0:s.registerPlugin)||cr;return a.convertFileSrc||(a.convertFileSrc=f=>f),a.getPlatform=u,a.handleError=or,a.isNativePlatform=y,a.isPluginAvailable=ir,a.pluginMethodNoop=ar,a.registerPlugin=lr,a.Exception=oe,a.DEBUG=!!a.DEBUG,a.isLoggingEnabled=!!a.isLoggingEnabled,a.platform=a.getPlatform(),a.isNative=a.isNativePlatform(),a},yr=t=>t.Capacitor=br(t),he=yr(typeof globalThis<"u"?globalThis:typeof self<"u"?self:typeof window<"u"?window:typeof global<"u"?global:{}),F=he.registerPlugin,bo=he.Plugins,P=class{constructor(e){this.listeners={},this.retainedEventArguments={},this.windowListeners={},e&&(console.warn(`Capacitor WebPlugin "${e.name}" config object was deprecated in v3 and will be removed in v4.`),this.config=e)}addListener(e,n){let r=!1;this.listeners[e]||(this.listeners[e]=[],r=!0),this.listeners[e].push(n);let s=this.windowListeners[e];s&&!s.registered&&this.addWindowListener(s),r&&this.sendRetainedArgumentsForEvent(e);let o=async()=>this.removeListener(e,n);return Promise.resolve({remove:o})}async removeAllListeners(){this.listeners={};for(let e in this.windowListeners)this.removeWindowListener(this.windowListeners[e]);this.windowListeners={}}notifyListeners(e,n,r){let i=this.listeners[e];if(!i){if(r){let s=this.retainedEventArguments[e];s||(s=[]),s.push(n),this.retainedEventArguments[e]=s}return}i.forEach(s=>s(n))}hasListeners(e){return!!this.listeners[e].length}registerWindowListener(e,n){this.windowListeners[n]={registered:!1,windowEventName:e,pluginEventName:n,handler:r=>{this.notifyListeners(n,r)}}}unimplemented(e="not implemented"){return new he.Exception(e,Q.Unimplemented)}unavailable(e="not available"){return new he.Exception(e,Q.Unavailable)}async removeListener(e,n){let r=this.listeners[e];if(!r)return;let i=r.indexOf(n);this.listeners[e].splice(i,1),this.listeners[e].length||this.removeWindowListener(this.windowListeners[e])}addWindowListener(e){window.addEventListener(e.windowEventName,e.handler),e.registered=!0}removeWindowListener(e){e&&(window.removeEventListener(e.windowEventName,e.handler),e.registered=!1)}sendRetainedArgumentsForEvent(e){let n=this.retainedEventArguments[e];n&&(delete this.retainedEventArguments[e],n.forEach(r=>{this.notifyListeners(e,r)}))}},Rt=t=>encodeURIComponent(t).replace(/%(2[346B]|5E|60|7C)/g,decodeURIComponent).replace(/[()]/g,escape),kt=t=>t.replace(/(%[\dA-F]{2})+/gi,decodeURIComponent),$e=class extends P{async getCookies(){let e=document.cookie,n={};return e.split(";").forEach(r=>{if(r.length<=0)return;let[i,s]=r.replace(/=/,"CAP_COOKIE").split("CAP_COOKIE");i=kt(i).trim(),s=kt(s).trim(),n[i]=s}),n}async setCookie(e){try{let n=Rt(e.key),r=Rt(e.value),i=`; expires=${(e.expires||"").replace("expires=","")}`,s=(e.path||"/").replace("path=",""),o=e.url!=null&&e.url.length>0?`domain=${e.url}`:"";document.cookie=`${n}=${r||""}${i}; path=${s}; ${o};`}catch(n){return Promise.reject(n)}}async deleteCookie(e){try{document.cookie=`${e.key}=; Max-Age=0`}catch(n){return Promise.reject(n)}}async clearCookies(){try{let e=document.cookie.split(";")||[];for(let n of e)document.cookie=n.replace(/^ +/,"").replace(/=.*/,`=;expires=${new Date().toUTCString()};path=/`)}catch(e){return Promise.reject(e)}}async clearAllCookies(){try{await this.clearCookies()}catch(e){return Promise.reject(e)}}},yo=F("CapacitorCookies",{web:()=>new $e}),wr=async t=>new Promise((e,n)=>{let r=new FileReader;r.onload=()=>{let i=r.result;e(i.indexOf(",")>=0?i.split(",")[1]:i)},r.onerror=i=>n(i),r.readAsDataURL(t)}),vr=(t={})=>{let e=Object.keys(t);return Object.keys(t).map(i=>i.toLocaleLowerCase()).reduce((i,s,o)=>(i[s]=t[e[o]],i),{})},Er=(t,e=!0)=>t?Object.entries(t).reduce((r,i)=>{let[s,o]=i,a,c;return Array.isArray(o)?(c="",o.forEach(l=>{a=e?encodeURIComponent(l):l,c+=`${s}=${a}&`}),c.slice(0,-1)):(a=e?encodeURIComponent(o):o,c=`${s}=${a}`),`${r}&${c}`},"").substr(1):null,_r=(t,e={})=>{let n=Object.assign({method:t.method||"GET",headers:t.headers},e),i=vr(t.headers)["content-type"]||"";if(typeof t.data=="string")n.body=t.data;else if(i.includes("application/x-www-form-urlencoded")){let s=new URLSearchParams;for(let[o,a]of Object.entries(t.data||{}))s.set(o,a);n.body=s.toString()}else if(i.includes("multipart/form-data")||t.data instanceof FormData){let s=new FormData;if(t.data instanceof FormData)t.data.forEach((a,c)=>{s.append(c,a)});else for(let a of Object.keys(t.data))s.append(a,t.data[a]);n.body=s;let o=new Headers(n.headers);o.delete("content-type"),n.headers=o}else(i.includes("application/json")||typeof t.data=="object")&&(n.body=JSON.stringify(t.data));return n},Fe=class extends P{async request(e){let n=_r(e,e.webFetchExtra),r=Er(e.params,e.shouldEncodeUrlParams),i=r?`${e.url}?${r}`:e.url,s=await fetch(i,n),o=s.headers.get("content-type")||"",{responseType:a="text"}=s.ok?e:{};o.includes("application/json")&&(a="json");let c,l;switch(a){case"arraybuffer":case"blob":l=await s.blob(),c=await wr(l);break;case"json":c=await s.json();break;default:c=await s.text()}let h={};return s.headers.forEach((u,v)=>{h[v]=u}),{data:c,headers:h,status:s.status,url:s.url}}async get(e){return this.request(Object.assign(Object.assign({},e),{method:"GET"}))}async post(e){return this.request(Object.assign(Object.assign({},e),{method:"POST"}))}async put(e){return this.request(Object.assign(Object.assign({},e),{method:"PUT"}))}async patch(e){return this.request(Object.assign(Object.assign({},e),{method:"PATCH"}))}async delete(e){return this.request(Object.assign(Object.assign({},e),{method:"DELETE"}))}},wo=F("CapacitorHttp",{web:()=>new Fe})});var ae,je=b(()=>{(function(t){t.NOT_REQUIRED="NOT_REQUIRED",t.OBTAINED="OBTAINED",t.REQUIRED="REQUIRED",t.UNKNOWN="UNKNOWN"})(ae||(ae={}))});var jt={};Me(jt,{AdMobWeb:()=>Ue});var Ue,Ut=b(()=>{z();je();Ue=class extends P{constructor(){super({name:"AdMob",platforms:["web"]})}async initialize(){console.log("initialize")}async targetSettings(){console.log("targetSettings")}async requestTrackingAuthorization(){console.log("requestTrackingAuthorization")}async trackingAuthorizationStatus(){return{status:"authorized"}}async requestConsentInfo(e){return console.log("requestConsentInfo",e),{status:ae.REQUIRED,isConsentFormAvailable:!0}}async showConsentForm(){return console.log("showConsentForm"),{status:ae.REQUIRED}}async resetConsentInfo(){console.log("resetConsentInfo")}async setApplicationMuted(e){console.log("setApplicationMuted",e)}async setApplicationVolume(e){console.log("setApplicationVolume",e)}async showBanner(e){console.log("showBanner",e)}async hideBanner(){console.log("hideBanner")}async resumeBanner(){console.log("resumeBanner")}async removeBanner(){console.log("removeBanner")}async prepareInterstitial(e){return console.log("prepareInterstitial",e),{adUnitId:e.adId}}async showInterstitial(){console.log("showInterstitial")}async prepareRewardVideoAd(e){return console.log(e),{adUnitId:e.adId}}async showRewardVideoAd(){return{type:"",amount:0}}}});var Vt={};Me(Vt,{PreferencesWeb:()=>Ve});var Ve,Ht=b(()=>{z();Ve=class extends P{constructor(){super(...arguments),this.group="CapacitorStorage"}async configure({group:e}){typeof e=="string"&&(this.group=e)}async get(e){return{value:this.impl.getItem(this.applyPrefix(e.key))}}async set(e){this.impl.setItem(this.applyPrefix(e.key),e.value)}async remove(e){this.impl.removeItem(this.applyPrefix(e.key))}async keys(){return{keys:this.rawKeys().map(n=>n.substring(this.prefix.length))}}async clear(){for(let e of this.rawKeys())this.impl.removeItem(e)}async migrate(){var e;let n=[],r=[],i="_cap_",s=Object.keys(this.impl).filter(o=>o.indexOf(i)===0);for(let o of s){let a=o.substring(i.length),c=(e=this.impl.getItem(o))!==null&&e!==void 0?e:"",{value:l}=await this.get({key:a});typeof l=="string"?r.push(a):(await this.set({key:a,value:c}),n.push(a))}return{migrated:n,existing:r}}async removeOld(){let e="_cap_",n=Object.keys(this.impl).filter(r=>r.indexOf(e)===0);for(let r of n)this.impl.removeItem(r)}get impl(){return window.localStorage}get prefix(){return this.group==="NativeStorage"?"":`${this.group}.`}rawKeys(){return Object.keys(this.impl).filter(e=>e.indexOf(this.prefix)===0)}applyPrefix(e){return this.prefix+e}}});var R,ge,ze=b(()=>{(function(t){t.AdPersonalization="AD_PERSONALIZATION",t.AdStorage="AD_STORAGE",t.AdUserData="AD_USER_DATA",t.AnalyticsStorage="ANALYTICS_STORAGE",t.FunctionalityStorage="FUNCTIONALITY_STORAGE",t.PersonalizationStorage="PERSONALIZATION_STORAGE"})(R||(R={}));(function(t){t.Granted="GRANTED",t.Denied="DENIED"})(ge||(ge={}))});var zt,Wt=b(()=>{zt=()=>{}});function Cr(){if(typeof self<"u")return self;if(typeof window<"u")return window;if(typeof global<"u")return global;throw new Error("Unable to locate global object.")}function Yt(){let t=typeof chrome=="object"?chrome.runtime:typeof browser=="object"?browser.runtime:void 0;return typeof t=="object"&&t.id!==void 0}function ye(){try{return typeof indexedDB=="object"}catch{return!1}}function we(){return new Promise((t,e)=>{try{let n=!0,r="validate-browser-context-for-indexeddb-analytics-module",i=self.indexedDB.open(r);i.onsuccess=()=>{i.result.close(),n||self.indexedDB.deleteDatabase(r),t(!0)},i.onupgradeneeded=()=>{n=!1},i.onerror=()=>{var s;e(((s=i.error)===null||s===void 0?void 0:s.message)||"")}}catch(n){e(n)}})}function Zt(){return!(typeof navigator>"u"||!navigator.cookieEnabled)}function xr(t,e){return t.replace(Rr,(n,r)=>{let i=e[r];return i!=null?String(i):`<${r}?>`})}function X(t,e){if(t===e)return!0;let n=Object.keys(t),r=Object.keys(e);for(let i of n){if(!r.includes(i))return!1;let s=t[i],o=e[i];if(Gt(s)&&Gt(o)){if(!X(s,o))return!1}else if(s!==o)return!1}for(let i of r)if(!n.includes(i))return!1;return!0}function Gt(t){return t!==null&&typeof t=="object"}function Ke(t,e=kr,n=Lr){let r=e*Math.pow(n,t),i=Math.round(Br*r*(Math.random()-.5)*2);return Math.min(Nr,r+i)}function ee(t){return t&&t._delegate?t._delegate:t}var qt,Ir,Kt,We,Ar,Ge,Jt,Sr,Tr,Dr,Pr,qe,be,Or,S,k,Rr,kr,Lr,Nr,Br,te=b(()=>{Wt();qt=function(t){let e=[],n=0;for(let r=0;r<t.length;r++){let i=t.charCodeAt(r);i<128?e[n++]=i:i<2048?(e[n++]=i>>6|192,e[n++]=i&63|128):(i&64512)===55296&&r+1<t.length&&(t.charCodeAt(r+1)&64512)===56320?(i=65536+((i&1023)<<10)+(t.charCodeAt(++r)&1023),e[n++]=i>>18|240,e[n++]=i>>12&63|128,e[n++]=i>>6&63|128,e[n++]=i&63|128):(e[n++]=i>>12|224,e[n++]=i>>6&63|128,e[n++]=i&63|128)}return e},Ir=function(t){let e=[],n=0,r=0;for(;n<t.length;){let i=t[n++];if(i<128)e[r++]=String.fromCharCode(i);else if(i>191&&i<224){let s=t[n++];e[r++]=String.fromCharCode((i&31)<<6|s&63)}else if(i>239&&i<365){let s=t[n++],o=t[n++],a=t[n++],c=((i&7)<<18|(s&63)<<12|(o&63)<<6|a&63)-65536;e[r++]=String.fromCharCode(55296+(c>>10)),e[r++]=String.fromCharCode(56320+(c&1023))}else{let s=t[n++],o=t[n++];e[r++]=String.fromCharCode((i&15)<<12|(s&63)<<6|o&63)}}return e.join("")},Kt={byteToCharMap_:null,charToByteMap_:null,byteToCharMapWebSafe_:null,charToByteMapWebSafe_:null,ENCODED_VALS_BASE:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",get ENCODED_VALS(){return this.ENCODED_VALS_BASE+"+/="},get ENCODED_VALS_WEBSAFE(){return this.ENCODED_VALS_BASE+"-_."},HAS_NATIVE_SUPPORT:typeof atob=="function",encodeByteArray(t,e){if(!Array.isArray(t))throw Error("encodeByteArray takes an array as a parameter");this.init_();let n=e?this.byteToCharMapWebSafe_:this.byteToCharMap_,r=[];for(let i=0;i<t.length;i+=3){let s=t[i],o=i+1<t.length,a=o?t[i+1]:0,c=i+2<t.length,l=c?t[i+2]:0,h=s>>2,u=(s&3)<<4|a>>4,v=(a&15)<<2|l>>6,y=l&63;c||(y=64,o||(v=64)),r.push(n[h],n[u],n[v],n[y])}return r.join("")},encodeString(t,e){return this.HAS_NATIVE_SUPPORT&&!e?btoa(t):this.encodeByteArray(qt(t),e)},decodeString(t,e){return this.HAS_NATIVE_SUPPORT&&!e?atob(t):Ir(this.decodeStringToByteArray(t,e))},decodeStringToByteArray(t,e){this.init_();let n=e?this.charToByteMapWebSafe_:this.charToByteMap_,r=[];for(let i=0;i<t.length;){let s=n[t.charAt(i++)],a=i<t.length?n[t.charAt(i)]:0;++i;let l=i<t.length?n[t.charAt(i)]:64;++i;let u=i<t.length?n[t.charAt(i)]:64;if(++i,s==null||a==null||l==null||u==null)throw new We;let v=s<<2|a>>4;if(r.push(v),l!==64){let y=a<<4&240|l>>2;if(r.push(y),u!==64){let ke=l<<6&192|u;r.push(ke)}}}return r},init_(){if(!this.byteToCharMap_){this.byteToCharMap_={},this.charToByteMap_={},this.byteToCharMapWebSafe_={},this.charToByteMapWebSafe_={};for(let t=0;t<this.ENCODED_VALS.length;t++)this.byteToCharMap_[t]=this.ENCODED_VALS.charAt(t),this.charToByteMap_[this.byteToCharMap_[t]]=t,this.byteToCharMapWebSafe_[t]=this.ENCODED_VALS_WEBSAFE.charAt(t),this.charToByteMapWebSafe_[this.byteToCharMapWebSafe_[t]]=t,t>=this.ENCODED_VALS_BASE.length&&(this.charToByteMap_[this.ENCODED_VALS_WEBSAFE.charAt(t)]=t,this.charToByteMapWebSafe_[this.ENCODED_VALS.charAt(t)]=t)}}},We=class extends Error{constructor(){super(...arguments),this.name="DecodeBase64StringError"}},Ar=function(t){let e=qt(t);return Kt.encodeByteArray(e,!0)},Ge=function(t){return Ar(t).replace(/\./g,"")},Jt=function(t){try{return Kt.decodeString(t,!0)}catch(e){console.error("base64Decode failed: ",e)}return null};Sr=()=>Cr().__FIREBASE_DEFAULTS__,Tr=()=>{if(typeof process>"u"||typeof process.env>"u")return;let t=process.env.__FIREBASE_DEFAULTS__;if(t)return JSON.parse(t)},Dr=()=>{if(typeof document>"u")return;let t;try{t=document.cookie.match(/__FIREBASE_DEFAULTS__=([^;]+)/)}catch{return}let e=t&&Jt(t[1]);return e&&JSON.parse(e)},Pr=()=>{try{return zt()||Sr()||Tr()||Dr()}catch(t){console.info(`Unable to get __FIREBASE_DEFAULTS__ due to: ${t}`);return}},qe=()=>{var t;return(t=Pr())===null||t===void 0?void 0:t.config};be=class{constructor(){this.reject=()=>{},this.resolve=()=>{},this.promise=new Promise((e,n)=>{this.resolve=e,this.reject=n})}wrapCallback(e){return(n,r)=>{n?this.reject(n):this.resolve(r),typeof e=="function"&&(this.promise.catch(()=>{}),e.length===1?e(n):e(n,r))}}};Or="FirebaseError",S=class t extends Error{constructor(e,n,r){super(n),this.code=e,this.customData=r,this.name=Or,Object.setPrototypeOf(this,t.prototype),Error.captureStackTrace&&Error.captureStackTrace(this,k.prototype.create)}},k=class{constructor(e,n,r){this.service=e,this.serviceName=n,this.errors=r}create(e,...n){let r=n[0]||{},i=`${this.service}/${e}`,s=this.errors[e],o=s?xr(s,r):"Error",a=`${this.serviceName}: ${o} (${i}).`;return new S(i,a,r)}};Rr=/\{\$([^}]+)}/g;kr=1e3,Lr=2,Nr=14400*1e3,Br=.5;});function Mr(t){return t===W?void 0:t}function $r(t){return t.instantiationMode==="EAGER"}var E,W,Je,ve,Ee=b(()=>{te();E=class{constructor(e,n,r){this.name=e,this.instanceFactory=n,this.type=r,this.multipleInstances=!1,this.serviceProps={},this.instantiationMode="LAZY",this.onInstanceCreated=null}setInstantiationMode(e){return this.instantiationMode=e,this}setMultipleInstances(e){return this.multipleInstances=e,this}setServiceProps(e){return this.serviceProps=e,this}setInstanceCreatedCallback(e){return this.onInstanceCreated=e,this}};W="[DEFAULT]";Je=class{constructor(e,n){this.name=e,this.container=n,this.component=null,this.instances=new Map,this.instancesDeferred=new Map,this.instancesOptions=new Map,this.onInitCallbacks=new Map}get(e){let n=this.normalizeInstanceIdentifier(e);if(!this.instancesDeferred.has(n)){let r=new be;if(this.instancesDeferred.set(n,r),this.isInitialized(n)||this.shouldAutoInitialize())try{let i=this.getOrInitializeService({instanceIdentifier:n});i&&r.resolve(i)}catch{}}return this.instancesDeferred.get(n).promise}getImmediate(e){var n;let r=this.normalizeInstanceIdentifier(e?.identifier),i=(n=e?.optional)!==null&&n!==void 0?n:!1;if(this.isInitialized(r)||this.shouldAutoInitialize())try{return this.getOrInitializeService({instanceIdentifier:r})}catch(s){if(i)return null;throw s}else{if(i)return null;throw Error(`Service ${this.name} is not available`)}}getComponent(){return this.component}setComponent(e){if(e.name!==this.name)throw Error(`Mismatching Component ${e.name} for Provider ${this.name}.`);if(this.component)throw Error(`Component for ${this.name} has already been provided`);if(this.component=e,!!this.shouldAutoInitialize()){if($r(e))try{this.getOrInitializeService({instanceIdentifier:W})}catch{}for(let[n,r]of this.instancesDeferred.entries()){let i=this.normalizeInstanceIdentifier(n);try{let s=this.getOrInitializeService({instanceIdentifier:i});r.resolve(s)}catch{}}}}clearInstance(e=W){this.instancesDeferred.delete(e),this.instancesOptions.delete(e),this.instances.delete(e)}async delete(){let e=Array.from(this.instances.values());await Promise.all([...e.filter(n=>"INTERNAL"in n).map(n=>n.INTERNAL.delete()),...e.filter(n=>"_delete"in n).map(n=>n._delete())])}isComponentSet(){return this.component!=null}isInitialized(e=W){return this.instances.has(e)}getOptions(e=W){return this.instancesOptions.get(e)||{}}initialize(e={}){let{options:n={}}=e,r=this.normalizeInstanceIdentifier(e.instanceIdentifier);if(this.isInitialized(r))throw Error(`${this.name}(${r}) has already been initialized`);if(!this.isComponentSet())throw Error(`Component ${this.name} has not been registered yet`);let i=this.getOrInitializeService({instanceIdentifier:r,options:n});for(let[s,o]of this.instancesDeferred.entries()){let a=this.normalizeInstanceIdentifier(s);r===a&&o.resolve(i)}return i}onInit(e,n){var r;let i=this.normalizeInstanceIdentifier(n),s=(r=this.onInitCallbacks.get(i))!==null&&r!==void 0?r:new Set;s.add(e),this.onInitCallbacks.set(i,s);let o=this.instances.get(i);return o&&e(o,i),()=>{s.delete(e)}}invokeOnInitCallbacks(e,n){let r=this.onInitCallbacks.get(n);if(r)for(let i of r)try{i(e,n)}catch{}}getOrInitializeService({instanceIdentifier:e,options:n={}}){let r=this.instances.get(e);if(!r&&this.component&&(r=this.component.instanceFactory(this.container,{instanceIdentifier:Mr(e),options:n}),this.instances.set(e,r),this.instancesOptions.set(e,n),this.invokeOnInitCallbacks(r,e),this.component.onInstanceCreated))try{this.component.onInstanceCreated(this.container,e,r)}catch{}return r||null}normalizeInstanceIdentifier(e=W){return this.component?this.component.multipleInstances?e:W:e}shouldAutoInitialize(){return!!this.component&&this.component.instantiationMode!=="EXPLICIT"}};ve=class{constructor(e){this.name=e,this.providers=new Map}addComponent(e){let n=this.getProvider(e.name);if(n.isComponentSet())throw new Error(`Component ${e.name} has already been registered with ${this.name}`);n.setComponent(e)}addOrOverwriteComponent(e){this.getProvider(e.name).isComponentSet()&&this.providers.delete(e.name),this.addComponent(e)}getProvider(e){if(this.providers.has(e))return this.providers.get(e);let n=new Je(e,this);return this.providers.set(e,n),n}getProviders(){return Array.from(this.providers.values())}}});var Fr,d,jr,Ur,Vr,Hr,ne,Ye=b(()=>{Fr=[];(function(t){t[t.DEBUG=0]="DEBUG",t[t.VERBOSE=1]="VERBOSE",t[t.INFO=2]="INFO",t[t.WARN=3]="WARN",t[t.ERROR=4]="ERROR",t[t.SILENT=5]="SILENT"})(d||(d={}));jr={debug:d.DEBUG,verbose:d.VERBOSE,info:d.INFO,warn:d.WARN,error:d.ERROR,silent:d.SILENT},Ur=d.INFO,Vr={[d.DEBUG]:"log",[d.VERBOSE]:"log",[d.INFO]:"info",[d.WARN]:"warn",[d.ERROR]:"error"},Hr=(t,e,...n)=>{if(e<t.logLevel)return;let r=new Date().toISOString(),i=Vr[e];if(i)console[i](`[${r}]  ${t.name}:`,...n);else throw new Error(`Attempted to log a message with an invalid logType (value: ${e})`)},ne=class{constructor(e){this.name=e,this._logLevel=Ur,this._logHandler=Hr,this._userLogHandler=null,Fr.push(this)}get logLevel(){return this._logLevel}set logLevel(e){if(!(e in d))throw new TypeError(`Invalid value "${e}" assigned to \`logLevel\``);this._logLevel=e}setLogLevel(e){this._logLevel=typeof e=="string"?jr[e]:e}get logHandler(){return this._logHandler}set logHandler(e){if(typeof e!="function")throw new TypeError("Value assigned to `logHandler` must be a function");this._logHandler=e}get userLogHandler(){return this._userLogHandler}set userLogHandler(e){this._userLogHandler=e}debug(...e){this._userLogHandler&&this._userLogHandler(this,d.DEBUG,...e),this._logHandler(this,d.DEBUG,...e)}log(...e){this._userLogHandler&&this._userLogHandler(this,d.VERBOSE,...e),this._logHandler(this,d.VERBOSE,...e)}info(...e){this._userLogHandler&&this._userLogHandler(this,d.INFO,...e),this._logHandler(this,d.INFO,...e)}warn(...e){this._userLogHandler&&this._userLogHandler(this,d.WARN,...e),this._logHandler(this,d.WARN,...e)}error(...e){this._userLogHandler&&this._userLogHandler(this,d.ERROR,...e),this._logHandler(this,d.ERROR,...e)}}});function Wr(){return Qt||(Qt=[IDBDatabase,IDBObjectStore,IDBIndex,IDBCursor,IDBTransaction])}function Gr(){return Xt||(Xt=[IDBCursor.prototype.advance,IDBCursor.prototype.continue,IDBCursor.prototype.continuePrimaryKey])}function qr(t){let e=new Promise((n,r)=>{let i=()=>{t.removeEventListener("success",s),t.removeEventListener("error",o)},s=()=>{n(O(t.result)),i()},o=()=>{r(t.error),i()};t.addEventListener("success",s),t.addEventListener("error",o)});return e.then(n=>{n instanceof IDBCursor&&en.set(n,t)}).catch(()=>{}),et.set(e,t),e}function Kr(t){if(Qe.has(t))return;let e=new Promise((n,r)=>{let i=()=>{t.removeEventListener("complete",s),t.removeEventListener("error",o),t.removeEventListener("abort",o)},s=()=>{n(),i()},o=()=>{r(t.error||new DOMException("AbortError","AbortError")),i()};t.addEventListener("complete",s),t.addEventListener("error",o),t.addEventListener("abort",o)});Qe.set(t,e)}function nn(t){Xe=t(Xe)}function Jr(t){return t===IDBDatabase.prototype.transaction&&!("objectStoreNames"in IDBTransaction.prototype)?function(e,...n){let r=t.call(_e(this),e,...n);return tn.set(r,e.sort?e.sort():[e]),O(r)}:Gr().includes(t)?function(...e){return t.apply(_e(this),e),O(en.get(this))}:function(...e){return O(t.apply(_e(this),e))}}function Yr(t){return typeof t=="function"?Jr(t):(t instanceof IDBTransaction&&Kr(t),zr(t,Wr())?new Proxy(t,Xe):t)}function O(t){if(t instanceof IDBRequest)return qr(t);if(Ze.has(t))return Ze.get(t);let e=Yr(t);return e!==t&&(Ze.set(t,e),et.set(e,t)),e}var zr,Qt,Xt,en,Qe,tn,Ze,et,Xe,_e,tt=b(()=>{zr=(t,e)=>e.some(n=>t instanceof n);en=new WeakMap,Qe=new WeakMap,tn=new WeakMap,Ze=new WeakMap,et=new WeakMap;Xe={get(t,e,n){if(t instanceof IDBTransaction){if(e==="done")return Qe.get(t);if(e==="objectStoreNames")return t.objectStoreNames||tn.get(t);if(e==="store")return n.objectStoreNames[1]?void 0:n.objectStore(n.objectStoreNames[0])}return O(t[e])},set(t,e,n){return t[e]=n,!0},has(t,e){return t instanceof IDBTransaction&&(e==="done"||e==="store")?!0:e in t}};_e=t=>et.get(t)});function Ie(t,e,{blocked:n,upgrade:r,blocking:i,terminated:s}={}){let o=indexedDB.open(t,e),a=O(o);return r&&o.addEventListener("upgradeneeded",c=>{r(O(o.result),c.oldVersion,c.newVersion,O(o.transaction),c)}),n&&o.addEventListener("blocked",c=>n(c.oldVersion,c.newVersion,c)),a.then(c=>{s&&c.addEventListener("close",()=>s()),i&&c.addEventListener("versionchange",l=>i(l.oldVersion,l.newVersion,l))}).catch(()=>{}),a}function rn(t,e){if(!(t instanceof IDBDatabase&&!(e in t)&&typeof e=="string"))return;if(nt.get(e))return nt.get(e);let n=e.replace(/FromIndex$/,""),r=e!==n,i=Qr.includes(n);if(!(n in(r?IDBIndex:IDBObjectStore).prototype)||!(i||Zr.includes(n)))return;let s=async function(o,...a){let c=this.transaction(o,i?"readwrite":"readonly"),l=c.store;return r&&(l=l.index(a.shift())),(await Promise.all([l[n](...a),i&&c.done]))[0]};return nt.set(e,s),s}var Zr,Qr,nt,rt=b(()=>{tt();tt();Zr=["get","getKey","getAll","getAllKeys","count"],Qr=["put","add","delete","clear"],nt=new Map;nn(t=>({...t,get:(e,n,r)=>rn(e,n)||t.get(e,n,r),has:(e,n)=>!!rn(e,n)||t.has(e,n)}))});function Xr(t){let e=t.getComponent();return e?.type==="VERSION"}function on(t,e){try{t.container.addComponent(e)}catch(n){N.debug(`Component ${e.name} failed to register with FirebaseApp ${t.name}`,n)}}function B(t){let e=t.name;if(ct.has(e))return N.debug(`There were multiple attempts to register component ${e}.`),!1;ct.set(e,t);for(let n of Ae.values())on(n,t);for(let n of Ti.values())on(n,t);return!0}function re(t,e){let n=t.container.getProvider("heartbeat").getImmediate({optional:!0});return n&&n.triggerHeartbeat(),t.container.getProvider(e)}function Pi(t,e={}){let n=t;typeof e!="object"&&(e={name:e});let r=Object.assign({name:at,automaticDataCollectionEnabled:!0},e),i=r.name;if(typeof i!="string"||!i)throw j.create("bad-app-name",{appName:String(i)});if(n||(n=qe()),!n)throw j.create("no-options");let s=Ae.get(i);if(s){if(X(n,s.options)&&X(r,s.config))return s;throw j.create("duplicate-app",{appName:i})}let o=new ve(i);for(let c of ct.values())o.addComponent(c);let a=new lt(n,r,o);return Ae.set(i,a),a}function ft(t=at){let e=Ae.get(t);if(!e&&t===at&&qe())return Pi();if(!e)throw j.create("no-app",{appName:t});return e}function L(t,e,n){var r;let i=(r=Si[t])!==null&&r!==void 0?r:t;n&&(i+=`-${n}`);let s=i.match(/\s|\//),o=e.match(/\s|\//);if(s||o){let a=[`Unable to register library "${i}" with version "${e}":`];s&&a.push(`library name "${i}" contains illegal characters (whitespace or "/")`),s&&o&&a.push("and"),o&&a.push(`version name "${e}" contains illegal characters (whitespace or "/")`),N.warn(a.join(" "));return}B(new E(`${i}-version`,()=>({library:i,version:e}),"VERSION"))}function dn(){return it||(it=Ie(Oi,xi,{upgrade:(t,e)=>{switch(e){case 0:try{t.createObjectStore(ce)}catch(n){console.warn(n)}}}}).catch(t=>{throw j.create("idb-open",{originalErrorMessage:t.message})})),it}async function Ri(t){try{let n=(await dn()).transaction(ce),r=await n.objectStore(ce).get(un(t));return await n.done,r}catch(e){if(e instanceof S)N.warn(e.message);else{let n=j.create("idb-get",{originalErrorMessage:e?.message});N.warn(n.message)}}}async function an(t,e){try{let r=(await dn()).transaction(ce,"readwrite");await r.objectStore(ce).put(e,un(t)),await r.done}catch(n){if(n instanceof S)N.warn(n.message);else{let r=j.create("idb-set",{originalErrorMessage:n?.message});N.warn(r.message)}}}function un(t){return`${t.name}!${t.options.appId}`}function cn(){return new Date().toISOString().substring(0,10)}function Ni(t,e=ki){let n=[],r=t.slice();for(let i of t){let s=n.find(o=>o.agent===i.agent);if(s){if(s.dates.push(i.date),ln(n)>e){s.dates.pop();break}}else if(n.push({agent:i.agent,dates:[i.date]}),ln(n)>e){n.pop();break}r=r.slice(1)}return{heartbeatsToSend:n,unsentEntries:r}}function ln(t){return Ge(JSON.stringify({version:2,heartbeats:t})).length}function Bi(t){if(t.length===0)return-1;let e=0,n=t[0].date;for(let r=1;r<t.length;r++)t[r].date<n&&(n=t[r].date,e=r);return e}function Mi(t){B(new E("platform-logger",e=>new st(e),"PRIVATE")),B(new E("heartbeat",e=>new dt(e),"PRIVATE")),L(ot,sn,t),L(ot,sn,"esm2017"),L("fire-js","")}var st,ot,sn,N,ei,ti,ni,ri,ii,si,oi,ai,ci,li,di,ui,fi,hi,pi,mi,gi,bi,yi,wi,vi,Ei,_i,Ii,Ai,Ci,at,Si,Ae,Ti,ct,Di,j,lt,Oi,xi,ce,it,ki,Li,dt,ut,ht=b(()=>{Ee();Ye();te();te();rt();st=class{constructor(e){this.container=e}getPlatformInfoString(){return this.container.getProviders().map(n=>{if(Xr(n)){let r=n.getImmediate();return`${r.library}/${r.version}`}else return null}).filter(n=>n).join(" ")}};ot="@firebase/app",sn="0.13.2";N=new ne("@firebase/app"),ei="@firebase/app-compat",ti="@firebase/analytics-compat",ni="@firebase/analytics",ri="@firebase/app-check-compat",ii="@firebase/app-check",si="@firebase/auth",oi="@firebase/auth-compat",ai="@firebase/database",ci="@firebase/data-connect",li="@firebase/database-compat",di="@firebase/functions",ui="@firebase/functions-compat",fi="@firebase/installations",hi="@firebase/installations-compat",pi="@firebase/messaging",mi="@firebase/messaging-compat",gi="@firebase/performance",bi="@firebase/performance-compat",yi="@firebase/remote-config",wi="@firebase/remote-config-compat",vi="@firebase/storage",Ei="@firebase/storage-compat",_i="@firebase/firestore",Ii="@firebase/ai",Ai="@firebase/firestore-compat",Ci="firebase";at="[DEFAULT]",Si={[ot]:"fire-core",[ei]:"fire-core-compat",[ni]:"fire-analytics",[ti]:"fire-analytics-compat",[ii]:"fire-app-check",[ri]:"fire-app-check-compat",[si]:"fire-auth",[oi]:"fire-auth-compat",[ai]:"fire-rtdb",[ci]:"fire-data-connect",[li]:"fire-rtdb-compat",[di]:"fire-fn",[ui]:"fire-fn-compat",[fi]:"fire-iid",[hi]:"fire-iid-compat",[pi]:"fire-fcm",[mi]:"fire-fcm-compat",[gi]:"fire-perf",[bi]:"fire-perf-compat",[yi]:"fire-rc",[wi]:"fire-rc-compat",[vi]:"fire-gcs",[Ei]:"fire-gcs-compat",[_i]:"fire-fst",[Ai]:"fire-fst-compat",[Ii]:"fire-vertex","fire-js":"fire-js",[Ci]:"fire-js-all"};Ae=new Map,Ti=new Map,ct=new Map;Di={"no-app":"No Firebase App '{$appName}' has been created - call initializeApp() first","bad-app-name":"Illegal App name: '{$appName}'","duplicate-app":"Firebase App named '{$appName}' already exists with different options or config","app-deleted":"Firebase App named '{$appName}' already deleted","server-app-deleted":"Firebase Server App has been deleted","no-options":"Need to provide options, when not being deployed to hosting via source.","invalid-app-argument":"firebase.{$appName}() takes either no argument or a Firebase App instance.","invalid-log-argument":"First argument to `onLog` must be null or a function.","idb-open":"Error thrown when opening IndexedDB. Original error: {$originalErrorMessage}.","idb-get":"Error thrown when reading from IndexedDB. Original error: {$originalErrorMessage}.","idb-set":"Error thrown when writing to IndexedDB. Original error: {$originalErrorMessage}.","idb-delete":"Error thrown when deleting from IndexedDB. Original error: {$originalErrorMessage}.","finalization-registry-not-supported":"FirebaseServerApp deleteOnDeref field defined but the JS runtime does not support FinalizationRegistry.","invalid-server-app-environment":"FirebaseServerApp is not for use in browser environments."},j=new k("app","Firebase",Di);lt=class{constructor(e,n,r){this._isDeleted=!1,this._options=Object.assign({},e),this._config=Object.assign({},n),this._name=n.name,this._automaticDataCollectionEnabled=n.automaticDataCollectionEnabled,this._container=r,this.container.addComponent(new E("app",()=>this,"PUBLIC"))}get automaticDataCollectionEnabled(){return this.checkDestroyed(),this._automaticDataCollectionEnabled}set automaticDataCollectionEnabled(e){this.checkDestroyed(),this._automaticDataCollectionEnabled=e}get name(){return this.checkDestroyed(),this._name}get options(){return this.checkDestroyed(),this._options}get config(){return this.checkDestroyed(),this._config}get container(){return this._container}get isDeleted(){return this._isDeleted}set isDeleted(e){this._isDeleted=e}checkDestroyed(){if(this.isDeleted)throw j.create("app-deleted",{appName:this._name})}};Oi="firebase-heartbeat-database",xi=1,ce="firebase-heartbeat-store",it=null;ki=1024,Li=30,dt=class{constructor(e){this.container=e,this._heartbeatsCache=null;let n=this.container.getProvider("app").getImmediate();this._storage=new ut(n),this._heartbeatsCachePromise=this._storage.read().then(r=>(this._heartbeatsCache=r,r))}async triggerHeartbeat(){var e,n;try{let i=this.container.getProvider("platform-logger").getImmediate().getPlatformInfoString(),s=cn();if(((e=this._heartbeatsCache)===null||e===void 0?void 0:e.heartbeats)==null&&(this._heartbeatsCache=await this._heartbeatsCachePromise,((n=this._heartbeatsCache)===null||n===void 0?void 0:n.heartbeats)==null)||this._heartbeatsCache.lastSentHeartbeatDate===s||this._heartbeatsCache.heartbeats.some(o=>o.date===s))return;if(this._heartbeatsCache.heartbeats.push({date:s,agent:i}),this._heartbeatsCache.heartbeats.length>Li){let o=Bi(this._heartbeatsCache.heartbeats);this._heartbeatsCache.heartbeats.splice(o,1)}return this._storage.overwrite(this._heartbeatsCache)}catch(r){N.warn(r)}}async getHeartbeatsHeader(){var e;try{if(this._heartbeatsCache===null&&await this._heartbeatsCachePromise,((e=this._heartbeatsCache)===null||e===void 0?void 0:e.heartbeats)==null||this._heartbeatsCache.heartbeats.length===0)return"";let n=cn(),{heartbeatsToSend:r,unsentEntries:i}=Ni(this._heartbeatsCache.heartbeats),s=Ge(JSON.stringify({version:2,heartbeats:r}));return this._heartbeatsCache.lastSentHeartbeatDate=n,i.length>0?(this._heartbeatsCache.heartbeats=i,await this._storage.overwrite(this._heartbeatsCache)):(this._heartbeatsCache.heartbeats=[],this._storage.overwrite(this._heartbeatsCache)),s}catch(n){return N.warn(n),""}}};ut=class{constructor(e){this.app=e,this._canUseIndexedDBPromise=this.runIndexedDBEnvironmentCheck()}async runIndexedDBEnvironmentCheck(){return ye()?we().then(()=>!0).catch(()=>!1):!1}async read(){if(await this._canUseIndexedDBPromise){let n=await Ri(this.app);return n?.heartbeats?n:{heartbeats:[]}}else return{heartbeats:[]}}async overwrite(e){var n;if(await this._canUseIndexedDBPromise){let i=await this.read();return an(this.app,{lastSentHeartbeatDate:(n=e.lastSentHeartbeatDate)!==null&&n!==void 0?n:i.lastSentHeartbeatDate,heartbeats:e.heartbeats})}else return}async add(e){var n;if(await this._canUseIndexedDBPromise){let i=await this.read();return an(this.app,{lastSentHeartbeatDate:(n=e.lastSentHeartbeatDate)!==null&&n!==void 0?n:i.lastSentHeartbeatDate,heartbeats:[...i.heartbeats,...e.heartbeats]})}else return}};Mi("")});function yn(t){return t instanceof S&&t.code.includes("request-failed")}function wn({projectId:t}){return`${$i}/projects/${t}/installations`}function vn(t){return{token:t.token,requestStatus:2,expiresIn:zi(t.expiresIn),creationTime:Date.now()}}async function En(t,e){let r=(await e.json()).error;return q.create("request-failed",{requestName:t,serverCode:r.code,serverMessage:r.message,serverStatus:r.status})}function _n({apiKey:t}){return new Headers({"Content-Type":"application/json",Accept:"application/json","x-goog-api-key":t})}function Hi(t,{refreshToken:e}){let n=_n(t);return n.append("Authorization",Wi(e)),n}async function In(t){let e=await t();return e.status>=500&&e.status<600?t():e}function zi(t){return Number(t.replace("s","000"))}function Wi(t){return`${bn} ${t}`}async function Gi({appConfig:t,heartbeatServiceProvider:e},{fid:n}){let r=wn(t),i=_n(t),s=e.getImmediate({optional:!0});if(s){let l=await s.getHeartbeatsHeader();l&&i.append("x-firebase-client",l)}let o={fid:n,authVersion:bn,appId:t.appId,sdkVersion:gn},a={method:"POST",headers:i,body:JSON.stringify(o)},c=await In(()=>fetch(r,a));if(c.ok){let l=await c.json();return{fid:l.fid||n,registrationStatus:2,refreshToken:l.refreshToken,authToken:vn(l.authToken)}}else throw await En("Create Installation",c)}function An(t){return new Promise(e=>{setTimeout(e,t)})}function qi(t){return btoa(String.fromCharCode(...t)).replace(/\+/g,"-").replace(/\//g,"_")}function Ji(){try{let t=new Uint8Array(17);(self.crypto||self.msCrypto).getRandomValues(t),t[0]=112+t[0]%16;let n=Yi(t);return Ki.test(n)?n:gt}catch{return gt}}function Yi(t){return qi(t).substr(0,22)}function Se(t){return`${t.appName}!${t.appId}`}function Sn(t,e){let n=Se(t);Tn(n,e),Zi(n,e)}function Tn(t,e){let n=Cn.get(t);if(n)for(let r of n)r(e)}function Zi(t,e){let n=Qi();n&&n.postMessage({key:t,fid:e}),Xi()}function Qi(){return!G&&"BroadcastChannel"in self&&(G=new BroadcastChannel("[Firebase] FID Change"),G.onmessage=t=>{Tn(t.data.key,t.data.fid)}),G}function Xi(){Cn.size===0&&G&&(G.close(),G=null)}function yt(){return pt||(pt=Ie(es,ts,{upgrade:(t,e)=>{e===0&&t.createObjectStore(K)}})),pt}async function Ce(t,e){let n=Se(t),i=(await yt()).transaction(K,"readwrite"),s=i.objectStore(K),o=await s.get(n);return await s.put(e,n),await i.done,(!o||o.fid!==e.fid)&&Sn(t,e.fid),e}async function Dn(t){let e=Se(t),r=(await yt()).transaction(K,"readwrite");await r.objectStore(K).delete(e),await r.done}async function Te(t,e){let n=Se(t),i=(await yt()).transaction(K,"readwrite"),s=i.objectStore(K),o=await s.get(n),a=e(o);return a===void 0?await s.delete(n):await s.put(a,n),await i.done,a&&(!o||o.fid!==a.fid)&&Sn(t,a.fid),a}async function wt(t){let e,n=await Te(t.appConfig,r=>{let i=ns(r),s=rs(t,i);return e=s.registrationPromise,s.installationEntry});return n.fid===gt?{installationEntry:await e}:{installationEntry:n,registrationPromise:e}}function ns(t){let e=t||{fid:Ji(),registrationStatus:0};return Pn(e)}function rs(t,e){if(e.registrationStatus===0){if(!navigator.onLine){let i=Promise.reject(q.create("app-offline"));return{installationEntry:e,registrationPromise:i}}let n={fid:e.fid,registrationStatus:1,registrationTime:Date.now()},r=is(t,n);return{installationEntry:n,registrationPromise:r}}else return e.registrationStatus===1?{installationEntry:e,registrationPromise:ss(t)}:{installationEntry:e}}async function is(t,e){try{let n=await Gi(t,e);return Ce(t.appConfig,n)}catch(n){throw yn(n)&&n.customData.serverCode===409?await Dn(t.appConfig):await Ce(t.appConfig,{fid:e.fid,registrationStatus:0}),n}}async function ss(t){let e=await fn(t.appConfig);for(;e.registrationStatus===1;)await An(100),e=await fn(t.appConfig);if(e.registrationStatus===0){let{installationEntry:n,registrationPromise:r}=await wt(t);return r||n}return e}function fn(t){return Te(t,e=>{if(!e)throw q.create("installation-not-found");return Pn(e)})}function Pn(t){return os(t)?{fid:t.fid,registrationStatus:0}:t}function os(t){return t.registrationStatus===1&&t.registrationTime+mn<Date.now()}async function as({appConfig:t,heartbeatServiceProvider:e},n){let r=cs(t,n),i=Hi(t,n),s=e.getImmediate({optional:!0});if(s){let l=await s.getHeartbeatsHeader();l&&i.append("x-firebase-client",l)}let o={installation:{sdkVersion:gn,appId:t.appId}},a={method:"POST",headers:i,body:JSON.stringify(o)},c=await In(()=>fetch(r,a));if(c.ok){let l=await c.json();return vn(l)}else throw await En("Generate Auth Token",c)}function cs(t,{fid:e}){return`${wn(t)}/${e}/authTokens:generate`}async function vt(t,e=!1){let n,r=await Te(t.appConfig,s=>{if(!On(s))throw q.create("not-registered");let o=s.authToken;if(!e&&us(o))return s;if(o.requestStatus===1)return n=ls(t,e),s;{if(!navigator.onLine)throw q.create("app-offline");let a=hs(s);return n=ds(t,a),a}});return n?await n:r.authToken}async function ls(t,e){let n=await hn(t.appConfig);for(;n.authToken.requestStatus===1;)await An(100),n=await hn(t.appConfig);let r=n.authToken;return r.requestStatus===0?vt(t,e):r}function hn(t){return Te(t,e=>{if(!On(e))throw q.create("not-registered");let n=e.authToken;return ps(n)?Object.assign(Object.assign({},e),{authToken:{requestStatus:0}}):e})}async function ds(t,e){try{let n=await as(t,e),r=Object.assign(Object.assign({},e),{authToken:n});return await Ce(t.appConfig,r),n}catch(n){if(yn(n)&&(n.customData.serverCode===401||n.customData.serverCode===404))await Dn(t.appConfig);else{let r=Object.assign(Object.assign({},e),{authToken:{requestStatus:0}});await Ce(t.appConfig,r)}throw n}}function On(t){return t!==void 0&&t.registrationStatus===2}function us(t){return t.requestStatus===2&&!fs(t)}function fs(t){let e=Date.now();return e<t.creationTime||t.creationTime+t.expiresIn<e+Fi}function hs(t){let e={requestStatus:1,requestTime:Date.now()};return Object.assign(Object.assign({},t),{authToken:e})}function ps(t){return t.requestStatus===1&&t.requestTime+mn<Date.now()}async function ms(t){let e=t,{installationEntry:n,registrationPromise:r}=await wt(e);return r?r.catch(console.error):vt(e).catch(console.error),n.fid}async function gs(t,e=!1){let n=t;return await bs(n),(await vt(n,e)).token}async function bs(t){let{registrationPromise:e}=await wt(t);e&&await e}function ys(t){if(!t||!t.options)throw mt("App Configuration");if(!t.name)throw mt("App Name");let e=["projectId","apiKey","appId"];for(let n of e)if(!t.options[n])throw mt(n);return{appName:t.name,projectId:t.options.projectId,apiKey:t.options.apiKey,appId:t.options.appId}}function mt(t){return q.create("missing-app-config-values",{valueName:t})}function _s(){B(new E(xn,vs,"PUBLIC")),B(new E(ws,Es,"PRIVATE"))}var pn,bt,mn,gn,bn,$i,Fi,ji,Ui,Vi,q,Ki,gt,Cn,G,es,ts,K,pt,xn,ws,vs,Es,Rn=b(()=>{ht();Ee();te();rt();pn="@firebase/installations",bt="0.6.18";mn=1e4,gn=`w:${bt}`,bn="FIS_v2",$i="https://firebaseinstallations.googleapis.com/v1",Fi=3600*1e3,ji="installations",Ui="Installations";Vi={"missing-app-config-values":'Missing App configuration value: "{$valueName}"',"not-registered":"Firebase Installation is not registered.","installation-not-found":"Firebase Installation not found.","request-failed":'{$requestName} request failed with error "{$serverCode} {$serverStatus}: {$serverMessage}"',"app-offline":"Could not process request. Application offline.","delete-pending-registration":"Can't delete installation while there is a pending registration request."},q=new k(ji,Ui,Vi);Ki=/^[cdef][\w-]{21}$/,gt="";Cn=new Map;G=null;es="firebase-installations-database",ts=1,K="firebase-installations-store",pt=null;xn="installations",ws="installations-internal",vs=t=>{let e=t.getProvider("app").getImmediate(),n=ys(e),r=re(e,"heartbeat");return{app:e,appConfig:n,heartbeatServiceProvider:r,_delete:()=>Promise.resolve()}},Es=t=>{let e=t.getProvider("app").getImmediate(),n=re(e,xn).getImmediate();return{getId:()=>ms(n),getToken:i=>gs(n,i)}};_s();L(pn,bt);L(pn,bt,"esm2017")});function Ds(t){if(!t.startsWith(Tt)){let e=_.create("invalid-gtag-resource",{gtagURL:t});return m.warn(e.message),""}return t}function Fn(t){return Promise.all(t.map(e=>e.catch(n=>n)))}function Ps(t,e){let n;return window.trustedTypes&&(n=window.trustedTypes.createPolicy(t,e)),n}function Os(t,e){let n=Ps("firebase-js-sdk-policy",{createScriptURL:Ds}),r=document.createElement("script"),i=`${Tt}?l=${t}&id=${e}`;r.src=n?n?.createScriptURL(i):i,r.async=!0,document.head.appendChild(r)}function xs(t){let e=[];return Array.isArray(window[t])?e=window[t]:window[t]=e,e}async function Rs(t,e,n,r,i,s){let o=r[i];try{if(o)await e[o];else{let c=(await Fn(n)).find(l=>l.measurementId===i);c&&await e[c.appId]}}catch(a){m.error(a)}t("config",i,s)}async function ks(t,e,n,r,i){try{let s=[];if(i&&i.send_to){let o=i.send_to;Array.isArray(o)||(o=[o]);let a=await Fn(n);for(let c of o){let l=a.find(u=>u.measurementId===c),h=l&&e[l.appId];if(h)s.push(h);else{s=[];break}}}s.length===0&&(s=Object.values(e)),await Promise.all(s),t("event",r,i||{})}catch(s){m.error(s)}}function Ls(t,e,n,r){async function i(s,...o){try{if(s==="event"){let[a,c]=o;await ks(t,e,n,a,c)}else if(s==="config"){let[a,c]=o;await Rs(t,e,n,r,a,c)}else if(s==="consent"){let[a,c]=o;t("consent",a,c)}else if(s==="get"){let[a,c,l]=o;t("get",a,c,l)}else if(s==="set"){let[a]=o;t("set",a)}else t(s,...o)}catch(a){m.error(a)}}return i}function Ns(t,e,n,r,i){let s=function(...o){window[r].push(arguments)};return window[i]&&typeof window[i]=="function"&&(s=window[i]),window[i]=Ls(s,t,e,n),{gtagCore:s,wrappedGtag:window[i]}}function Bs(t){let e=window.document.getElementsByTagName("script");for(let n of Object.values(e))if(n.src&&n.src.includes(Tt)&&n.src.includes(t))return n;return null}function Fs(t){return new Headers({Accept:"application/json","x-goog-api-key":t})}async function js(t){var e;let{appId:n,apiKey:r}=t,i={method:"GET",headers:Fs(r)},s=Ss.replace("{app-id}",n),o=await fetch(s,i);if(o.status!==200&&o.status!==304){let a="";try{let c=await o.json();!((e=c.error)===null||e===void 0)&&e.message&&(a=c.error.message)}catch{}throw _.create("config-fetch-failed",{httpStatus:o.status,responseMessage:a})}return o.json()}async function Us(t,e=jn,n){let{appId:r,apiKey:i,measurementId:s}=t.options;if(!r)throw _.create("no-app-id");if(!i){if(s)return{measurementId:s,appId:r};throw _.create("no-api-key")}let o=e.getThrottleMetadata(r)||{backoffCount:0,throttleEndTimeMillis:Date.now()},a=new It;return setTimeout(async()=>{a.abort()},n!==void 0?n:Cs),Un({appId:r,apiKey:i,measurementId:s},o,a,e)}async function Un(t,{throttleEndTimeMillis:e,backoffCount:n},r,i=jn){var s;let{appId:o,measurementId:a}=t;try{await Vs(r,e)}catch(c){if(a)return m.warn(`Timed out fetching this Firebase app's measurement ID from the server. Falling back to the measurement ID ${a} provided in the "measurementId" field in the local Firebase config. [${c?.message}]`),{appId:o,measurementId:a};throw c}try{let c=await js(t);return i.deleteThrottleMetadata(o),c}catch(c){let l=c;if(!Hs(l)){if(i.deleteThrottleMetadata(o),a)return m.warn(`Failed to fetch this Firebase app's measurement ID from the server. Falling back to the measurement ID ${a} provided in the "measurementId" field in the local Firebase config. [${l?.message}]`),{appId:o,measurementId:a};throw c}let h=Number((s=l?.customData)===null||s===void 0?void 0:s.httpStatus)===503?Ke(n,i.intervalMillis,Ms):Ke(n,i.intervalMillis),u={throttleEndTimeMillis:Date.now()+h,backoffCount:n+1};return i.setThrottleMetadata(o,u),m.debug(`Calling attemptFetch again in ${h} millis`),Un(t,u,r,i)}}function Vs(t,e){return new Promise((n,r)=>{let i=Math.max(e-Date.now(),0),s=setTimeout(n,i);t.addEventListener(()=>{clearTimeout(s),r(_.create("fetch-throttle",{throttleEndTimeMillis:e}))})})}function Hs(t){if(!(t instanceof S)||!t.customData)return!1;let e=Number(t.customData.httpStatus);return e===429||e===500||e===503||e===504}async function zs(t,e,n,r,i){if(i&&i.global){t("event",n,r);return}else{let s=await e,o=Object.assign(Object.assign({},r),{send_to:s});t("event",n,o)}}async function Ws(t,e,n,r){if(r&&r.global)return t("set",{user_id:n}),Promise.resolve();{let i=await e;t("config",i,{update:!0,user_id:n})}}async function Gs(t,e,n,r){if(r&&r.global){let i={};for(let s of Object.keys(n))i[`user_properties.${s}`]=n[s];return t("set",i),Promise.resolve()}else{let i=await e;t("config",i,{update:!0,user_properties:n})}}async function qs(t,e){let n=await t;window[`ga-disable-${n}`]=!e}function Vn(t){Ct=t}function Ks(t){At=t}async function Js(){if(ye())try{await we()}catch(t){return m.warn(_.create("indexeddb-unavailable",{errorInfo:t?.toString()}).message),!1}else return m.warn(_.create("indexeddb-unavailable",{errorInfo:"IndexedDB is not available in this environment."}).message),!1;return!0}async function Ys(t,e,n,r,i,s,o){var a;let c=Us(t);c.then(y=>{n[y.measurementId]=y.appId,t.options.measurementId&&y.measurementId!==t.options.measurementId&&m.warn(`The measurement ID in the local Firebase config (${t.options.measurementId}) does not match the measurement ID fetched from the server (${y.measurementId}). To ensure analytics events are always sent to the correct Analytics property, update the measurement ID field in the local config or remove it from the local config.`)}).catch(y=>m.error(y)),e.push(c);let l=Js().then(y=>{if(y)return r.getId()}),[h,u]=await Promise.all([c,l]);Bs(s)||Os(s,h.measurementId),Ct&&(i("consent","default",Ct),Vn(void 0)),i("js",new Date);let v=(a=o?.config)!==null&&a!==void 0?a:{};return v[As]="firebase",v.update=!0,u!=null&&(v[Is]=u),i("config",h.measurementId,v),At&&(i("set",At),Ks(void 0)),h.measurementId}function Qs(){let t=[];if(Yt()&&t.push("This is a browser extension environment."),Zt()||t.push("Cookies are not available."),t.length>0){let e=t.map((r,i)=>`(${i+1}) ${r}`).join(" "),n=_.create("invalid-analytics-context",{errorInfo:e});m.warn(n.message)}}function Xs(t,e,n){Qs();let r=t.options.appId;if(!r)throw _.create("no-app-id");if(!t.options.apiKey)if(t.options.measurementId)m.warn(`The "apiKey" field is empty in the local Firebase config. This is needed to fetch the latest measurement ID for this Firebase app. Falling back to the measurement ID ${t.options.measurementId} provided in the "measurementId" field in the local Firebase config.`);else throw _.create("no-api-key");if(U[r]!=null)throw _.create("already-exists",{id:r});if(!Bn){xs(Et);let{wrappedGtag:s,gtagCore:o}=Ns(U,kn,Ln,Et,Zs);ie=s,Nn=o,Bn=!0}return U[r]=Ys(t,kn,Ln,e,Nn,Et,n),new St(t)}function se(t=ft()){t=ee(t);let e=re(t,De);return e.isInitialized()?e.getImmediate():eo(t)}function eo(t,e={}){let n=re(t,De);if(n.isInitialized()){let i=n.getImmediate();if(X(e,n.getOptions()))return i;throw _.create("already-initialized")}return n.initialize({options:e})}function Hn(t,e,n){t=ee(t),Ws(ie,U[t.app.options.appId],e,n).catch(r=>m.error(r))}function zn(t,e,n){t=ee(t),Gs(ie,U[t.app.options.appId],e,n).catch(r=>m.error(r))}function Wn(t,e){t=ee(t),qs(U[t.app.options.appId],e).catch(n=>m.error(n))}function Pe(t,e,n,r){t=ee(t),zs(ie,U[t.app.options.appId],e,n,r).catch(i=>m.error(i))}function Gn(t){ie?ie("consent","update",t):Vn(t)}function to(){B(new E(De,(e,{options:n})=>{let r=e.getProvider("app").getImmediate(),i=e.getProvider("installations-internal").getImmediate();return Xs(r,i,n)},"PUBLIC")),B(new E("analytics-internal",t,"PRIVATE")),L(Mn,$n),L(Mn,$n,"esm2017");function t(e){try{let n=e.getProvider(De).getImmediate();return{logEvent:(r,i,s)=>Pe(n,r,i,s)}}catch(n){throw _.create("interop-component-reg-failed",{reason:n})}}}var De,Is,As,Cs,Ss,Tt,m,Ts,_,Ms,$s,_t,jn,It,At,Ct,St,U,kn,Ln,Et,Zs,Nn,ie,Bn,Mn,$n,qn=b(()=>{ht();Ye();te();Ee();Rn();De="analytics",Is="firebase_id",As="origin",Cs=60*1e3,Ss="https://firebase.googleapis.com/v1alpha/projects/-/apps/{app-id}/webConfig",Tt="https://www.googletagmanager.com/gtag/js";m=new ne("@firebase/analytics");Ts={"already-exists":"A Firebase Analytics instance with the appId {$id}  already exists. Only one Firebase Analytics instance can be created for each appId.","already-initialized":"initializeAnalytics() cannot be called again with different options than those it was initially called with. It can be called again with the same options to return the existing instance, or getAnalytics() can be used to get a reference to the already-initialized instance.","already-initialized-settings":"Firebase Analytics has already been initialized.settings() must be called before initializing any Analytics instanceor it will have no effect.","interop-component-reg-failed":"Firebase Analytics Interop Component failed to instantiate: {$reason}","invalid-analytics-context":"Firebase Analytics is not supported in this environment. Wrap initialization of analytics in analytics.isSupported() to prevent initialization in unsupported environments. Details: {$errorInfo}","indexeddb-unavailable":"IndexedDB unavailable or restricted in this environment. Wrap initialization of analytics in analytics.isSupported() to prevent initialization in unsupported environments. Details: {$errorInfo}","fetch-throttle":"The config fetch request timed out while in an exponential backoff state. Unix timestamp in milliseconds when fetch request throttling ends: {$throttleEndTimeMillis}.","config-fetch-failed":"Dynamic config fetch failed: [{$httpStatus}] {$responseMessage}","no-api-key":'The "apiKey" field is empty in the local Firebase config. Firebase Analytics requires this field tocontain a valid API key.',"no-app-id":'The "appId" field is empty in the local Firebase config. Firebase Analytics requires this field tocontain a valid app ID.',"no-client-id":'The "client_id" field is empty.',"invalid-gtag-resource":"Trusted Types detected an invalid gtag resource: {$gtagURL}."},_=new k("analytics","Analytics",Ts);Ms=30,$s=1e3,_t=class{constructor(e={},n=$s){this.throttleMetadata=e,this.intervalMillis=n}getThrottleMetadata(e){return this.throttleMetadata[e]}setThrottleMetadata(e,n){this.throttleMetadata[e]=n}deleteThrottleMetadata(e){delete this.throttleMetadata[e]}},jn=new _t;It=class{constructor(){this.listeners=[]}addEventListener(e){this.listeners.push(e)}abort(){this.listeners.forEach(e=>e())}};St=class{constructor(e){this.app=e}_delete(){return delete U[this.app.options.appId],Promise.resolve()}},U={},kn=[],Ln={},Et="dataLayer",Zs="gtag",Bn=!1;Mn="@firebase/analytics",$n="0.10.17";to()});var Kn=b(()=>{qn()});var Jn={};Me(Jn,{FirebaseAnalyticsWeb:()=>Dt});var Dt,Yn=b(()=>{z();Kn();ze();Dt=class extends P{async getAppInstanceId(){throw this.unimplemented("Not implemented on web.")}async setConsent(e){let n=e.status===ge.Granted?"granted":"denied",r={};switch(e.type){case R.AdPersonalization:r.ad_personalization=n;break;case R.AdStorage:r.ad_storage=n;break;case R.AdUserData:r.ad_user_data=n;break;case R.AnalyticsStorage:r.analytics_storage=n;break;case R.FunctionalityStorage:r.functionality_storage=n;break;case R.PersonalizationStorage:r.personalization_storage=n;break}Gn(r)}async setUserId(e){let n=se();Hn(n,e.userId)}async setUserProperty(e){let n=se();zn(n,{[e.key]:e.value})}async setCurrentScreen(e){let n=se();Pe(n,"screen_view",{firebase_screen:e.screenName||void 0,firebase_screen_class:e.screenClassOverride||void 0})}async logEvent(e){let n=se();Pe(n,e.name,e.params)}async setSessionTimeoutDuration(e){throw this.unimplemented("Not implemented on web.")}async setEnabled(e){let n=se();Wn(n,e.enabled)}async isEnabled(){return{enabled:window["ga-disable-analyticsId"]===!0}}async resetAnalyticsData(){throw this.unimplemented("Not implemented on web.")}}});z();var Nt;(function(t){t.General="General",t.ParentalGuidance="ParentalGuidance",t.Teen="Teen",t.MatureAudience="MatureAudience"})(Nt||(Nt={}));var Bt;(function(t){t.SizeChanged="bannerAdSizeChanged",t.Loaded="bannerAdLoaded",t.FailedToLoad="bannerAdFailedToLoad",t.Opened="bannerAdOpened",t.Closed="bannerAdClosed",t.AdImpression="bannerAdImpression"})(Bt||(Bt={}));var pe;(function(t){t.TOP_CENTER="TOP_CENTER",t.CENTER="CENTER",t.BOTTOM_CENTER="BOTTOM_CENTER"})(pe||(pe={}));var me;(function(t){t.BANNER="BANNER",t.FULL_BANNER="FULL_BANNER",t.LARGE_BANNER="LARGE_BANNER",t.MEDIUM_RECTANGLE="MEDIUM_RECTANGLE",t.LEADERBOARD="LEADERBOARD",t.ADAPTIVE_BANNER="ADAPTIVE_BANNER",t.SMART_BANNER="SMART_BANNER"})(me||(me={}));var Mt;(function(t){t.Loaded="interstitialAdLoaded",t.FailedToLoad="interstitialAdFailedToLoad",t.Showed="interstitialAdShowed",t.FailedToShow="interstitialAdFailedToShow",t.Dismissed="interstitialAdDismissed"})(Mt||(Mt={}));var $t;(function(t){t.Loaded="onRewardedVideoAdLoaded",t.FailedToLoad="onRewardedVideoAdFailedToLoad",t.Showed="onRewardedVideoAdShowed",t.FailedToShow="onRewardedVideoAdFailedToShow",t.Dismissed="onRewardedVideoAdDismissed",t.Rewarded="onRewardedVideoAdReward"})($t||($t={}));je();var Ft;(function(t){t[t.DISABLED=0]="DISABLED",t[t.EEA=1]="EEA",t[t.NOT_EEA=2]="NOT_EEA"})(Ft||(Ft={}));var C=F("AdMob",{web:()=>Promise.resolve().then(()=>(Ut(),jt)).then(t=>new t.AdMobWeb)});z();var He=F("Preferences",{web:()=>Promise.resolve().then(()=>(Ht(),Vt)).then(t=>new t.PreferencesWeb)});z();ze();var Zn=F("FirebaseAnalytics",{web:()=>Promise.resolve().then(()=>(Yn(),Jn)).then(t=>new t.FirebaseAnalyticsWeb)});var no="ca-app-pub-4389055403972993/6403273070",er="ca-app-pub-4389055403972993/6670866381",tr="ca-app-pub-4389055403972993/2272456375",Oe="com.luckyclover.aceofaces.removeads",nr="ace1918_ads_removed_v1",ro=9e4,V=!1,le=!1,xe=!1,Qn=0,de=!1,I=null;async function io(){await C.initialize({initializeForTesting:!1}),await T(()=>C.requestTrackingAuthorization()),await T(()=>C.prepareInterstitial({adId:er})),await T(()=>C.prepareRewardVideoAd({adId:tr})),await T(rr)}async function rr(){if(!(V||le))try{await C.showBanner({adId:no,adSize:me.ADAPTIVE_BANNER,position:pe.BOTTOM_CENTER,margin:0}),le=!0,J("ad_shown",{format:"banner"})}catch{le=!1}}async function so(){le&&(le=!1,await T(()=>C.removeBanner()))}async function J(t,e){de&&await T(()=>Zn.logEvent({name:t,params:e??{}}))}async function oo(){if(V||Date.now()-Qn<ro)return!1;try{return await C.showInterstitial(),Qn=Date.now(),T(()=>C.prepareInterstitial({adId:er})),J("ad_shown",{format:"interstitial"}),!0}catch{return!1}}async function ao(){if(V)return!1;try{let t=await C.showRewardVideoAd();T(()=>C.prepareRewardVideoAd({adId:tr}));let e=!!t;return e&&(J("ad_shown",{format:"rewarded"}),J("reward_earned",{})),e}catch{return!1}}function Re(){try{return typeof CdvPurchase<"u"?CdvPurchase:null}catch{return null}}async function Xn(t){V=t,await He.set({key:nr,value:t?"1":"0"}),t?await so():de&&await T(rr),t&&!xe&&(xe=!0,J("remove_ads_purchased",{price_usd:2.99})),I&&(I(t),I=null)}async function co(){let{value:t}=await He.get({key:nr});t==="1"&&(V=!0,xe=!0);let e=Re();if(!e)return;let{store:n,ProductType:r,Platform:i}=e;n.register([{id:Oe,type:r.NON_CONSUMABLE,platform:i.APPLE_APPSTORE}]),n.when().approved(s=>s.verify()).verified(s=>s.finish()).finished(s=>{(s.products||[]).map(a=>typeof a=="string"?a:a.id).indexOf(Oe)>=0&&Xn(!0)}).cancelled(()=>{I&&(I(!1),I=null)}).owned(s=>{(typeof s=="string"?s:s.id)===Oe&&(xe=!0,Xn(!0))}),await n.initialize([i.APPLE_APPSTORE])}function lo(){let t=Re();return t?V?Promise.resolve(!0):new Promise(e=>{I=e,setTimeout(()=>{I&&(I(!1),I=null)},12e4),t.store.order(Oe).catch(()=>{I&&(I(!1),I=null)})}):Promise.resolve(!1)}async function uo(){let t=Re();if(!t)return!1;try{return await t.store.restore(),V}catch{return!1}}async function T(t){try{await t()}catch{}}async function fo(){de=typeof window.Capacitor<"u"&&!!window.Capacitor.isNativePlatform?.(),de&&(await T(io),await ho(8e3),await T(co)),window.GameBridge={isAdsRemoved:async()=>V,showInterstitial:()=>oo(),showRewardedAd:()=>ao(),buyRemoveAds:()=>lo(),restorePurchases:()=>uo(),trackEvent:(t,e)=>J(t,e)},de&&J("shell_boot",{}),window.dispatchEvent(new Event("gamebridge:ready"))}function ho(t){return Re()?Promise.resolve():new Promise(e=>{let n=()=>e(),r=setTimeout(n,t);document.addEventListener("deviceready",()=>{clearTimeout(r),n()},{once:!0})})}fo();})();
+(() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __esm = (fn, res, err) => function __init() {
+    if (err) throw err[0];
+    try {
+      return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+    } catch (e) {
+      throw err = [e], e;
+    }
+  };
+  var __export = (target, all) => {
+    for (var name4 in all)
+      __defProp(target, name4, { get: all[name4], enumerable: true });
+  };
+
+  // node_modules/@capacitor/core/dist/index.js
+  var createCapacitorPlatforms, initPlatforms, CapacitorPlatforms, addPlatform, setPlatform, ExceptionCode, CapacitorException, getPlatformId, createCapacitor, initCapacitorGlobal, Capacitor, registerPlugin, Plugins, WebPlugin, encode, decode, CapacitorCookiesPluginWeb, CapacitorCookies, readBlobAsBase64, normalizeHttpHeaders, buildUrlParams, buildRequestInit, CapacitorHttpPluginWeb, CapacitorHttp;
+  var init_dist = __esm({
+    "node_modules/@capacitor/core/dist/index.js"() {
+      createCapacitorPlatforms = (win) => {
+        const defaultPlatformMap = /* @__PURE__ */ new Map();
+        defaultPlatformMap.set("web", { name: "web" });
+        const capPlatforms = win.CapacitorPlatforms || {
+          currentPlatform: { name: "web" },
+          platforms: defaultPlatformMap
+        };
+        const addPlatform2 = (name4, platform) => {
+          capPlatforms.platforms.set(name4, platform);
+        };
+        const setPlatform2 = (name4) => {
+          if (capPlatforms.platforms.has(name4)) {
+            capPlatforms.currentPlatform = capPlatforms.platforms.get(name4);
+          }
+        };
+        capPlatforms.addPlatform = addPlatform2;
+        capPlatforms.setPlatform = setPlatform2;
+        return capPlatforms;
+      };
+      initPlatforms = (win) => win.CapacitorPlatforms = createCapacitorPlatforms(win);
+      CapacitorPlatforms = /* @__PURE__ */ initPlatforms(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {});
+      addPlatform = CapacitorPlatforms.addPlatform;
+      setPlatform = CapacitorPlatforms.setPlatform;
+      (function(ExceptionCode2) {
+        ExceptionCode2["Unimplemented"] = "UNIMPLEMENTED";
+        ExceptionCode2["Unavailable"] = "UNAVAILABLE";
+      })(ExceptionCode || (ExceptionCode = {}));
+      CapacitorException = class extends Error {
+        constructor(message, code, data) {
+          super(message);
+          this.message = message;
+          this.code = code;
+          this.data = data;
+        }
+      };
+      getPlatformId = (win) => {
+        var _a, _b;
+        if (win === null || win === void 0 ? void 0 : win.androidBridge) {
+          return "android";
+        } else if ((_b = (_a = win === null || win === void 0 ? void 0 : win.webkit) === null || _a === void 0 ? void 0 : _a.messageHandlers) === null || _b === void 0 ? void 0 : _b.bridge) {
+          return "ios";
+        } else {
+          return "web";
+        }
+      };
+      createCapacitor = (win) => {
+        var _a, _b, _c, _d, _e;
+        const capCustomPlatform = win.CapacitorCustomPlatform || null;
+        const cap = win.Capacitor || {};
+        const Plugins2 = cap.Plugins = cap.Plugins || {};
+        const capPlatforms = win.CapacitorPlatforms;
+        const defaultGetPlatform = () => {
+          return capCustomPlatform !== null ? capCustomPlatform.name : getPlatformId(win);
+        };
+        const getPlatform = ((_a = capPlatforms === null || capPlatforms === void 0 ? void 0 : capPlatforms.currentPlatform) === null || _a === void 0 ? void 0 : _a.getPlatform) || defaultGetPlatform;
+        const defaultIsNativePlatform = () => getPlatform() !== "web";
+        const isNativePlatform = ((_b = capPlatforms === null || capPlatforms === void 0 ? void 0 : capPlatforms.currentPlatform) === null || _b === void 0 ? void 0 : _b.isNativePlatform) || defaultIsNativePlatform;
+        const defaultIsPluginAvailable = (pluginName) => {
+          const plugin = registeredPlugins.get(pluginName);
+          if (plugin === null || plugin === void 0 ? void 0 : plugin.platforms.has(getPlatform())) {
+            return true;
+          }
+          if (getPluginHeader(pluginName)) {
+            return true;
+          }
+          return false;
+        };
+        const isPluginAvailable = ((_c = capPlatforms === null || capPlatforms === void 0 ? void 0 : capPlatforms.currentPlatform) === null || _c === void 0 ? void 0 : _c.isPluginAvailable) || defaultIsPluginAvailable;
+        const defaultGetPluginHeader = (pluginName) => {
+          var _a2;
+          return (_a2 = cap.PluginHeaders) === null || _a2 === void 0 ? void 0 : _a2.find((h) => h.name === pluginName);
+        };
+        const getPluginHeader = ((_d = capPlatforms === null || capPlatforms === void 0 ? void 0 : capPlatforms.currentPlatform) === null || _d === void 0 ? void 0 : _d.getPluginHeader) || defaultGetPluginHeader;
+        const handleError = (err) => win.console.error(err);
+        const pluginMethodNoop = (_target, prop, pluginName) => {
+          return Promise.reject(`${pluginName} does not have an implementation of "${prop}".`);
+        };
+        const registeredPlugins = /* @__PURE__ */ new Map();
+        const defaultRegisterPlugin = (pluginName, jsImplementations = {}) => {
+          const registeredPlugin = registeredPlugins.get(pluginName);
+          if (registeredPlugin) {
+            console.warn(`Capacitor plugin "${pluginName}" already registered. Cannot register plugins twice.`);
+            return registeredPlugin.proxy;
+          }
+          const platform = getPlatform();
+          const pluginHeader = getPluginHeader(pluginName);
+          let jsImplementation;
+          const loadPluginImplementation = async () => {
+            if (!jsImplementation && platform in jsImplementations) {
+              jsImplementation = typeof jsImplementations[platform] === "function" ? jsImplementation = await jsImplementations[platform]() : jsImplementation = jsImplementations[platform];
+            } else if (capCustomPlatform !== null && !jsImplementation && "web" in jsImplementations) {
+              jsImplementation = typeof jsImplementations["web"] === "function" ? jsImplementation = await jsImplementations["web"]() : jsImplementation = jsImplementations["web"];
+            }
+            return jsImplementation;
+          };
+          const createPluginMethod = (impl, prop) => {
+            var _a2, _b2;
+            if (pluginHeader) {
+              const methodHeader = pluginHeader === null || pluginHeader === void 0 ? void 0 : pluginHeader.methods.find((m) => prop === m.name);
+              if (methodHeader) {
+                if (methodHeader.rtype === "promise") {
+                  return (options) => cap.nativePromise(pluginName, prop.toString(), options);
+                } else {
+                  return (options, callback) => cap.nativeCallback(pluginName, prop.toString(), options, callback);
+                }
+              } else if (impl) {
+                return (_a2 = impl[prop]) === null || _a2 === void 0 ? void 0 : _a2.bind(impl);
+              }
+            } else if (impl) {
+              return (_b2 = impl[prop]) === null || _b2 === void 0 ? void 0 : _b2.bind(impl);
+            } else {
+              throw new CapacitorException(`"${pluginName}" plugin is not implemented on ${platform}`, ExceptionCode.Unimplemented);
+            }
+          };
+          const createPluginMethodWrapper = (prop) => {
+            let remove2;
+            const wrapper = (...args) => {
+              const p = loadPluginImplementation().then((impl) => {
+                const fn = createPluginMethod(impl, prop);
+                if (fn) {
+                  const p2 = fn(...args);
+                  remove2 = p2 === null || p2 === void 0 ? void 0 : p2.remove;
+                  return p2;
+                } else {
+                  throw new CapacitorException(`"${pluginName}.${prop}()" is not implemented on ${platform}`, ExceptionCode.Unimplemented);
+                }
+              });
+              if (prop === "addListener") {
+                p.remove = async () => remove2();
+              }
+              return p;
+            };
+            wrapper.toString = () => `${prop.toString()}() { [capacitor code] }`;
+            Object.defineProperty(wrapper, "name", {
+              value: prop,
+              writable: false,
+              configurable: false
+            });
+            return wrapper;
+          };
+          const addListener = createPluginMethodWrapper("addListener");
+          const removeListener = createPluginMethodWrapper("removeListener");
+          const addListenerNative = (eventName, callback) => {
+            const call = addListener({ eventName }, callback);
+            const remove2 = async () => {
+              const callbackId = await call;
+              removeListener({
+                eventName,
+                callbackId
+              }, callback);
+            };
+            const p = new Promise((resolve) => call.then(() => resolve({ remove: remove2 })));
+            p.remove = async () => {
+              console.warn(`Using addListener() without 'await' is deprecated.`);
+              await remove2();
+            };
+            return p;
+          };
+          const proxy = new Proxy({}, {
+            get(_, prop) {
+              switch (prop) {
+                // https://github.com/facebook/react/issues/20030
+                case "$$typeof":
+                  return void 0;
+                case "toJSON":
+                  return () => ({});
+                case "addListener":
+                  return pluginHeader ? addListenerNative : addListener;
+                case "removeListener":
+                  return removeListener;
+                default:
+                  return createPluginMethodWrapper(prop);
+              }
+            }
+          });
+          Plugins2[pluginName] = proxy;
+          registeredPlugins.set(pluginName, {
+            name: pluginName,
+            proxy,
+            platforms: /* @__PURE__ */ new Set([
+              ...Object.keys(jsImplementations),
+              ...pluginHeader ? [platform] : []
+            ])
+          });
+          return proxy;
+        };
+        const registerPlugin2 = ((_e = capPlatforms === null || capPlatforms === void 0 ? void 0 : capPlatforms.currentPlatform) === null || _e === void 0 ? void 0 : _e.registerPlugin) || defaultRegisterPlugin;
+        if (!cap.convertFileSrc) {
+          cap.convertFileSrc = (filePath) => filePath;
+        }
+        cap.getPlatform = getPlatform;
+        cap.handleError = handleError;
+        cap.isNativePlatform = isNativePlatform;
+        cap.isPluginAvailable = isPluginAvailable;
+        cap.pluginMethodNoop = pluginMethodNoop;
+        cap.registerPlugin = registerPlugin2;
+        cap.Exception = CapacitorException;
+        cap.DEBUG = !!cap.DEBUG;
+        cap.isLoggingEnabled = !!cap.isLoggingEnabled;
+        cap.platform = cap.getPlatform();
+        cap.isNative = cap.isNativePlatform();
+        return cap;
+      };
+      initCapacitorGlobal = (win) => win.Capacitor = createCapacitor(win);
+      Capacitor = /* @__PURE__ */ initCapacitorGlobal(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {});
+      registerPlugin = Capacitor.registerPlugin;
+      Plugins = Capacitor.Plugins;
+      WebPlugin = class {
+        constructor(config) {
+          this.listeners = {};
+          this.retainedEventArguments = {};
+          this.windowListeners = {};
+          if (config) {
+            console.warn(`Capacitor WebPlugin "${config.name}" config object was deprecated in v3 and will be removed in v4.`);
+            this.config = config;
+          }
+        }
+        addListener(eventName, listenerFunc) {
+          let firstListener = false;
+          const listeners = this.listeners[eventName];
+          if (!listeners) {
+            this.listeners[eventName] = [];
+            firstListener = true;
+          }
+          this.listeners[eventName].push(listenerFunc);
+          const windowListener = this.windowListeners[eventName];
+          if (windowListener && !windowListener.registered) {
+            this.addWindowListener(windowListener);
+          }
+          if (firstListener) {
+            this.sendRetainedArgumentsForEvent(eventName);
+          }
+          const remove2 = async () => this.removeListener(eventName, listenerFunc);
+          const p = Promise.resolve({ remove: remove2 });
+          return p;
+        }
+        async removeAllListeners() {
+          this.listeners = {};
+          for (const listener in this.windowListeners) {
+            this.removeWindowListener(this.windowListeners[listener]);
+          }
+          this.windowListeners = {};
+        }
+        notifyListeners(eventName, data, retainUntilConsumed) {
+          const listeners = this.listeners[eventName];
+          if (!listeners) {
+            if (retainUntilConsumed) {
+              let args = this.retainedEventArguments[eventName];
+              if (!args) {
+                args = [];
+              }
+              args.push(data);
+              this.retainedEventArguments[eventName] = args;
+            }
+            return;
+          }
+          listeners.forEach((listener) => listener(data));
+        }
+        hasListeners(eventName) {
+          return !!this.listeners[eventName].length;
+        }
+        registerWindowListener(windowEventName, pluginEventName) {
+          this.windowListeners[pluginEventName] = {
+            registered: false,
+            windowEventName,
+            pluginEventName,
+            handler: (event) => {
+              this.notifyListeners(pluginEventName, event);
+            }
+          };
+        }
+        unimplemented(msg = "not implemented") {
+          return new Capacitor.Exception(msg, ExceptionCode.Unimplemented);
+        }
+        unavailable(msg = "not available") {
+          return new Capacitor.Exception(msg, ExceptionCode.Unavailable);
+        }
+        async removeListener(eventName, listenerFunc) {
+          const listeners = this.listeners[eventName];
+          if (!listeners) {
+            return;
+          }
+          const index = listeners.indexOf(listenerFunc);
+          this.listeners[eventName].splice(index, 1);
+          if (!this.listeners[eventName].length) {
+            this.removeWindowListener(this.windowListeners[eventName]);
+          }
+        }
+        addWindowListener(handle) {
+          window.addEventListener(handle.windowEventName, handle.handler);
+          handle.registered = true;
+        }
+        removeWindowListener(handle) {
+          if (!handle) {
+            return;
+          }
+          window.removeEventListener(handle.windowEventName, handle.handler);
+          handle.registered = false;
+        }
+        sendRetainedArgumentsForEvent(eventName) {
+          const args = this.retainedEventArguments[eventName];
+          if (!args) {
+            return;
+          }
+          delete this.retainedEventArguments[eventName];
+          args.forEach((arg) => {
+            this.notifyListeners(eventName, arg);
+          });
+        }
+      };
+      encode = (str) => encodeURIComponent(str).replace(/%(2[346B]|5E|60|7C)/g, decodeURIComponent).replace(/[()]/g, escape);
+      decode = (str) => str.replace(/(%[\dA-F]{2})+/gi, decodeURIComponent);
+      CapacitorCookiesPluginWeb = class extends WebPlugin {
+        async getCookies() {
+          const cookies = document.cookie;
+          const cookieMap = {};
+          cookies.split(";").forEach((cookie) => {
+            if (cookie.length <= 0)
+              return;
+            let [key, value] = cookie.replace(/=/, "CAP_COOKIE").split("CAP_COOKIE");
+            key = decode(key).trim();
+            value = decode(value).trim();
+            cookieMap[key] = value;
+          });
+          return cookieMap;
+        }
+        async setCookie(options) {
+          try {
+            const encodedKey = encode(options.key);
+            const encodedValue = encode(options.value);
+            const expires = `; expires=${(options.expires || "").replace("expires=", "")}`;
+            const path = (options.path || "/").replace("path=", "");
+            const domain = options.url != null && options.url.length > 0 ? `domain=${options.url}` : "";
+            document.cookie = `${encodedKey}=${encodedValue || ""}${expires}; path=${path}; ${domain};`;
+          } catch (error) {
+            return Promise.reject(error);
+          }
+        }
+        async deleteCookie(options) {
+          try {
+            document.cookie = `${options.key}=; Max-Age=0`;
+          } catch (error) {
+            return Promise.reject(error);
+          }
+        }
+        async clearCookies() {
+          try {
+            const cookies = document.cookie.split(";") || [];
+            for (const cookie of cookies) {
+              document.cookie = cookie.replace(/^ +/, "").replace(/=.*/, `=;expires=${(/* @__PURE__ */ new Date()).toUTCString()};path=/`);
+            }
+          } catch (error) {
+            return Promise.reject(error);
+          }
+        }
+        async clearAllCookies() {
+          try {
+            await this.clearCookies();
+          } catch (error) {
+            return Promise.reject(error);
+          }
+        }
+      };
+      CapacitorCookies = registerPlugin("CapacitorCookies", {
+        web: () => new CapacitorCookiesPluginWeb()
+      });
+      readBlobAsBase64 = async (blob) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64String = reader.result;
+          resolve(base64String.indexOf(",") >= 0 ? base64String.split(",")[1] : base64String);
+        };
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(blob);
+      });
+      normalizeHttpHeaders = (headers = {}) => {
+        const originalKeys = Object.keys(headers);
+        const loweredKeys = Object.keys(headers).map((k) => k.toLocaleLowerCase());
+        const normalized = loweredKeys.reduce((acc, key, index) => {
+          acc[key] = headers[originalKeys[index]];
+          return acc;
+        }, {});
+        return normalized;
+      };
+      buildUrlParams = (params, shouldEncode = true) => {
+        if (!params)
+          return null;
+        const output = Object.entries(params).reduce((accumulator, entry) => {
+          const [key, value] = entry;
+          let encodedValue;
+          let item;
+          if (Array.isArray(value)) {
+            item = "";
+            value.forEach((str) => {
+              encodedValue = shouldEncode ? encodeURIComponent(str) : str;
+              item += `${key}=${encodedValue}&`;
+            });
+            item.slice(0, -1);
+          } else {
+            encodedValue = shouldEncode ? encodeURIComponent(value) : value;
+            item = `${key}=${encodedValue}`;
+          }
+          return `${accumulator}&${item}`;
+        }, "");
+        return output.substr(1);
+      };
+      buildRequestInit = (options, extra = {}) => {
+        const output = Object.assign({ method: options.method || "GET", headers: options.headers }, extra);
+        const headers = normalizeHttpHeaders(options.headers);
+        const type = headers["content-type"] || "";
+        if (typeof options.data === "string") {
+          output.body = options.data;
+        } else if (type.includes("application/x-www-form-urlencoded")) {
+          const params = new URLSearchParams();
+          for (const [key, value] of Object.entries(options.data || {})) {
+            params.set(key, value);
+          }
+          output.body = params.toString();
+        } else if (type.includes("multipart/form-data") || options.data instanceof FormData) {
+          const form = new FormData();
+          if (options.data instanceof FormData) {
+            options.data.forEach((value, key) => {
+              form.append(key, value);
+            });
+          } else {
+            for (const key of Object.keys(options.data)) {
+              form.append(key, options.data[key]);
+            }
+          }
+          output.body = form;
+          const headers2 = new Headers(output.headers);
+          headers2.delete("content-type");
+          output.headers = headers2;
+        } else if (type.includes("application/json") || typeof options.data === "object") {
+          output.body = JSON.stringify(options.data);
+        }
+        return output;
+      };
+      CapacitorHttpPluginWeb = class extends WebPlugin {
+        /**
+         * Perform an Http request given a set of options
+         * @param options Options to build the HTTP request
+         */
+        async request(options) {
+          const requestInit = buildRequestInit(options, options.webFetchExtra);
+          const urlParams = buildUrlParams(options.params, options.shouldEncodeUrlParams);
+          const url = urlParams ? `${options.url}?${urlParams}` : options.url;
+          const response = await fetch(url, requestInit);
+          const contentType = response.headers.get("content-type") || "";
+          let { responseType = "text" } = response.ok ? options : {};
+          if (contentType.includes("application/json")) {
+            responseType = "json";
+          }
+          let data;
+          let blob;
+          switch (responseType) {
+            case "arraybuffer":
+            case "blob":
+              blob = await response.blob();
+              data = await readBlobAsBase64(blob);
+              break;
+            case "json":
+              data = await response.json();
+              break;
+            case "document":
+            case "text":
+            default:
+              data = await response.text();
+          }
+          const headers = {};
+          response.headers.forEach((value, key) => {
+            headers[key] = value;
+          });
+          return {
+            data,
+            headers,
+            status: response.status,
+            url: response.url
+          };
+        }
+        /**
+         * Perform an Http GET request given a set of options
+         * @param options Options to build the HTTP request
+         */
+        async get(options) {
+          return this.request(Object.assign(Object.assign({}, options), { method: "GET" }));
+        }
+        /**
+         * Perform an Http POST request given a set of options
+         * @param options Options to build the HTTP request
+         */
+        async post(options) {
+          return this.request(Object.assign(Object.assign({}, options), { method: "POST" }));
+        }
+        /**
+         * Perform an Http PUT request given a set of options
+         * @param options Options to build the HTTP request
+         */
+        async put(options) {
+          return this.request(Object.assign(Object.assign({}, options), { method: "PUT" }));
+        }
+        /**
+         * Perform an Http PATCH request given a set of options
+         * @param options Options to build the HTTP request
+         */
+        async patch(options) {
+          return this.request(Object.assign(Object.assign({}, options), { method: "PATCH" }));
+        }
+        /**
+         * Perform an Http DELETE request given a set of options
+         * @param options Options to build the HTTP request
+         */
+        async delete(options) {
+          return this.request(Object.assign(Object.assign({}, options), { method: "DELETE" }));
+        }
+      };
+      CapacitorHttp = registerPlugin("CapacitorHttp", {
+        web: () => new CapacitorHttpPluginWeb()
+      });
+    }
+  });
+
+  // node_modules/@capacitor-community/admob/dist/esm/consent/consent-status.enum.js
+  var AdmobConsentStatus;
+  var init_consent_status_enum = __esm({
+    "node_modules/@capacitor-community/admob/dist/esm/consent/consent-status.enum.js"() {
+      (function(AdmobConsentStatus2) {
+        AdmobConsentStatus2["NOT_REQUIRED"] = "NOT_REQUIRED";
+        AdmobConsentStatus2["OBTAINED"] = "OBTAINED";
+        AdmobConsentStatus2["REQUIRED"] = "REQUIRED";
+        AdmobConsentStatus2["UNKNOWN"] = "UNKNOWN";
+      })(AdmobConsentStatus || (AdmobConsentStatus = {}));
+    }
+  });
+
+  // node_modules/@capacitor-community/admob/dist/esm/web.js
+  var web_exports = {};
+  __export(web_exports, {
+    AdMobWeb: () => AdMobWeb
+  });
+  var AdMobWeb;
+  var init_web = __esm({
+    "node_modules/@capacitor-community/admob/dist/esm/web.js"() {
+      init_dist();
+      init_consent_status_enum();
+      AdMobWeb = class extends WebPlugin {
+        async initialize() {
+          console.log("initialize");
+        }
+        async requestTrackingAuthorization() {
+          console.log("requestTrackingAuthorization");
+        }
+        async trackingAuthorizationStatus() {
+          return {
+            status: "authorized"
+          };
+        }
+        async requestConsentInfo(options) {
+          console.log("requestConsentInfo", options);
+          return {
+            status: AdmobConsentStatus.REQUIRED,
+            isConsentFormAvailable: true
+          };
+        }
+        async showConsentForm() {
+          console.log("showConsentForm");
+          return {
+            status: AdmobConsentStatus.REQUIRED
+          };
+        }
+        async resetConsentInfo() {
+          console.log("resetConsentInfo");
+        }
+        async setApplicationMuted(options) {
+          console.log("setApplicationMuted", options);
+        }
+        async setApplicationVolume(options) {
+          console.log("setApplicationVolume", options);
+        }
+        async showBanner(options) {
+          console.log("showBanner", options);
+        }
+        // Hide the banner, remove it from screen, but can show it later
+        async hideBanner() {
+          console.log("hideBanner");
+        }
+        // Resume the banner, show it after hide
+        async resumeBanner() {
+          console.log("resumeBanner");
+        }
+        // Destroy the banner, remove it from screen.
+        async removeBanner() {
+          console.log("removeBanner");
+        }
+        async prepareInterstitial(options) {
+          console.log("prepareInterstitial", options);
+          return {
+            adUnitId: options.adId
+          };
+        }
+        async showInterstitial() {
+          console.log("showInterstitial");
+        }
+        async prepareRewardVideoAd(options) {
+          console.log(options);
+          return {
+            adUnitId: options.adId
+          };
+        }
+        async showRewardVideoAd() {
+          return {
+            type: "",
+            amount: 0
+          };
+        }
+        async prepareRewardInterstitialAd(options) {
+          console.log(options);
+          return {
+            adUnitId: options.adId
+          };
+        }
+        async showRewardInterstitialAd() {
+          return {
+            type: "",
+            amount: 0
+          };
+        }
+      };
+    }
+  });
+
+  // node_modules/@capacitor/preferences/dist/esm/web.js
+  var web_exports2 = {};
+  __export(web_exports2, {
+    PreferencesWeb: () => PreferencesWeb
+  });
+  var PreferencesWeb;
+  var init_web2 = __esm({
+    "node_modules/@capacitor/preferences/dist/esm/web.js"() {
+      init_dist();
+      PreferencesWeb = class extends WebPlugin {
+        constructor() {
+          super(...arguments);
+          this.group = "CapacitorStorage";
+        }
+        async configure({ group }) {
+          if (typeof group === "string") {
+            this.group = group;
+          }
+        }
+        async get(options) {
+          const value = this.impl.getItem(this.applyPrefix(options.key));
+          return { value };
+        }
+        async set(options) {
+          this.impl.setItem(this.applyPrefix(options.key), options.value);
+        }
+        async remove(options) {
+          this.impl.removeItem(this.applyPrefix(options.key));
+        }
+        async keys() {
+          const keys = this.rawKeys().map((k) => k.substring(this.prefix.length));
+          return { keys };
+        }
+        async clear() {
+          for (const key of this.rawKeys()) {
+            this.impl.removeItem(key);
+          }
+        }
+        async migrate() {
+          var _a;
+          const migrated = [];
+          const existing = [];
+          const oldprefix = "_cap_";
+          const keys = Object.keys(this.impl).filter((k) => k.indexOf(oldprefix) === 0);
+          for (const oldkey of keys) {
+            const key = oldkey.substring(oldprefix.length);
+            const value = (_a = this.impl.getItem(oldkey)) !== null && _a !== void 0 ? _a : "";
+            const { value: currentValue } = await this.get({ key });
+            if (typeof currentValue === "string") {
+              existing.push(key);
+            } else {
+              await this.set({ key, value });
+              migrated.push(key);
+            }
+          }
+          return { migrated, existing };
+        }
+        async removeOld() {
+          const oldprefix = "_cap_";
+          const keys = Object.keys(this.impl).filter((k) => k.indexOf(oldprefix) === 0);
+          for (const oldkey of keys) {
+            this.impl.removeItem(oldkey);
+          }
+        }
+        get impl() {
+          return window.localStorage;
+        }
+        get prefix() {
+          return this.group === "NativeStorage" ? "" : `${this.group}.`;
+        }
+        rawKeys() {
+          return Object.keys(this.impl).filter((k) => k.indexOf(this.prefix) === 0);
+        }
+        applyPrefix(key) {
+          return this.prefix + key;
+        }
+      };
+    }
+  });
+
+  // node_modules/@capacitor-firebase/analytics/dist/esm/definitions.js
+  var ConsentType, ConsentStatus;
+  var init_definitions = __esm({
+    "node_modules/@capacitor-firebase/analytics/dist/esm/definitions.js"() {
+      (function(ConsentType2) {
+        ConsentType2["AdPersonalization"] = "AD_PERSONALIZATION";
+        ConsentType2["AdStorage"] = "AD_STORAGE";
+        ConsentType2["AdUserData"] = "AD_USER_DATA";
+        ConsentType2["AnalyticsStorage"] = "ANALYTICS_STORAGE";
+        ConsentType2["FunctionalityStorage"] = "FUNCTIONALITY_STORAGE";
+        ConsentType2["PersonalizationStorage"] = "PERSONALIZATION_STORAGE";
+      })(ConsentType || (ConsentType = {}));
+      (function(ConsentStatus2) {
+        ConsentStatus2["Granted"] = "GRANTED";
+        ConsentStatus2["Denied"] = "DENIED";
+      })(ConsentStatus || (ConsentStatus = {}));
+    }
+  });
+
+  // node_modules/@firebase/util/dist/postinstall.mjs
+  var getDefaultsFromPostinstall;
+  var init_postinstall = __esm({
+    "node_modules/@firebase/util/dist/postinstall.mjs"() {
+      getDefaultsFromPostinstall = () => void 0;
+    }
+  });
+
+  // node_modules/@firebase/util/dist/index.esm2017.js
+  function getGlobal() {
+    if (typeof self !== "undefined") {
+      return self;
+    }
+    if (typeof window !== "undefined") {
+      return window;
+    }
+    if (typeof global !== "undefined") {
+      return global;
+    }
+    throw new Error("Unable to locate global object.");
+  }
+  function isBrowserExtension() {
+    const runtime = typeof chrome === "object" ? chrome.runtime : typeof browser === "object" ? browser.runtime : void 0;
+    return typeof runtime === "object" && runtime.id !== void 0;
+  }
+  function isIndexedDBAvailable() {
+    try {
+      return typeof indexedDB === "object";
+    } catch (e) {
+      return false;
+    }
+  }
+  function validateIndexedDBOpenable() {
+    return new Promise((resolve, reject) => {
+      try {
+        let preExist = true;
+        const DB_CHECK_NAME = "validate-browser-context-for-indexeddb-analytics-module";
+        const request = self.indexedDB.open(DB_CHECK_NAME);
+        request.onsuccess = () => {
+          request.result.close();
+          if (!preExist) {
+            self.indexedDB.deleteDatabase(DB_CHECK_NAME);
+          }
+          resolve(true);
+        };
+        request.onupgradeneeded = () => {
+          preExist = false;
+        };
+        request.onerror = () => {
+          var _a;
+          reject(((_a = request.error) === null || _a === void 0 ? void 0 : _a.message) || "");
+        };
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+  function areCookiesEnabled() {
+    if (typeof navigator === "undefined" || !navigator.cookieEnabled) {
+      return false;
+    }
+    return true;
+  }
+  function replaceTemplate(template, data) {
+    return template.replace(PATTERN, (_, key) => {
+      const value = data[key];
+      return value != null ? String(value) : `<${key}?>`;
+    });
+  }
+  function deepEqual(a, b) {
+    if (a === b) {
+      return true;
+    }
+    const aKeys = Object.keys(a);
+    const bKeys = Object.keys(b);
+    for (const k of aKeys) {
+      if (!bKeys.includes(k)) {
+        return false;
+      }
+      const aProp = a[k];
+      const bProp = b[k];
+      if (isObject(aProp) && isObject(bProp)) {
+        if (!deepEqual(aProp, bProp)) {
+          return false;
+        }
+      } else if (aProp !== bProp) {
+        return false;
+      }
+    }
+    for (const k of bKeys) {
+      if (!aKeys.includes(k)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function isObject(thing) {
+    return thing !== null && typeof thing === "object";
+  }
+  function calculateBackoffMillis(backoffCount, intervalMillis = DEFAULT_INTERVAL_MILLIS, backoffFactor = DEFAULT_BACKOFF_FACTOR) {
+    const currBaseValue = intervalMillis * Math.pow(backoffFactor, backoffCount);
+    const randomWait = Math.round(
+      // A fraction of the backoff value to add/subtract.
+      // Deviation: changes multiplication order to improve readability.
+      RANDOM_FACTOR * currBaseValue * // A random float (rounded to int by Math.round above) in the range [-1, 1]. Determines
+      // if we add or subtract.
+      (Math.random() - 0.5) * 2
+    );
+    return Math.min(MAX_VALUE_MILLIS, currBaseValue + randomWait);
+  }
+  function getModularInstance(service) {
+    if (service && service._delegate) {
+      return service._delegate;
+    } else {
+      return service;
+    }
+  }
+  var stringToByteArray$1, byteArrayToString, base64, DecodeBase64StringError, base64Encode, base64urlEncodeWithoutPadding, base64Decode, getDefaultsFromGlobal, getDefaultsFromEnvVariable, getDefaultsFromCookie, getDefaults, getDefaultAppConfig, Deferred, ERROR_NAME, FirebaseError, ErrorFactory, PATTERN, DEFAULT_INTERVAL_MILLIS, DEFAULT_BACKOFF_FACTOR, MAX_VALUE_MILLIS, RANDOM_FACTOR;
+  var init_index_esm2017 = __esm({
+    "node_modules/@firebase/util/dist/index.esm2017.js"() {
+      init_postinstall();
+      stringToByteArray$1 = function(str) {
+        const out = [];
+        let p = 0;
+        for (let i = 0; i < str.length; i++) {
+          let c = str.charCodeAt(i);
+          if (c < 128) {
+            out[p++] = c;
+          } else if (c < 2048) {
+            out[p++] = c >> 6 | 192;
+            out[p++] = c & 63 | 128;
+          } else if ((c & 64512) === 55296 && i + 1 < str.length && (str.charCodeAt(i + 1) & 64512) === 56320) {
+            c = 65536 + ((c & 1023) << 10) + (str.charCodeAt(++i) & 1023);
+            out[p++] = c >> 18 | 240;
+            out[p++] = c >> 12 & 63 | 128;
+            out[p++] = c >> 6 & 63 | 128;
+            out[p++] = c & 63 | 128;
+          } else {
+            out[p++] = c >> 12 | 224;
+            out[p++] = c >> 6 & 63 | 128;
+            out[p++] = c & 63 | 128;
+          }
+        }
+        return out;
+      };
+      byteArrayToString = function(bytes) {
+        const out = [];
+        let pos = 0, c = 0;
+        while (pos < bytes.length) {
+          const c1 = bytes[pos++];
+          if (c1 < 128) {
+            out[c++] = String.fromCharCode(c1);
+          } else if (c1 > 191 && c1 < 224) {
+            const c2 = bytes[pos++];
+            out[c++] = String.fromCharCode((c1 & 31) << 6 | c2 & 63);
+          } else if (c1 > 239 && c1 < 365) {
+            const c2 = bytes[pos++];
+            const c3 = bytes[pos++];
+            const c4 = bytes[pos++];
+            const u = ((c1 & 7) << 18 | (c2 & 63) << 12 | (c3 & 63) << 6 | c4 & 63) - 65536;
+            out[c++] = String.fromCharCode(55296 + (u >> 10));
+            out[c++] = String.fromCharCode(56320 + (u & 1023));
+          } else {
+            const c2 = bytes[pos++];
+            const c3 = bytes[pos++];
+            out[c++] = String.fromCharCode((c1 & 15) << 12 | (c2 & 63) << 6 | c3 & 63);
+          }
+        }
+        return out.join("");
+      };
+      base64 = {
+        /**
+         * Maps bytes to characters.
+         */
+        byteToCharMap_: null,
+        /**
+         * Maps characters to bytes.
+         */
+        charToByteMap_: null,
+        /**
+         * Maps bytes to websafe characters.
+         * @private
+         */
+        byteToCharMapWebSafe_: null,
+        /**
+         * Maps websafe characters to bytes.
+         * @private
+         */
+        charToByteMapWebSafe_: null,
+        /**
+         * Our default alphabet, shared between
+         * ENCODED_VALS and ENCODED_VALS_WEBSAFE
+         */
+        ENCODED_VALS_BASE: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+        /**
+         * Our default alphabet. Value 64 (=) is special; it means "nothing."
+         */
+        get ENCODED_VALS() {
+          return this.ENCODED_VALS_BASE + "+/=";
+        },
+        /**
+         * Our websafe alphabet.
+         */
+        get ENCODED_VALS_WEBSAFE() {
+          return this.ENCODED_VALS_BASE + "-_.";
+        },
+        /**
+         * Whether this browser supports the atob and btoa functions. This extension
+         * started at Mozilla but is now implemented by many browsers. We use the
+         * ASSUME_* variables to avoid pulling in the full useragent detection library
+         * but still allowing the standard per-browser compilations.
+         *
+         */
+        HAS_NATIVE_SUPPORT: typeof atob === "function",
+        /**
+         * Base64-encode an array of bytes.
+         *
+         * @param input An array of bytes (numbers with
+         *     value in [0, 255]) to encode.
+         * @param webSafe Boolean indicating we should use the
+         *     alternative alphabet.
+         * @return The base64 encoded string.
+         */
+        encodeByteArray(input, webSafe) {
+          if (!Array.isArray(input)) {
+            throw Error("encodeByteArray takes an array as a parameter");
+          }
+          this.init_();
+          const byteToCharMap = webSafe ? this.byteToCharMapWebSafe_ : this.byteToCharMap_;
+          const output = [];
+          for (let i = 0; i < input.length; i += 3) {
+            const byte1 = input[i];
+            const haveByte2 = i + 1 < input.length;
+            const byte2 = haveByte2 ? input[i + 1] : 0;
+            const haveByte3 = i + 2 < input.length;
+            const byte3 = haveByte3 ? input[i + 2] : 0;
+            const outByte1 = byte1 >> 2;
+            const outByte2 = (byte1 & 3) << 4 | byte2 >> 4;
+            let outByte3 = (byte2 & 15) << 2 | byte3 >> 6;
+            let outByte4 = byte3 & 63;
+            if (!haveByte3) {
+              outByte4 = 64;
+              if (!haveByte2) {
+                outByte3 = 64;
+              }
+            }
+            output.push(byteToCharMap[outByte1], byteToCharMap[outByte2], byteToCharMap[outByte3], byteToCharMap[outByte4]);
+          }
+          return output.join("");
+        },
+        /**
+         * Base64-encode a string.
+         *
+         * @param input A string to encode.
+         * @param webSafe If true, we should use the
+         *     alternative alphabet.
+         * @return The base64 encoded string.
+         */
+        encodeString(input, webSafe) {
+          if (this.HAS_NATIVE_SUPPORT && !webSafe) {
+            return btoa(input);
+          }
+          return this.encodeByteArray(stringToByteArray$1(input), webSafe);
+        },
+        /**
+         * Base64-decode a string.
+         *
+         * @param input to decode.
+         * @param webSafe True if we should use the
+         *     alternative alphabet.
+         * @return string representing the decoded value.
+         */
+        decodeString(input, webSafe) {
+          if (this.HAS_NATIVE_SUPPORT && !webSafe) {
+            return atob(input);
+          }
+          return byteArrayToString(this.decodeStringToByteArray(input, webSafe));
+        },
+        /**
+         * Base64-decode a string.
+         *
+         * In base-64 decoding, groups of four characters are converted into three
+         * bytes.  If the encoder did not apply padding, the input length may not
+         * be a multiple of 4.
+         *
+         * In this case, the last group will have fewer than 4 characters, and
+         * padding will be inferred.  If the group has one or two characters, it decodes
+         * to one byte.  If the group has three characters, it decodes to two bytes.
+         *
+         * @param input Input to decode.
+         * @param webSafe True if we should use the web-safe alphabet.
+         * @return bytes representing the decoded value.
+         */
+        decodeStringToByteArray(input, webSafe) {
+          this.init_();
+          const charToByteMap = webSafe ? this.charToByteMapWebSafe_ : this.charToByteMap_;
+          const output = [];
+          for (let i = 0; i < input.length; ) {
+            const byte1 = charToByteMap[input.charAt(i++)];
+            const haveByte2 = i < input.length;
+            const byte2 = haveByte2 ? charToByteMap[input.charAt(i)] : 0;
+            ++i;
+            const haveByte3 = i < input.length;
+            const byte3 = haveByte3 ? charToByteMap[input.charAt(i)] : 64;
+            ++i;
+            const haveByte4 = i < input.length;
+            const byte4 = haveByte4 ? charToByteMap[input.charAt(i)] : 64;
+            ++i;
+            if (byte1 == null || byte2 == null || byte3 == null || byte4 == null) {
+              throw new DecodeBase64StringError();
+            }
+            const outByte1 = byte1 << 2 | byte2 >> 4;
+            output.push(outByte1);
+            if (byte3 !== 64) {
+              const outByte2 = byte2 << 4 & 240 | byte3 >> 2;
+              output.push(outByte2);
+              if (byte4 !== 64) {
+                const outByte3 = byte3 << 6 & 192 | byte4;
+                output.push(outByte3);
+              }
+            }
+          }
+          return output;
+        },
+        /**
+         * Lazy static initialization function. Called before
+         * accessing any of the static map variables.
+         * @private
+         */
+        init_() {
+          if (!this.byteToCharMap_) {
+            this.byteToCharMap_ = {};
+            this.charToByteMap_ = {};
+            this.byteToCharMapWebSafe_ = {};
+            this.charToByteMapWebSafe_ = {};
+            for (let i = 0; i < this.ENCODED_VALS.length; i++) {
+              this.byteToCharMap_[i] = this.ENCODED_VALS.charAt(i);
+              this.charToByteMap_[this.byteToCharMap_[i]] = i;
+              this.byteToCharMapWebSafe_[i] = this.ENCODED_VALS_WEBSAFE.charAt(i);
+              this.charToByteMapWebSafe_[this.byteToCharMapWebSafe_[i]] = i;
+              if (i >= this.ENCODED_VALS_BASE.length) {
+                this.charToByteMap_[this.ENCODED_VALS_WEBSAFE.charAt(i)] = i;
+                this.charToByteMapWebSafe_[this.ENCODED_VALS.charAt(i)] = i;
+              }
+            }
+          }
+        }
+      };
+      DecodeBase64StringError = class extends Error {
+        constructor() {
+          super(...arguments);
+          this.name = "DecodeBase64StringError";
+        }
+      };
+      base64Encode = function(str) {
+        const utf8Bytes = stringToByteArray$1(str);
+        return base64.encodeByteArray(utf8Bytes, true);
+      };
+      base64urlEncodeWithoutPadding = function(str) {
+        return base64Encode(str).replace(/\./g, "");
+      };
+      base64Decode = function(str) {
+        try {
+          return base64.decodeString(str, true);
+        } catch (e) {
+          console.error("base64Decode failed: ", e);
+        }
+        return null;
+      };
+      getDefaultsFromGlobal = () => getGlobal().__FIREBASE_DEFAULTS__;
+      getDefaultsFromEnvVariable = () => {
+        if (typeof process === "undefined" || typeof process.env === "undefined") {
+          return;
+        }
+        const defaultsJsonString = process.env.__FIREBASE_DEFAULTS__;
+        if (defaultsJsonString) {
+          return JSON.parse(defaultsJsonString);
+        }
+      };
+      getDefaultsFromCookie = () => {
+        if (typeof document === "undefined") {
+          return;
+        }
+        let match;
+        try {
+          match = document.cookie.match(/__FIREBASE_DEFAULTS__=([^;]+)/);
+        } catch (e) {
+          return;
+        }
+        const decoded = match && base64Decode(match[1]);
+        return decoded && JSON.parse(decoded);
+      };
+      getDefaults = () => {
+        try {
+          return getDefaultsFromPostinstall() || getDefaultsFromGlobal() || getDefaultsFromEnvVariable() || getDefaultsFromCookie();
+        } catch (e) {
+          console.info(`Unable to get __FIREBASE_DEFAULTS__ due to: ${e}`);
+          return;
+        }
+      };
+      getDefaultAppConfig = () => {
+        var _a;
+        return (_a = getDefaults()) === null || _a === void 0 ? void 0 : _a.config;
+      };
+      Deferred = class {
+        constructor() {
+          this.reject = () => {
+          };
+          this.resolve = () => {
+          };
+          this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+          });
+        }
+        /**
+         * Our API internals are not promisified and cannot because our callback APIs have subtle expectations around
+         * invoking promises inline, which Promises are forbidden to do. This method accepts an optional node-style callback
+         * and returns a node-style callback which will resolve or reject the Deferred's promise.
+         */
+        wrapCallback(callback) {
+          return (error, value) => {
+            if (error) {
+              this.reject(error);
+            } else {
+              this.resolve(value);
+            }
+            if (typeof callback === "function") {
+              this.promise.catch(() => {
+              });
+              if (callback.length === 1) {
+                callback(error);
+              } else {
+                callback(error, value);
+              }
+            }
+          };
+        }
+      };
+      ERROR_NAME = "FirebaseError";
+      FirebaseError = class _FirebaseError extends Error {
+        constructor(code, message, customData) {
+          super(message);
+          this.code = code;
+          this.customData = customData;
+          this.name = ERROR_NAME;
+          Object.setPrototypeOf(this, _FirebaseError.prototype);
+          if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, ErrorFactory.prototype.create);
+          }
+        }
+      };
+      ErrorFactory = class {
+        constructor(service, serviceName, errors) {
+          this.service = service;
+          this.serviceName = serviceName;
+          this.errors = errors;
+        }
+        create(code, ...data) {
+          const customData = data[0] || {};
+          const fullCode = `${this.service}/${code}`;
+          const template = this.errors[code];
+          const message = template ? replaceTemplate(template, customData) : "Error";
+          const fullMessage = `${this.serviceName}: ${message} (${fullCode}).`;
+          const error = new FirebaseError(fullCode, fullMessage, customData);
+          return error;
+        }
+      };
+      PATTERN = /\{\$([^}]+)}/g;
+      DEFAULT_INTERVAL_MILLIS = 1e3;
+      DEFAULT_BACKOFF_FACTOR = 2;
+      MAX_VALUE_MILLIS = 4 * 60 * 60 * 1e3;
+      RANDOM_FACTOR = 0.5;
+    }
+  });
+
+  // node_modules/@firebase/component/dist/esm/index.esm2017.js
+  function normalizeIdentifierForFactory(identifier) {
+    return identifier === DEFAULT_ENTRY_NAME ? void 0 : identifier;
+  }
+  function isComponentEager(component) {
+    return component.instantiationMode === "EAGER";
+  }
+  var Component, DEFAULT_ENTRY_NAME, Provider, ComponentContainer;
+  var init_index_esm20172 = __esm({
+    "node_modules/@firebase/component/dist/esm/index.esm2017.js"() {
+      init_index_esm2017();
+      Component = class {
+        /**
+         *
+         * @param name The public service name, e.g. app, auth, firestore, database
+         * @param instanceFactory Service factory responsible for creating the public interface
+         * @param type whether the service provided by the component is public or private
+         */
+        constructor(name4, instanceFactory, type) {
+          this.name = name4;
+          this.instanceFactory = instanceFactory;
+          this.type = type;
+          this.multipleInstances = false;
+          this.serviceProps = {};
+          this.instantiationMode = "LAZY";
+          this.onInstanceCreated = null;
+        }
+        setInstantiationMode(mode) {
+          this.instantiationMode = mode;
+          return this;
+        }
+        setMultipleInstances(multipleInstances) {
+          this.multipleInstances = multipleInstances;
+          return this;
+        }
+        setServiceProps(props) {
+          this.serviceProps = props;
+          return this;
+        }
+        setInstanceCreatedCallback(callback) {
+          this.onInstanceCreated = callback;
+          return this;
+        }
+      };
+      DEFAULT_ENTRY_NAME = "[DEFAULT]";
+      Provider = class {
+        constructor(name4, container) {
+          this.name = name4;
+          this.container = container;
+          this.component = null;
+          this.instances = /* @__PURE__ */ new Map();
+          this.instancesDeferred = /* @__PURE__ */ new Map();
+          this.instancesOptions = /* @__PURE__ */ new Map();
+          this.onInitCallbacks = /* @__PURE__ */ new Map();
+        }
+        /**
+         * @param identifier A provider can provide multiple instances of a service
+         * if this.component.multipleInstances is true.
+         */
+        get(identifier) {
+          const normalizedIdentifier = this.normalizeInstanceIdentifier(identifier);
+          if (!this.instancesDeferred.has(normalizedIdentifier)) {
+            const deferred = new Deferred();
+            this.instancesDeferred.set(normalizedIdentifier, deferred);
+            if (this.isInitialized(normalizedIdentifier) || this.shouldAutoInitialize()) {
+              try {
+                const instance = this.getOrInitializeService({
+                  instanceIdentifier: normalizedIdentifier
+                });
+                if (instance) {
+                  deferred.resolve(instance);
+                }
+              } catch (e) {
+              }
+            }
+          }
+          return this.instancesDeferred.get(normalizedIdentifier).promise;
+        }
+        getImmediate(options) {
+          var _a;
+          const normalizedIdentifier = this.normalizeInstanceIdentifier(options === null || options === void 0 ? void 0 : options.identifier);
+          const optional = (_a = options === null || options === void 0 ? void 0 : options.optional) !== null && _a !== void 0 ? _a : false;
+          if (this.isInitialized(normalizedIdentifier) || this.shouldAutoInitialize()) {
+            try {
+              return this.getOrInitializeService({
+                instanceIdentifier: normalizedIdentifier
+              });
+            } catch (e) {
+              if (optional) {
+                return null;
+              } else {
+                throw e;
+              }
+            }
+          } else {
+            if (optional) {
+              return null;
+            } else {
+              throw Error(`Service ${this.name} is not available`);
+            }
+          }
+        }
+        getComponent() {
+          return this.component;
+        }
+        setComponent(component) {
+          if (component.name !== this.name) {
+            throw Error(`Mismatching Component ${component.name} for Provider ${this.name}.`);
+          }
+          if (this.component) {
+            throw Error(`Component for ${this.name} has already been provided`);
+          }
+          this.component = component;
+          if (!this.shouldAutoInitialize()) {
+            return;
+          }
+          if (isComponentEager(component)) {
+            try {
+              this.getOrInitializeService({ instanceIdentifier: DEFAULT_ENTRY_NAME });
+            } catch (e) {
+            }
+          }
+          for (const [instanceIdentifier, instanceDeferred] of this.instancesDeferred.entries()) {
+            const normalizedIdentifier = this.normalizeInstanceIdentifier(instanceIdentifier);
+            try {
+              const instance = this.getOrInitializeService({
+                instanceIdentifier: normalizedIdentifier
+              });
+              instanceDeferred.resolve(instance);
+            } catch (e) {
+            }
+          }
+        }
+        clearInstance(identifier = DEFAULT_ENTRY_NAME) {
+          this.instancesDeferred.delete(identifier);
+          this.instancesOptions.delete(identifier);
+          this.instances.delete(identifier);
+        }
+        // app.delete() will call this method on every provider to delete the services
+        // TODO: should we mark the provider as deleted?
+        async delete() {
+          const services = Array.from(this.instances.values());
+          await Promise.all([
+            ...services.filter((service) => "INTERNAL" in service).map((service) => service.INTERNAL.delete()),
+            ...services.filter((service) => "_delete" in service).map((service) => service._delete())
+          ]);
+        }
+        isComponentSet() {
+          return this.component != null;
+        }
+        isInitialized(identifier = DEFAULT_ENTRY_NAME) {
+          return this.instances.has(identifier);
+        }
+        getOptions(identifier = DEFAULT_ENTRY_NAME) {
+          return this.instancesOptions.get(identifier) || {};
+        }
+        initialize(opts = {}) {
+          const { options = {} } = opts;
+          const normalizedIdentifier = this.normalizeInstanceIdentifier(opts.instanceIdentifier);
+          if (this.isInitialized(normalizedIdentifier)) {
+            throw Error(`${this.name}(${normalizedIdentifier}) has already been initialized`);
+          }
+          if (!this.isComponentSet()) {
+            throw Error(`Component ${this.name} has not been registered yet`);
+          }
+          const instance = this.getOrInitializeService({
+            instanceIdentifier: normalizedIdentifier,
+            options
+          });
+          for (const [instanceIdentifier, instanceDeferred] of this.instancesDeferred.entries()) {
+            const normalizedDeferredIdentifier = this.normalizeInstanceIdentifier(instanceIdentifier);
+            if (normalizedIdentifier === normalizedDeferredIdentifier) {
+              instanceDeferred.resolve(instance);
+            }
+          }
+          return instance;
+        }
+        /**
+         *
+         * @param callback - a function that will be invoked  after the provider has been initialized by calling provider.initialize().
+         * The function is invoked SYNCHRONOUSLY, so it should not execute any longrunning tasks in order to not block the program.
+         *
+         * @param identifier An optional instance identifier
+         * @returns a function to unregister the callback
+         */
+        onInit(callback, identifier) {
+          var _a;
+          const normalizedIdentifier = this.normalizeInstanceIdentifier(identifier);
+          const existingCallbacks = (_a = this.onInitCallbacks.get(normalizedIdentifier)) !== null && _a !== void 0 ? _a : /* @__PURE__ */ new Set();
+          existingCallbacks.add(callback);
+          this.onInitCallbacks.set(normalizedIdentifier, existingCallbacks);
+          const existingInstance = this.instances.get(normalizedIdentifier);
+          if (existingInstance) {
+            callback(existingInstance, normalizedIdentifier);
+          }
+          return () => {
+            existingCallbacks.delete(callback);
+          };
+        }
+        /**
+         * Invoke onInit callbacks synchronously
+         * @param instance the service instance`
+         */
+        invokeOnInitCallbacks(instance, identifier) {
+          const callbacks = this.onInitCallbacks.get(identifier);
+          if (!callbacks) {
+            return;
+          }
+          for (const callback of callbacks) {
+            try {
+              callback(instance, identifier);
+            } catch (_a) {
+            }
+          }
+        }
+        getOrInitializeService({ instanceIdentifier, options = {} }) {
+          let instance = this.instances.get(instanceIdentifier);
+          if (!instance && this.component) {
+            instance = this.component.instanceFactory(this.container, {
+              instanceIdentifier: normalizeIdentifierForFactory(instanceIdentifier),
+              options
+            });
+            this.instances.set(instanceIdentifier, instance);
+            this.instancesOptions.set(instanceIdentifier, options);
+            this.invokeOnInitCallbacks(instance, instanceIdentifier);
+            if (this.component.onInstanceCreated) {
+              try {
+                this.component.onInstanceCreated(this.container, instanceIdentifier, instance);
+              } catch (_a) {
+              }
+            }
+          }
+          return instance || null;
+        }
+        normalizeInstanceIdentifier(identifier = DEFAULT_ENTRY_NAME) {
+          if (this.component) {
+            return this.component.multipleInstances ? identifier : DEFAULT_ENTRY_NAME;
+          } else {
+            return identifier;
+          }
+        }
+        shouldAutoInitialize() {
+          return !!this.component && this.component.instantiationMode !== "EXPLICIT";
+        }
+      };
+      ComponentContainer = class {
+        constructor(name4) {
+          this.name = name4;
+          this.providers = /* @__PURE__ */ new Map();
+        }
+        /**
+         *
+         * @param component Component being added
+         * @param overwrite When a component with the same name has already been registered,
+         * if overwrite is true: overwrite the existing component with the new component and create a new
+         * provider with the new component. It can be useful in tests where you want to use different mocks
+         * for different tests.
+         * if overwrite is false: throw an exception
+         */
+        addComponent(component) {
+          const provider = this.getProvider(component.name);
+          if (provider.isComponentSet()) {
+            throw new Error(`Component ${component.name} has already been registered with ${this.name}`);
+          }
+          provider.setComponent(component);
+        }
+        addOrOverwriteComponent(component) {
+          const provider = this.getProvider(component.name);
+          if (provider.isComponentSet()) {
+            this.providers.delete(component.name);
+          }
+          this.addComponent(component);
+        }
+        /**
+         * getProvider provides a type safe interface where it can only be called with a field name
+         * present in NameServiceMapping interface.
+         *
+         * Firebase SDKs providing services should extend NameServiceMapping interface to register
+         * themselves.
+         */
+        getProvider(name4) {
+          if (this.providers.has(name4)) {
+            return this.providers.get(name4);
+          }
+          const provider = new Provider(name4, this);
+          this.providers.set(name4, provider);
+          return provider;
+        }
+        getProviders() {
+          return Array.from(this.providers.values());
+        }
+      };
+    }
+  });
+
+  // node_modules/@firebase/logger/dist/esm/index.esm2017.js
+  var instances, LogLevel, levelStringToEnum, defaultLogLevel, ConsoleMethod, defaultLogHandler, Logger;
+  var init_index_esm20173 = __esm({
+    "node_modules/@firebase/logger/dist/esm/index.esm2017.js"() {
+      instances = [];
+      (function(LogLevel2) {
+        LogLevel2[LogLevel2["DEBUG"] = 0] = "DEBUG";
+        LogLevel2[LogLevel2["VERBOSE"] = 1] = "VERBOSE";
+        LogLevel2[LogLevel2["INFO"] = 2] = "INFO";
+        LogLevel2[LogLevel2["WARN"] = 3] = "WARN";
+        LogLevel2[LogLevel2["ERROR"] = 4] = "ERROR";
+        LogLevel2[LogLevel2["SILENT"] = 5] = "SILENT";
+      })(LogLevel || (LogLevel = {}));
+      levelStringToEnum = {
+        "debug": LogLevel.DEBUG,
+        "verbose": LogLevel.VERBOSE,
+        "info": LogLevel.INFO,
+        "warn": LogLevel.WARN,
+        "error": LogLevel.ERROR,
+        "silent": LogLevel.SILENT
+      };
+      defaultLogLevel = LogLevel.INFO;
+      ConsoleMethod = {
+        [LogLevel.DEBUG]: "log",
+        [LogLevel.VERBOSE]: "log",
+        [LogLevel.INFO]: "info",
+        [LogLevel.WARN]: "warn",
+        [LogLevel.ERROR]: "error"
+      };
+      defaultLogHandler = (instance, logType, ...args) => {
+        if (logType < instance.logLevel) {
+          return;
+        }
+        const now = (/* @__PURE__ */ new Date()).toISOString();
+        const method = ConsoleMethod[logType];
+        if (method) {
+          console[method](`[${now}]  ${instance.name}:`, ...args);
+        } else {
+          throw new Error(`Attempted to log a message with an invalid logType (value: ${logType})`);
+        }
+      };
+      Logger = class {
+        /**
+         * Gives you an instance of a Logger to capture messages according to
+         * Firebase's logging scheme.
+         *
+         * @param name The name that the logs will be associated with
+         */
+        constructor(name4) {
+          this.name = name4;
+          this._logLevel = defaultLogLevel;
+          this._logHandler = defaultLogHandler;
+          this._userLogHandler = null;
+          instances.push(this);
+        }
+        get logLevel() {
+          return this._logLevel;
+        }
+        set logLevel(val) {
+          if (!(val in LogLevel)) {
+            throw new TypeError(`Invalid value "${val}" assigned to \`logLevel\``);
+          }
+          this._logLevel = val;
+        }
+        // Workaround for setter/getter having to be the same type.
+        setLogLevel(val) {
+          this._logLevel = typeof val === "string" ? levelStringToEnum[val] : val;
+        }
+        get logHandler() {
+          return this._logHandler;
+        }
+        set logHandler(val) {
+          if (typeof val !== "function") {
+            throw new TypeError("Value assigned to `logHandler` must be a function");
+          }
+          this._logHandler = val;
+        }
+        get userLogHandler() {
+          return this._userLogHandler;
+        }
+        set userLogHandler(val) {
+          this._userLogHandler = val;
+        }
+        /**
+         * The functions below are all based on the `console` interface
+         */
+        debug(...args) {
+          this._userLogHandler && this._userLogHandler(this, LogLevel.DEBUG, ...args);
+          this._logHandler(this, LogLevel.DEBUG, ...args);
+        }
+        log(...args) {
+          this._userLogHandler && this._userLogHandler(this, LogLevel.VERBOSE, ...args);
+          this._logHandler(this, LogLevel.VERBOSE, ...args);
+        }
+        info(...args) {
+          this._userLogHandler && this._userLogHandler(this, LogLevel.INFO, ...args);
+          this._logHandler(this, LogLevel.INFO, ...args);
+        }
+        warn(...args) {
+          this._userLogHandler && this._userLogHandler(this, LogLevel.WARN, ...args);
+          this._logHandler(this, LogLevel.WARN, ...args);
+        }
+        error(...args) {
+          this._userLogHandler && this._userLogHandler(this, LogLevel.ERROR, ...args);
+          this._logHandler(this, LogLevel.ERROR, ...args);
+        }
+      };
+    }
+  });
+
+  // node_modules/idb/build/wrap-idb-value.js
+  function getIdbProxyableTypes() {
+    return idbProxyableTypes || (idbProxyableTypes = [
+      IDBDatabase,
+      IDBObjectStore,
+      IDBIndex,
+      IDBCursor,
+      IDBTransaction
+    ]);
+  }
+  function getCursorAdvanceMethods() {
+    return cursorAdvanceMethods || (cursorAdvanceMethods = [
+      IDBCursor.prototype.advance,
+      IDBCursor.prototype.continue,
+      IDBCursor.prototype.continuePrimaryKey
+    ]);
+  }
+  function promisifyRequest(request) {
+    const promise = new Promise((resolve, reject) => {
+      const unlisten = () => {
+        request.removeEventListener("success", success);
+        request.removeEventListener("error", error);
+      };
+      const success = () => {
+        resolve(wrap(request.result));
+        unlisten();
+      };
+      const error = () => {
+        reject(request.error);
+        unlisten();
+      };
+      request.addEventListener("success", success);
+      request.addEventListener("error", error);
+    });
+    promise.then((value) => {
+      if (value instanceof IDBCursor) {
+        cursorRequestMap.set(value, request);
+      }
+    }).catch(() => {
+    });
+    reverseTransformCache.set(promise, request);
+    return promise;
+  }
+  function cacheDonePromiseForTransaction(tx) {
+    if (transactionDoneMap.has(tx))
+      return;
+    const done = new Promise((resolve, reject) => {
+      const unlisten = () => {
+        tx.removeEventListener("complete", complete);
+        tx.removeEventListener("error", error);
+        tx.removeEventListener("abort", error);
+      };
+      const complete = () => {
+        resolve();
+        unlisten();
+      };
+      const error = () => {
+        reject(tx.error || new DOMException("AbortError", "AbortError"));
+        unlisten();
+      };
+      tx.addEventListener("complete", complete);
+      tx.addEventListener("error", error);
+      tx.addEventListener("abort", error);
+    });
+    transactionDoneMap.set(tx, done);
+  }
+  function replaceTraps(callback) {
+    idbProxyTraps = callback(idbProxyTraps);
+  }
+  function wrapFunction(func) {
+    if (func === IDBDatabase.prototype.transaction && !("objectStoreNames" in IDBTransaction.prototype)) {
+      return function(storeNames, ...args) {
+        const tx = func.call(unwrap(this), storeNames, ...args);
+        transactionStoreNamesMap.set(tx, storeNames.sort ? storeNames.sort() : [storeNames]);
+        return wrap(tx);
+      };
+    }
+    if (getCursorAdvanceMethods().includes(func)) {
+      return function(...args) {
+        func.apply(unwrap(this), args);
+        return wrap(cursorRequestMap.get(this));
+      };
+    }
+    return function(...args) {
+      return wrap(func.apply(unwrap(this), args));
+    };
+  }
+  function transformCachableValue(value) {
+    if (typeof value === "function")
+      return wrapFunction(value);
+    if (value instanceof IDBTransaction)
+      cacheDonePromiseForTransaction(value);
+    if (instanceOfAny(value, getIdbProxyableTypes()))
+      return new Proxy(value, idbProxyTraps);
+    return value;
+  }
+  function wrap(value) {
+    if (value instanceof IDBRequest)
+      return promisifyRequest(value);
+    if (transformCache.has(value))
+      return transformCache.get(value);
+    const newValue = transformCachableValue(value);
+    if (newValue !== value) {
+      transformCache.set(value, newValue);
+      reverseTransformCache.set(newValue, value);
+    }
+    return newValue;
+  }
+  var instanceOfAny, idbProxyableTypes, cursorAdvanceMethods, cursorRequestMap, transactionDoneMap, transactionStoreNamesMap, transformCache, reverseTransformCache, idbProxyTraps, unwrap;
+  var init_wrap_idb_value = __esm({
+    "node_modules/idb/build/wrap-idb-value.js"() {
+      instanceOfAny = (object, constructors) => constructors.some((c) => object instanceof c);
+      cursorRequestMap = /* @__PURE__ */ new WeakMap();
+      transactionDoneMap = /* @__PURE__ */ new WeakMap();
+      transactionStoreNamesMap = /* @__PURE__ */ new WeakMap();
+      transformCache = /* @__PURE__ */ new WeakMap();
+      reverseTransformCache = /* @__PURE__ */ new WeakMap();
+      idbProxyTraps = {
+        get(target, prop, receiver) {
+          if (target instanceof IDBTransaction) {
+            if (prop === "done")
+              return transactionDoneMap.get(target);
+            if (prop === "objectStoreNames") {
+              return target.objectStoreNames || transactionStoreNamesMap.get(target);
+            }
+            if (prop === "store") {
+              return receiver.objectStoreNames[1] ? void 0 : receiver.objectStore(receiver.objectStoreNames[0]);
+            }
+          }
+          return wrap(target[prop]);
+        },
+        set(target, prop, value) {
+          target[prop] = value;
+          return true;
+        },
+        has(target, prop) {
+          if (target instanceof IDBTransaction && (prop === "done" || prop === "store")) {
+            return true;
+          }
+          return prop in target;
+        }
+      };
+      unwrap = (value) => reverseTransformCache.get(value);
+    }
+  });
+
+  // node_modules/idb/build/index.js
+  function openDB(name4, version3, { blocked, upgrade, blocking, terminated } = {}) {
+    const request = indexedDB.open(name4, version3);
+    const openPromise = wrap(request);
+    if (upgrade) {
+      request.addEventListener("upgradeneeded", (event) => {
+        upgrade(wrap(request.result), event.oldVersion, event.newVersion, wrap(request.transaction), event);
+      });
+    }
+    if (blocked) {
+      request.addEventListener("blocked", (event) => blocked(
+        // Casting due to https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/1405
+        event.oldVersion,
+        event.newVersion,
+        event
+      ));
+    }
+    openPromise.then((db) => {
+      if (terminated)
+        db.addEventListener("close", () => terminated());
+      if (blocking) {
+        db.addEventListener("versionchange", (event) => blocking(event.oldVersion, event.newVersion, event));
+      }
+    }).catch(() => {
+    });
+    return openPromise;
+  }
+  function getMethod(target, prop) {
+    if (!(target instanceof IDBDatabase && !(prop in target) && typeof prop === "string")) {
+      return;
+    }
+    if (cachedMethods.get(prop))
+      return cachedMethods.get(prop);
+    const targetFuncName = prop.replace(/FromIndex$/, "");
+    const useIndex = prop !== targetFuncName;
+    const isWrite = writeMethods.includes(targetFuncName);
+    if (
+      // Bail if the target doesn't exist on the target. Eg, getAll isn't in Edge.
+      !(targetFuncName in (useIndex ? IDBIndex : IDBObjectStore).prototype) || !(isWrite || readMethods.includes(targetFuncName))
+    ) {
+      return;
+    }
+    const method = async function(storeName, ...args) {
+      const tx = this.transaction(storeName, isWrite ? "readwrite" : "readonly");
+      let target2 = tx.store;
+      if (useIndex)
+        target2 = target2.index(args.shift());
+      return (await Promise.all([
+        target2[targetFuncName](...args),
+        isWrite && tx.done
+      ]))[0];
+    };
+    cachedMethods.set(prop, method);
+    return method;
+  }
+  var readMethods, writeMethods, cachedMethods;
+  var init_build = __esm({
+    "node_modules/idb/build/index.js"() {
+      init_wrap_idb_value();
+      init_wrap_idb_value();
+      readMethods = ["get", "getKey", "getAll", "getAllKeys", "count"];
+      writeMethods = ["put", "add", "delete", "clear"];
+      cachedMethods = /* @__PURE__ */ new Map();
+      replaceTraps((oldTraps) => ({
+        ...oldTraps,
+        get: (target, prop, receiver) => getMethod(target, prop) || oldTraps.get(target, prop, receiver),
+        has: (target, prop) => !!getMethod(target, prop) || oldTraps.has(target, prop)
+      }));
+    }
+  });
+
+  // node_modules/@firebase/app/dist/esm/index.esm2017.js
+  function isVersionServiceProvider(provider) {
+    const component = provider.getComponent();
+    return (component === null || component === void 0 ? void 0 : component.type) === "VERSION";
+  }
+  function _addComponent(app, component) {
+    try {
+      app.container.addComponent(component);
+    } catch (e) {
+      logger.debug(`Component ${component.name} failed to register with FirebaseApp ${app.name}`, e);
+    }
+  }
+  function _registerComponent(component) {
+    const componentName = component.name;
+    if (_components.has(componentName)) {
+      logger.debug(`There were multiple attempts to register component ${componentName}.`);
+      return false;
+    }
+    _components.set(componentName, component);
+    for (const app of _apps.values()) {
+      _addComponent(app, component);
+    }
+    for (const serverApp of _serverApps.values()) {
+      _addComponent(serverApp, component);
+    }
+    return true;
+  }
+  function _getProvider(app, name4) {
+    const heartbeatController = app.container.getProvider("heartbeat").getImmediate({ optional: true });
+    if (heartbeatController) {
+      void heartbeatController.triggerHeartbeat();
+    }
+    return app.container.getProvider(name4);
+  }
+  function initializeApp(_options, rawConfig = {}) {
+    let options = _options;
+    if (typeof rawConfig !== "object") {
+      const name5 = rawConfig;
+      rawConfig = { name: name5 };
+    }
+    const config = Object.assign({ name: DEFAULT_ENTRY_NAME2, automaticDataCollectionEnabled: true }, rawConfig);
+    const name4 = config.name;
+    if (typeof name4 !== "string" || !name4) {
+      throw ERROR_FACTORY.create("bad-app-name", {
+        appName: String(name4)
+      });
+    }
+    options || (options = getDefaultAppConfig());
+    if (!options) {
+      throw ERROR_FACTORY.create(
+        "no-options"
+        /* AppError.NO_OPTIONS */
+      );
+    }
+    const existingApp = _apps.get(name4);
+    if (existingApp) {
+      if (deepEqual(options, existingApp.options) && deepEqual(config, existingApp.config)) {
+        return existingApp;
+      } else {
+        throw ERROR_FACTORY.create("duplicate-app", { appName: name4 });
+      }
+    }
+    const container = new ComponentContainer(name4);
+    for (const component of _components.values()) {
+      container.addComponent(component);
+    }
+    const newApp = new FirebaseAppImpl(options, config, container);
+    _apps.set(name4, newApp);
+    return newApp;
+  }
+  function getApp(name4 = DEFAULT_ENTRY_NAME2) {
+    const app = _apps.get(name4);
+    if (!app && name4 === DEFAULT_ENTRY_NAME2 && getDefaultAppConfig()) {
+      return initializeApp();
+    }
+    if (!app) {
+      throw ERROR_FACTORY.create("no-app", { appName: name4 });
+    }
+    return app;
+  }
+  function registerVersion(libraryKeyOrName, version3, variant) {
+    var _a;
+    let library = (_a = PLATFORM_LOG_STRING[libraryKeyOrName]) !== null && _a !== void 0 ? _a : libraryKeyOrName;
+    if (variant) {
+      library += `-${variant}`;
+    }
+    const libraryMismatch = library.match(/\s|\//);
+    const versionMismatch = version3.match(/\s|\//);
+    if (libraryMismatch || versionMismatch) {
+      const warning = [
+        `Unable to register library "${library}" with version "${version3}":`
+      ];
+      if (libraryMismatch) {
+        warning.push(`library name "${library}" contains illegal characters (whitespace or "/")`);
+      }
+      if (libraryMismatch && versionMismatch) {
+        warning.push("and");
+      }
+      if (versionMismatch) {
+        warning.push(`version name "${version3}" contains illegal characters (whitespace or "/")`);
+      }
+      logger.warn(warning.join(" "));
+      return;
+    }
+    _registerComponent(new Component(
+      `${library}-version`,
+      () => ({ library, version: version3 }),
+      "VERSION"
+      /* ComponentType.VERSION */
+    ));
+  }
+  function getDbPromise() {
+    if (!dbPromise) {
+      dbPromise = openDB(DB_NAME, DB_VERSION, {
+        upgrade: (db, oldVersion) => {
+          switch (oldVersion) {
+            case 0:
+              try {
+                db.createObjectStore(STORE_NAME);
+              } catch (e) {
+                console.warn(e);
+              }
+          }
+        }
+      }).catch((e) => {
+        throw ERROR_FACTORY.create("idb-open", {
+          originalErrorMessage: e.message
+        });
+      });
+    }
+    return dbPromise;
+  }
+  async function readHeartbeatsFromIndexedDB(app) {
+    try {
+      const db = await getDbPromise();
+      const tx = db.transaction(STORE_NAME);
+      const result = await tx.objectStore(STORE_NAME).get(computeKey(app));
+      await tx.done;
+      return result;
+    } catch (e) {
+      if (e instanceof FirebaseError) {
+        logger.warn(e.message);
+      } else {
+        const idbGetError = ERROR_FACTORY.create("idb-get", {
+          originalErrorMessage: e === null || e === void 0 ? void 0 : e.message
+        });
+        logger.warn(idbGetError.message);
+      }
+    }
+  }
+  async function writeHeartbeatsToIndexedDB(app, heartbeatObject) {
+    try {
+      const db = await getDbPromise();
+      const tx = db.transaction(STORE_NAME, "readwrite");
+      const objectStore = tx.objectStore(STORE_NAME);
+      await objectStore.put(heartbeatObject, computeKey(app));
+      await tx.done;
+    } catch (e) {
+      if (e instanceof FirebaseError) {
+        logger.warn(e.message);
+      } else {
+        const idbGetError = ERROR_FACTORY.create("idb-set", {
+          originalErrorMessage: e === null || e === void 0 ? void 0 : e.message
+        });
+        logger.warn(idbGetError.message);
+      }
+    }
+  }
+  function computeKey(app) {
+    return `${app.name}!${app.options.appId}`;
+  }
+  function getUTCDateString() {
+    const today = /* @__PURE__ */ new Date();
+    return today.toISOString().substring(0, 10);
+  }
+  function extractHeartbeatsForHeader(heartbeatsCache, maxSize = MAX_HEADER_BYTES) {
+    const heartbeatsToSend = [];
+    let unsentEntries = heartbeatsCache.slice();
+    for (const singleDateHeartbeat of heartbeatsCache) {
+      const heartbeatEntry = heartbeatsToSend.find((hb) => hb.agent === singleDateHeartbeat.agent);
+      if (!heartbeatEntry) {
+        heartbeatsToSend.push({
+          agent: singleDateHeartbeat.agent,
+          dates: [singleDateHeartbeat.date]
+        });
+        if (countBytes(heartbeatsToSend) > maxSize) {
+          heartbeatsToSend.pop();
+          break;
+        }
+      } else {
+        heartbeatEntry.dates.push(singleDateHeartbeat.date);
+        if (countBytes(heartbeatsToSend) > maxSize) {
+          heartbeatEntry.dates.pop();
+          break;
+        }
+      }
+      unsentEntries = unsentEntries.slice(1);
+    }
+    return {
+      heartbeatsToSend,
+      unsentEntries
+    };
+  }
+  function countBytes(heartbeatsCache) {
+    return base64urlEncodeWithoutPadding(
+      // heartbeatsCache wrapper properties
+      JSON.stringify({ version: 2, heartbeats: heartbeatsCache })
+    ).length;
+  }
+  function getEarliestHeartbeatIdx(heartbeats) {
+    if (heartbeats.length === 0) {
+      return -1;
+    }
+    let earliestHeartbeatIdx = 0;
+    let earliestHeartbeatDate = heartbeats[0].date;
+    for (let i = 1; i < heartbeats.length; i++) {
+      if (heartbeats[i].date < earliestHeartbeatDate) {
+        earliestHeartbeatDate = heartbeats[i].date;
+        earliestHeartbeatIdx = i;
+      }
+    }
+    return earliestHeartbeatIdx;
+  }
+  function registerCoreComponents(variant) {
+    _registerComponent(new Component(
+      "platform-logger",
+      (container) => new PlatformLoggerServiceImpl(container),
+      "PRIVATE"
+      /* ComponentType.PRIVATE */
+    ));
+    _registerComponent(new Component(
+      "heartbeat",
+      (container) => new HeartbeatServiceImpl(container),
+      "PRIVATE"
+      /* ComponentType.PRIVATE */
+    ));
+    registerVersion(name$q, version$1, variant);
+    registerVersion(name$q, version$1, "esm2017");
+    registerVersion("fire-js", "");
+  }
+  var PlatformLoggerServiceImpl, name$q, version$1, logger, name$p, name$o, name$n, name$m, name$l, name$k, name$j, name$i, name$h, name$g, name$f, name$e, name$d, name$c, name$b, name$a, name$9, name$8, name$7, name$6, name$5, name$4, name$3, name$2, name$1, name, DEFAULT_ENTRY_NAME2, PLATFORM_LOG_STRING, _apps, _serverApps, _components, ERRORS, ERROR_FACTORY, FirebaseAppImpl, DB_NAME, DB_VERSION, STORE_NAME, dbPromise, MAX_HEADER_BYTES, MAX_NUM_STORED_HEARTBEATS, HeartbeatServiceImpl, HeartbeatStorageImpl;
+  var init_index_esm20174 = __esm({
+    "node_modules/@firebase/app/dist/esm/index.esm2017.js"() {
+      init_index_esm20172();
+      init_index_esm20173();
+      init_index_esm2017();
+      init_index_esm2017();
+      init_build();
+      PlatformLoggerServiceImpl = class {
+        constructor(container) {
+          this.container = container;
+        }
+        // In initial implementation, this will be called by installations on
+        // auth token refresh, and installations will send this string.
+        getPlatformInfoString() {
+          const providers = this.container.getProviders();
+          return providers.map((provider) => {
+            if (isVersionServiceProvider(provider)) {
+              const service = provider.getImmediate();
+              return `${service.library}/${service.version}`;
+            } else {
+              return null;
+            }
+          }).filter((logString) => logString).join(" ");
+        }
+      };
+      name$q = "@firebase/app";
+      version$1 = "0.13.2";
+      logger = new Logger("@firebase/app");
+      name$p = "@firebase/app-compat";
+      name$o = "@firebase/analytics-compat";
+      name$n = "@firebase/analytics";
+      name$m = "@firebase/app-check-compat";
+      name$l = "@firebase/app-check";
+      name$k = "@firebase/auth";
+      name$j = "@firebase/auth-compat";
+      name$i = "@firebase/database";
+      name$h = "@firebase/data-connect";
+      name$g = "@firebase/database-compat";
+      name$f = "@firebase/functions";
+      name$e = "@firebase/functions-compat";
+      name$d = "@firebase/installations";
+      name$c = "@firebase/installations-compat";
+      name$b = "@firebase/messaging";
+      name$a = "@firebase/messaging-compat";
+      name$9 = "@firebase/performance";
+      name$8 = "@firebase/performance-compat";
+      name$7 = "@firebase/remote-config";
+      name$6 = "@firebase/remote-config-compat";
+      name$5 = "@firebase/storage";
+      name$4 = "@firebase/storage-compat";
+      name$3 = "@firebase/firestore";
+      name$2 = "@firebase/ai";
+      name$1 = "@firebase/firestore-compat";
+      name = "firebase";
+      DEFAULT_ENTRY_NAME2 = "[DEFAULT]";
+      PLATFORM_LOG_STRING = {
+        [name$q]: "fire-core",
+        [name$p]: "fire-core-compat",
+        [name$n]: "fire-analytics",
+        [name$o]: "fire-analytics-compat",
+        [name$l]: "fire-app-check",
+        [name$m]: "fire-app-check-compat",
+        [name$k]: "fire-auth",
+        [name$j]: "fire-auth-compat",
+        [name$i]: "fire-rtdb",
+        [name$h]: "fire-data-connect",
+        [name$g]: "fire-rtdb-compat",
+        [name$f]: "fire-fn",
+        [name$e]: "fire-fn-compat",
+        [name$d]: "fire-iid",
+        [name$c]: "fire-iid-compat",
+        [name$b]: "fire-fcm",
+        [name$a]: "fire-fcm-compat",
+        [name$9]: "fire-perf",
+        [name$8]: "fire-perf-compat",
+        [name$7]: "fire-rc",
+        [name$6]: "fire-rc-compat",
+        [name$5]: "fire-gcs",
+        [name$4]: "fire-gcs-compat",
+        [name$3]: "fire-fst",
+        [name$1]: "fire-fst-compat",
+        [name$2]: "fire-vertex",
+        "fire-js": "fire-js",
+        // Platform identifier for JS SDK.
+        [name]: "fire-js-all"
+      };
+      _apps = /* @__PURE__ */ new Map();
+      _serverApps = /* @__PURE__ */ new Map();
+      _components = /* @__PURE__ */ new Map();
+      ERRORS = {
+        [
+          "no-app"
+          /* AppError.NO_APP */
+        ]: "No Firebase App '{$appName}' has been created - call initializeApp() first",
+        [
+          "bad-app-name"
+          /* AppError.BAD_APP_NAME */
+        ]: "Illegal App name: '{$appName}'",
+        [
+          "duplicate-app"
+          /* AppError.DUPLICATE_APP */
+        ]: "Firebase App named '{$appName}' already exists with different options or config",
+        [
+          "app-deleted"
+          /* AppError.APP_DELETED */
+        ]: "Firebase App named '{$appName}' already deleted",
+        [
+          "server-app-deleted"
+          /* AppError.SERVER_APP_DELETED */
+        ]: "Firebase Server App has been deleted",
+        [
+          "no-options"
+          /* AppError.NO_OPTIONS */
+        ]: "Need to provide options, when not being deployed to hosting via source.",
+        [
+          "invalid-app-argument"
+          /* AppError.INVALID_APP_ARGUMENT */
+        ]: "firebase.{$appName}() takes either no argument or a Firebase App instance.",
+        [
+          "invalid-log-argument"
+          /* AppError.INVALID_LOG_ARGUMENT */
+        ]: "First argument to `onLog` must be null or a function.",
+        [
+          "idb-open"
+          /* AppError.IDB_OPEN */
+        ]: "Error thrown when opening IndexedDB. Original error: {$originalErrorMessage}.",
+        [
+          "idb-get"
+          /* AppError.IDB_GET */
+        ]: "Error thrown when reading from IndexedDB. Original error: {$originalErrorMessage}.",
+        [
+          "idb-set"
+          /* AppError.IDB_WRITE */
+        ]: "Error thrown when writing to IndexedDB. Original error: {$originalErrorMessage}.",
+        [
+          "idb-delete"
+          /* AppError.IDB_DELETE */
+        ]: "Error thrown when deleting from IndexedDB. Original error: {$originalErrorMessage}.",
+        [
+          "finalization-registry-not-supported"
+          /* AppError.FINALIZATION_REGISTRY_NOT_SUPPORTED */
+        ]: "FirebaseServerApp deleteOnDeref field defined but the JS runtime does not support FinalizationRegistry.",
+        [
+          "invalid-server-app-environment"
+          /* AppError.INVALID_SERVER_APP_ENVIRONMENT */
+        ]: "FirebaseServerApp is not for use in browser environments."
+      };
+      ERROR_FACTORY = new ErrorFactory("app", "Firebase", ERRORS);
+      FirebaseAppImpl = class {
+        constructor(options, config, container) {
+          this._isDeleted = false;
+          this._options = Object.assign({}, options);
+          this._config = Object.assign({}, config);
+          this._name = config.name;
+          this._automaticDataCollectionEnabled = config.automaticDataCollectionEnabled;
+          this._container = container;
+          this.container.addComponent(new Component(
+            "app",
+            () => this,
+            "PUBLIC"
+            /* ComponentType.PUBLIC */
+          ));
+        }
+        get automaticDataCollectionEnabled() {
+          this.checkDestroyed();
+          return this._automaticDataCollectionEnabled;
+        }
+        set automaticDataCollectionEnabled(val) {
+          this.checkDestroyed();
+          this._automaticDataCollectionEnabled = val;
+        }
+        get name() {
+          this.checkDestroyed();
+          return this._name;
+        }
+        get options() {
+          this.checkDestroyed();
+          return this._options;
+        }
+        get config() {
+          this.checkDestroyed();
+          return this._config;
+        }
+        get container() {
+          return this._container;
+        }
+        get isDeleted() {
+          return this._isDeleted;
+        }
+        set isDeleted(val) {
+          this._isDeleted = val;
+        }
+        /**
+         * This function will throw an Error if the App has already been deleted -
+         * use before performing API actions on the App.
+         */
+        checkDestroyed() {
+          if (this.isDeleted) {
+            throw ERROR_FACTORY.create("app-deleted", { appName: this._name });
+          }
+        }
+      };
+      DB_NAME = "firebase-heartbeat-database";
+      DB_VERSION = 1;
+      STORE_NAME = "firebase-heartbeat-store";
+      dbPromise = null;
+      MAX_HEADER_BYTES = 1024;
+      MAX_NUM_STORED_HEARTBEATS = 30;
+      HeartbeatServiceImpl = class {
+        constructor(container) {
+          this.container = container;
+          this._heartbeatsCache = null;
+          const app = this.container.getProvider("app").getImmediate();
+          this._storage = new HeartbeatStorageImpl(app);
+          this._heartbeatsCachePromise = this._storage.read().then((result) => {
+            this._heartbeatsCache = result;
+            return result;
+          });
+        }
+        /**
+         * Called to report a heartbeat. The function will generate
+         * a HeartbeatsByUserAgent object, update heartbeatsCache, and persist it
+         * to IndexedDB.
+         * Note that we only store one heartbeat per day. So if a heartbeat for today is
+         * already logged, subsequent calls to this function in the same day will be ignored.
+         */
+        async triggerHeartbeat() {
+          var _a, _b;
+          try {
+            const platformLogger = this.container.getProvider("platform-logger").getImmediate();
+            const agent = platformLogger.getPlatformInfoString();
+            const date = getUTCDateString();
+            if (((_a = this._heartbeatsCache) === null || _a === void 0 ? void 0 : _a.heartbeats) == null) {
+              this._heartbeatsCache = await this._heartbeatsCachePromise;
+              if (((_b = this._heartbeatsCache) === null || _b === void 0 ? void 0 : _b.heartbeats) == null) {
+                return;
+              }
+            }
+            if (this._heartbeatsCache.lastSentHeartbeatDate === date || this._heartbeatsCache.heartbeats.some((singleDateHeartbeat) => singleDateHeartbeat.date === date)) {
+              return;
+            } else {
+              this._heartbeatsCache.heartbeats.push({ date, agent });
+              if (this._heartbeatsCache.heartbeats.length > MAX_NUM_STORED_HEARTBEATS) {
+                const earliestHeartbeatIdx = getEarliestHeartbeatIdx(this._heartbeatsCache.heartbeats);
+                this._heartbeatsCache.heartbeats.splice(earliestHeartbeatIdx, 1);
+              }
+            }
+            return this._storage.overwrite(this._heartbeatsCache);
+          } catch (e) {
+            logger.warn(e);
+          }
+        }
+        /**
+         * Returns a base64 encoded string which can be attached to the heartbeat-specific header directly.
+         * It also clears all heartbeats from memory as well as in IndexedDB.
+         *
+         * NOTE: Consuming product SDKs should not send the header if this method
+         * returns an empty string.
+         */
+        async getHeartbeatsHeader() {
+          var _a;
+          try {
+            if (this._heartbeatsCache === null) {
+              await this._heartbeatsCachePromise;
+            }
+            if (((_a = this._heartbeatsCache) === null || _a === void 0 ? void 0 : _a.heartbeats) == null || this._heartbeatsCache.heartbeats.length === 0) {
+              return "";
+            }
+            const date = getUTCDateString();
+            const { heartbeatsToSend, unsentEntries } = extractHeartbeatsForHeader(this._heartbeatsCache.heartbeats);
+            const headerString = base64urlEncodeWithoutPadding(JSON.stringify({ version: 2, heartbeats: heartbeatsToSend }));
+            this._heartbeatsCache.lastSentHeartbeatDate = date;
+            if (unsentEntries.length > 0) {
+              this._heartbeatsCache.heartbeats = unsentEntries;
+              await this._storage.overwrite(this._heartbeatsCache);
+            } else {
+              this._heartbeatsCache.heartbeats = [];
+              void this._storage.overwrite(this._heartbeatsCache);
+            }
+            return headerString;
+          } catch (e) {
+            logger.warn(e);
+            return "";
+          }
+        }
+      };
+      HeartbeatStorageImpl = class {
+        constructor(app) {
+          this.app = app;
+          this._canUseIndexedDBPromise = this.runIndexedDBEnvironmentCheck();
+        }
+        async runIndexedDBEnvironmentCheck() {
+          if (!isIndexedDBAvailable()) {
+            return false;
+          } else {
+            return validateIndexedDBOpenable().then(() => true).catch(() => false);
+          }
+        }
+        /**
+         * Read all heartbeats.
+         */
+        async read() {
+          const canUseIndexedDB = await this._canUseIndexedDBPromise;
+          if (!canUseIndexedDB) {
+            return { heartbeats: [] };
+          } else {
+            const idbHeartbeatObject = await readHeartbeatsFromIndexedDB(this.app);
+            if (idbHeartbeatObject === null || idbHeartbeatObject === void 0 ? void 0 : idbHeartbeatObject.heartbeats) {
+              return idbHeartbeatObject;
+            } else {
+              return { heartbeats: [] };
+            }
+          }
+        }
+        // overwrite the storage with the provided heartbeats
+        async overwrite(heartbeatsObject) {
+          var _a;
+          const canUseIndexedDB = await this._canUseIndexedDBPromise;
+          if (!canUseIndexedDB) {
+            return;
+          } else {
+            const existingHeartbeatsObject = await this.read();
+            return writeHeartbeatsToIndexedDB(this.app, {
+              lastSentHeartbeatDate: (_a = heartbeatsObject.lastSentHeartbeatDate) !== null && _a !== void 0 ? _a : existingHeartbeatsObject.lastSentHeartbeatDate,
+              heartbeats: heartbeatsObject.heartbeats
+            });
+          }
+        }
+        // add heartbeats
+        async add(heartbeatsObject) {
+          var _a;
+          const canUseIndexedDB = await this._canUseIndexedDBPromise;
+          if (!canUseIndexedDB) {
+            return;
+          } else {
+            const existingHeartbeatsObject = await this.read();
+            return writeHeartbeatsToIndexedDB(this.app, {
+              lastSentHeartbeatDate: (_a = heartbeatsObject.lastSentHeartbeatDate) !== null && _a !== void 0 ? _a : existingHeartbeatsObject.lastSentHeartbeatDate,
+              heartbeats: [
+                ...existingHeartbeatsObject.heartbeats,
+                ...heartbeatsObject.heartbeats
+              ]
+            });
+          }
+        }
+      };
+      registerCoreComponents("");
+    }
+  });
+
+  // node_modules/@firebase/installations/dist/esm/index.esm2017.js
+  function isServerError(error) {
+    return error instanceof FirebaseError && error.code.includes(
+      "request-failed"
+      /* ErrorCode.REQUEST_FAILED */
+    );
+  }
+  function getInstallationsEndpoint({ projectId }) {
+    return `${INSTALLATIONS_API_URL}/projects/${projectId}/installations`;
+  }
+  function extractAuthTokenInfoFromResponse(response) {
+    return {
+      token: response.token,
+      requestStatus: 2,
+      expiresIn: getExpiresInFromResponseExpiresIn(response.expiresIn),
+      creationTime: Date.now()
+    };
+  }
+  async function getErrorFromResponse(requestName, response) {
+    const responseJson = await response.json();
+    const errorData = responseJson.error;
+    return ERROR_FACTORY2.create("request-failed", {
+      requestName,
+      serverCode: errorData.code,
+      serverMessage: errorData.message,
+      serverStatus: errorData.status
+    });
+  }
+  function getHeaders({ apiKey }) {
+    return new Headers({
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "x-goog-api-key": apiKey
+    });
+  }
+  function getHeadersWithAuth(appConfig, { refreshToken }) {
+    const headers = getHeaders(appConfig);
+    headers.append("Authorization", getAuthorizationHeader(refreshToken));
+    return headers;
+  }
+  async function retryIfServerError(fn) {
+    const result = await fn();
+    if (result.status >= 500 && result.status < 600) {
+      return fn();
+    }
+    return result;
+  }
+  function getExpiresInFromResponseExpiresIn(responseExpiresIn) {
+    return Number(responseExpiresIn.replace("s", "000"));
+  }
+  function getAuthorizationHeader(refreshToken) {
+    return `${INTERNAL_AUTH_VERSION} ${refreshToken}`;
+  }
+  async function createInstallationRequest({ appConfig, heartbeatServiceProvider }, { fid }) {
+    const endpoint = getInstallationsEndpoint(appConfig);
+    const headers = getHeaders(appConfig);
+    const heartbeatService = heartbeatServiceProvider.getImmediate({
+      optional: true
+    });
+    if (heartbeatService) {
+      const heartbeatsHeader = await heartbeatService.getHeartbeatsHeader();
+      if (heartbeatsHeader) {
+        headers.append("x-firebase-client", heartbeatsHeader);
+      }
+    }
+    const body = {
+      fid,
+      authVersion: INTERNAL_AUTH_VERSION,
+      appId: appConfig.appId,
+      sdkVersion: PACKAGE_VERSION
+    };
+    const request = {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body)
+    };
+    const response = await retryIfServerError(() => fetch(endpoint, request));
+    if (response.ok) {
+      const responseValue = await response.json();
+      const registeredInstallationEntry = {
+        fid: responseValue.fid || fid,
+        registrationStatus: 2,
+        refreshToken: responseValue.refreshToken,
+        authToken: extractAuthTokenInfoFromResponse(responseValue.authToken)
+      };
+      return registeredInstallationEntry;
+    } else {
+      throw await getErrorFromResponse("Create Installation", response);
+    }
+  }
+  function sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }
+  function bufferToBase64UrlSafe(array) {
+    const b64 = btoa(String.fromCharCode(...array));
+    return b64.replace(/\+/g, "-").replace(/\//g, "_");
+  }
+  function generateFid() {
+    try {
+      const fidByteArray = new Uint8Array(17);
+      const crypto = self.crypto || self.msCrypto;
+      crypto.getRandomValues(fidByteArray);
+      fidByteArray[0] = 112 + fidByteArray[0] % 16;
+      const fid = encode2(fidByteArray);
+      return VALID_FID_PATTERN.test(fid) ? fid : INVALID_FID;
+    } catch (_a) {
+      return INVALID_FID;
+    }
+  }
+  function encode2(fidByteArray) {
+    const b64String = bufferToBase64UrlSafe(fidByteArray);
+    return b64String.substr(0, 22);
+  }
+  function getKey(appConfig) {
+    return `${appConfig.appName}!${appConfig.appId}`;
+  }
+  function fidChanged(appConfig, fid) {
+    const key = getKey(appConfig);
+    callFidChangeCallbacks(key, fid);
+    broadcastFidChange(key, fid);
+  }
+  function callFidChangeCallbacks(key, fid) {
+    const callbacks = fidChangeCallbacks.get(key);
+    if (!callbacks) {
+      return;
+    }
+    for (const callback of callbacks) {
+      callback(fid);
+    }
+  }
+  function broadcastFidChange(key, fid) {
+    const channel = getBroadcastChannel();
+    if (channel) {
+      channel.postMessage({ key, fid });
+    }
+    closeBroadcastChannel();
+  }
+  function getBroadcastChannel() {
+    if (!broadcastChannel && "BroadcastChannel" in self) {
+      broadcastChannel = new BroadcastChannel("[Firebase] FID Change");
+      broadcastChannel.onmessage = (e) => {
+        callFidChangeCallbacks(e.data.key, e.data.fid);
+      };
+    }
+    return broadcastChannel;
+  }
+  function closeBroadcastChannel() {
+    if (fidChangeCallbacks.size === 0 && broadcastChannel) {
+      broadcastChannel.close();
+      broadcastChannel = null;
+    }
+  }
+  function getDbPromise2() {
+    if (!dbPromise2) {
+      dbPromise2 = openDB(DATABASE_NAME, DATABASE_VERSION, {
+        upgrade: (db, oldVersion) => {
+          switch (oldVersion) {
+            case 0:
+              db.createObjectStore(OBJECT_STORE_NAME);
+          }
+        }
+      });
+    }
+    return dbPromise2;
+  }
+  async function set(appConfig, value) {
+    const key = getKey(appConfig);
+    const db = await getDbPromise2();
+    const tx = db.transaction(OBJECT_STORE_NAME, "readwrite");
+    const objectStore = tx.objectStore(OBJECT_STORE_NAME);
+    const oldValue = await objectStore.get(key);
+    await objectStore.put(value, key);
+    await tx.done;
+    if (!oldValue || oldValue.fid !== value.fid) {
+      fidChanged(appConfig, value.fid);
+    }
+    return value;
+  }
+  async function remove(appConfig) {
+    const key = getKey(appConfig);
+    const db = await getDbPromise2();
+    const tx = db.transaction(OBJECT_STORE_NAME, "readwrite");
+    await tx.objectStore(OBJECT_STORE_NAME).delete(key);
+    await tx.done;
+  }
+  async function update(appConfig, updateFn) {
+    const key = getKey(appConfig);
+    const db = await getDbPromise2();
+    const tx = db.transaction(OBJECT_STORE_NAME, "readwrite");
+    const store = tx.objectStore(OBJECT_STORE_NAME);
+    const oldValue = await store.get(key);
+    const newValue = updateFn(oldValue);
+    if (newValue === void 0) {
+      await store.delete(key);
+    } else {
+      await store.put(newValue, key);
+    }
+    await tx.done;
+    if (newValue && (!oldValue || oldValue.fid !== newValue.fid)) {
+      fidChanged(appConfig, newValue.fid);
+    }
+    return newValue;
+  }
+  async function getInstallationEntry(installations) {
+    let registrationPromise;
+    const installationEntry = await update(installations.appConfig, (oldEntry) => {
+      const installationEntry2 = updateOrCreateInstallationEntry(oldEntry);
+      const entryWithPromise = triggerRegistrationIfNecessary(installations, installationEntry2);
+      registrationPromise = entryWithPromise.registrationPromise;
+      return entryWithPromise.installationEntry;
+    });
+    if (installationEntry.fid === INVALID_FID) {
+      return { installationEntry: await registrationPromise };
+    }
+    return {
+      installationEntry,
+      registrationPromise
+    };
+  }
+  function updateOrCreateInstallationEntry(oldEntry) {
+    const entry = oldEntry || {
+      fid: generateFid(),
+      registrationStatus: 0
+      /* RequestStatus.NOT_STARTED */
+    };
+    return clearTimedOutRequest(entry);
+  }
+  function triggerRegistrationIfNecessary(installations, installationEntry) {
+    if (installationEntry.registrationStatus === 0) {
+      if (!navigator.onLine) {
+        const registrationPromiseWithError = Promise.reject(ERROR_FACTORY2.create(
+          "app-offline"
+          /* ErrorCode.APP_OFFLINE */
+        ));
+        return {
+          installationEntry,
+          registrationPromise: registrationPromiseWithError
+        };
+      }
+      const inProgressEntry = {
+        fid: installationEntry.fid,
+        registrationStatus: 1,
+        registrationTime: Date.now()
+      };
+      const registrationPromise = registerInstallation(installations, inProgressEntry);
+      return { installationEntry: inProgressEntry, registrationPromise };
+    } else if (installationEntry.registrationStatus === 1) {
+      return {
+        installationEntry,
+        registrationPromise: waitUntilFidRegistration(installations)
+      };
+    } else {
+      return { installationEntry };
+    }
+  }
+  async function registerInstallation(installations, installationEntry) {
+    try {
+      const registeredInstallationEntry = await createInstallationRequest(installations, installationEntry);
+      return set(installations.appConfig, registeredInstallationEntry);
+    } catch (e) {
+      if (isServerError(e) && e.customData.serverCode === 409) {
+        await remove(installations.appConfig);
+      } else {
+        await set(installations.appConfig, {
+          fid: installationEntry.fid,
+          registrationStatus: 0
+          /* RequestStatus.NOT_STARTED */
+        });
+      }
+      throw e;
+    }
+  }
+  async function waitUntilFidRegistration(installations) {
+    let entry = await updateInstallationRequest(installations.appConfig);
+    while (entry.registrationStatus === 1) {
+      await sleep(100);
+      entry = await updateInstallationRequest(installations.appConfig);
+    }
+    if (entry.registrationStatus === 0) {
+      const { installationEntry, registrationPromise } = await getInstallationEntry(installations);
+      if (registrationPromise) {
+        return registrationPromise;
+      } else {
+        return installationEntry;
+      }
+    }
+    return entry;
+  }
+  function updateInstallationRequest(appConfig) {
+    return update(appConfig, (oldEntry) => {
+      if (!oldEntry) {
+        throw ERROR_FACTORY2.create(
+          "installation-not-found"
+          /* ErrorCode.INSTALLATION_NOT_FOUND */
+        );
+      }
+      return clearTimedOutRequest(oldEntry);
+    });
+  }
+  function clearTimedOutRequest(entry) {
+    if (hasInstallationRequestTimedOut(entry)) {
+      return {
+        fid: entry.fid,
+        registrationStatus: 0
+        /* RequestStatus.NOT_STARTED */
+      };
+    }
+    return entry;
+  }
+  function hasInstallationRequestTimedOut(installationEntry) {
+    return installationEntry.registrationStatus === 1 && installationEntry.registrationTime + PENDING_TIMEOUT_MS < Date.now();
+  }
+  async function generateAuthTokenRequest({ appConfig, heartbeatServiceProvider }, installationEntry) {
+    const endpoint = getGenerateAuthTokenEndpoint(appConfig, installationEntry);
+    const headers = getHeadersWithAuth(appConfig, installationEntry);
+    const heartbeatService = heartbeatServiceProvider.getImmediate({
+      optional: true
+    });
+    if (heartbeatService) {
+      const heartbeatsHeader = await heartbeatService.getHeartbeatsHeader();
+      if (heartbeatsHeader) {
+        headers.append("x-firebase-client", heartbeatsHeader);
+      }
+    }
+    const body = {
+      installation: {
+        sdkVersion: PACKAGE_VERSION,
+        appId: appConfig.appId
+      }
+    };
+    const request = {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body)
+    };
+    const response = await retryIfServerError(() => fetch(endpoint, request));
+    if (response.ok) {
+      const responseValue = await response.json();
+      const completedAuthToken = extractAuthTokenInfoFromResponse(responseValue);
+      return completedAuthToken;
+    } else {
+      throw await getErrorFromResponse("Generate Auth Token", response);
+    }
+  }
+  function getGenerateAuthTokenEndpoint(appConfig, { fid }) {
+    return `${getInstallationsEndpoint(appConfig)}/${fid}/authTokens:generate`;
+  }
+  async function refreshAuthToken(installations, forceRefresh = false) {
+    let tokenPromise;
+    const entry = await update(installations.appConfig, (oldEntry) => {
+      if (!isEntryRegistered(oldEntry)) {
+        throw ERROR_FACTORY2.create(
+          "not-registered"
+          /* ErrorCode.NOT_REGISTERED */
+        );
+      }
+      const oldAuthToken = oldEntry.authToken;
+      if (!forceRefresh && isAuthTokenValid(oldAuthToken)) {
+        return oldEntry;
+      } else if (oldAuthToken.requestStatus === 1) {
+        tokenPromise = waitUntilAuthTokenRequest(installations, forceRefresh);
+        return oldEntry;
+      } else {
+        if (!navigator.onLine) {
+          throw ERROR_FACTORY2.create(
+            "app-offline"
+            /* ErrorCode.APP_OFFLINE */
+          );
+        }
+        const inProgressEntry = makeAuthTokenRequestInProgressEntry(oldEntry);
+        tokenPromise = fetchAuthTokenFromServer(installations, inProgressEntry);
+        return inProgressEntry;
+      }
+    });
+    const authToken = tokenPromise ? await tokenPromise : entry.authToken;
+    return authToken;
+  }
+  async function waitUntilAuthTokenRequest(installations, forceRefresh) {
+    let entry = await updateAuthTokenRequest(installations.appConfig);
+    while (entry.authToken.requestStatus === 1) {
+      await sleep(100);
+      entry = await updateAuthTokenRequest(installations.appConfig);
+    }
+    const authToken = entry.authToken;
+    if (authToken.requestStatus === 0) {
+      return refreshAuthToken(installations, forceRefresh);
+    } else {
+      return authToken;
+    }
+  }
+  function updateAuthTokenRequest(appConfig) {
+    return update(appConfig, (oldEntry) => {
+      if (!isEntryRegistered(oldEntry)) {
+        throw ERROR_FACTORY2.create(
+          "not-registered"
+          /* ErrorCode.NOT_REGISTERED */
+        );
+      }
+      const oldAuthToken = oldEntry.authToken;
+      if (hasAuthTokenRequestTimedOut(oldAuthToken)) {
+        return Object.assign(Object.assign({}, oldEntry), { authToken: {
+          requestStatus: 0
+          /* RequestStatus.NOT_STARTED */
+        } });
+      }
+      return oldEntry;
+    });
+  }
+  async function fetchAuthTokenFromServer(installations, installationEntry) {
+    try {
+      const authToken = await generateAuthTokenRequest(installations, installationEntry);
+      const updatedInstallationEntry = Object.assign(Object.assign({}, installationEntry), { authToken });
+      await set(installations.appConfig, updatedInstallationEntry);
+      return authToken;
+    } catch (e) {
+      if (isServerError(e) && (e.customData.serverCode === 401 || e.customData.serverCode === 404)) {
+        await remove(installations.appConfig);
+      } else {
+        const updatedInstallationEntry = Object.assign(Object.assign({}, installationEntry), { authToken: {
+          requestStatus: 0
+          /* RequestStatus.NOT_STARTED */
+        } });
+        await set(installations.appConfig, updatedInstallationEntry);
+      }
+      throw e;
+    }
+  }
+  function isEntryRegistered(installationEntry) {
+    return installationEntry !== void 0 && installationEntry.registrationStatus === 2;
+  }
+  function isAuthTokenValid(authToken) {
+    return authToken.requestStatus === 2 && !isAuthTokenExpired(authToken);
+  }
+  function isAuthTokenExpired(authToken) {
+    const now = Date.now();
+    return now < authToken.creationTime || authToken.creationTime + authToken.expiresIn < now + TOKEN_EXPIRATION_BUFFER;
+  }
+  function makeAuthTokenRequestInProgressEntry(oldEntry) {
+    const inProgressAuthToken = {
+      requestStatus: 1,
+      requestTime: Date.now()
+    };
+    return Object.assign(Object.assign({}, oldEntry), { authToken: inProgressAuthToken });
+  }
+  function hasAuthTokenRequestTimedOut(authToken) {
+    return authToken.requestStatus === 1 && authToken.requestTime + PENDING_TIMEOUT_MS < Date.now();
+  }
+  async function getId(installations) {
+    const installationsImpl = installations;
+    const { installationEntry, registrationPromise } = await getInstallationEntry(installationsImpl);
+    if (registrationPromise) {
+      registrationPromise.catch(console.error);
+    } else {
+      refreshAuthToken(installationsImpl).catch(console.error);
+    }
+    return installationEntry.fid;
+  }
+  async function getToken(installations, forceRefresh = false) {
+    const installationsImpl = installations;
+    await completeInstallationRegistration(installationsImpl);
+    const authToken = await refreshAuthToken(installationsImpl, forceRefresh);
+    return authToken.token;
+  }
+  async function completeInstallationRegistration(installations) {
+    const { registrationPromise } = await getInstallationEntry(installations);
+    if (registrationPromise) {
+      await registrationPromise;
+    }
+  }
+  function extractAppConfig(app) {
+    if (!app || !app.options) {
+      throw getMissingValueError("App Configuration");
+    }
+    if (!app.name) {
+      throw getMissingValueError("App Name");
+    }
+    const configKeys = [
+      "projectId",
+      "apiKey",
+      "appId"
+    ];
+    for (const keyName of configKeys) {
+      if (!app.options[keyName]) {
+        throw getMissingValueError(keyName);
+      }
+    }
+    return {
+      appName: app.name,
+      projectId: app.options.projectId,
+      apiKey: app.options.apiKey,
+      appId: app.options.appId
+    };
+  }
+  function getMissingValueError(valueName) {
+    return ERROR_FACTORY2.create("missing-app-config-values", {
+      valueName
+    });
+  }
+  function registerInstallations() {
+    _registerComponent(new Component(
+      INSTALLATIONS_NAME,
+      publicFactory,
+      "PUBLIC"
+      /* ComponentType.PUBLIC */
+    ));
+    _registerComponent(new Component(
+      INSTALLATIONS_NAME_INTERNAL,
+      internalFactory,
+      "PRIVATE"
+      /* ComponentType.PRIVATE */
+    ));
+  }
+  var name2, version, PENDING_TIMEOUT_MS, PACKAGE_VERSION, INTERNAL_AUTH_VERSION, INSTALLATIONS_API_URL, TOKEN_EXPIRATION_BUFFER, SERVICE, SERVICE_NAME, ERROR_DESCRIPTION_MAP, ERROR_FACTORY2, VALID_FID_PATTERN, INVALID_FID, fidChangeCallbacks, broadcastChannel, DATABASE_NAME, DATABASE_VERSION, OBJECT_STORE_NAME, dbPromise2, INSTALLATIONS_NAME, INSTALLATIONS_NAME_INTERNAL, publicFactory, internalFactory;
+  var init_index_esm20175 = __esm({
+    "node_modules/@firebase/installations/dist/esm/index.esm2017.js"() {
+      init_index_esm20174();
+      init_index_esm20172();
+      init_index_esm2017();
+      init_build();
+      name2 = "@firebase/installations";
+      version = "0.6.18";
+      PENDING_TIMEOUT_MS = 1e4;
+      PACKAGE_VERSION = `w:${version}`;
+      INTERNAL_AUTH_VERSION = "FIS_v2";
+      INSTALLATIONS_API_URL = "https://firebaseinstallations.googleapis.com/v1";
+      TOKEN_EXPIRATION_BUFFER = 60 * 60 * 1e3;
+      SERVICE = "installations";
+      SERVICE_NAME = "Installations";
+      ERROR_DESCRIPTION_MAP = {
+        [
+          "missing-app-config-values"
+          /* ErrorCode.MISSING_APP_CONFIG_VALUES */
+        ]: 'Missing App configuration value: "{$valueName}"',
+        [
+          "not-registered"
+          /* ErrorCode.NOT_REGISTERED */
+        ]: "Firebase Installation is not registered.",
+        [
+          "installation-not-found"
+          /* ErrorCode.INSTALLATION_NOT_FOUND */
+        ]: "Firebase Installation not found.",
+        [
+          "request-failed"
+          /* ErrorCode.REQUEST_FAILED */
+        ]: '{$requestName} request failed with error "{$serverCode} {$serverStatus}: {$serverMessage}"',
+        [
+          "app-offline"
+          /* ErrorCode.APP_OFFLINE */
+        ]: "Could not process request. Application offline.",
+        [
+          "delete-pending-registration"
+          /* ErrorCode.DELETE_PENDING_REGISTRATION */
+        ]: "Can't delete installation while there is a pending registration request."
+      };
+      ERROR_FACTORY2 = new ErrorFactory(SERVICE, SERVICE_NAME, ERROR_DESCRIPTION_MAP);
+      VALID_FID_PATTERN = /^[cdef][\w-]{21}$/;
+      INVALID_FID = "";
+      fidChangeCallbacks = /* @__PURE__ */ new Map();
+      broadcastChannel = null;
+      DATABASE_NAME = "firebase-installations-database";
+      DATABASE_VERSION = 1;
+      OBJECT_STORE_NAME = "firebase-installations-store";
+      dbPromise2 = null;
+      INSTALLATIONS_NAME = "installations";
+      INSTALLATIONS_NAME_INTERNAL = "installations-internal";
+      publicFactory = (container) => {
+        const app = container.getProvider("app").getImmediate();
+        const appConfig = extractAppConfig(app);
+        const heartbeatServiceProvider = _getProvider(app, "heartbeat");
+        const installationsImpl = {
+          app,
+          appConfig,
+          heartbeatServiceProvider,
+          _delete: () => Promise.resolve()
+        };
+        return installationsImpl;
+      };
+      internalFactory = (container) => {
+        const app = container.getProvider("app").getImmediate();
+        const installations = _getProvider(app, INSTALLATIONS_NAME).getImmediate();
+        const installationsInternal = {
+          getId: () => getId(installations),
+          getToken: (forceRefresh) => getToken(installations, forceRefresh)
+        };
+        return installationsInternal;
+      };
+      registerInstallations();
+      registerVersion(name2, version);
+      registerVersion(name2, version, "esm2017");
+    }
+  });
+
+  // node_modules/@firebase/analytics/dist/esm/index.esm2017.js
+  function createGtagTrustedTypesScriptURL(url) {
+    if (!url.startsWith(GTAG_URL)) {
+      const err = ERROR_FACTORY3.create("invalid-gtag-resource", {
+        gtagURL: url
+      });
+      logger2.warn(err.message);
+      return "";
+    }
+    return url;
+  }
+  function promiseAllSettled(promises) {
+    return Promise.all(promises.map((promise) => promise.catch((e) => e)));
+  }
+  function createTrustedTypesPolicy(policyName, policyOptions) {
+    let trustedTypesPolicy;
+    if (window.trustedTypes) {
+      trustedTypesPolicy = window.trustedTypes.createPolicy(policyName, policyOptions);
+    }
+    return trustedTypesPolicy;
+  }
+  function insertScriptTag(dataLayerName2, measurementId) {
+    const trustedTypesPolicy = createTrustedTypesPolicy("firebase-js-sdk-policy", {
+      createScriptURL: createGtagTrustedTypesScriptURL
+    });
+    const script = document.createElement("script");
+    const gtagScriptURL = `${GTAG_URL}?l=${dataLayerName2}&id=${measurementId}`;
+    script.src = trustedTypesPolicy ? trustedTypesPolicy === null || trustedTypesPolicy === void 0 ? void 0 : trustedTypesPolicy.createScriptURL(gtagScriptURL) : gtagScriptURL;
+    script.async = true;
+    document.head.appendChild(script);
+  }
+  function getOrCreateDataLayer(dataLayerName2) {
+    let dataLayer = [];
+    if (Array.isArray(window[dataLayerName2])) {
+      dataLayer = window[dataLayerName2];
+    } else {
+      window[dataLayerName2] = dataLayer;
+    }
+    return dataLayer;
+  }
+  async function gtagOnConfig(gtagCore, initializationPromisesMap2, dynamicConfigPromisesList2, measurementIdToAppId2, measurementId, gtagParams) {
+    const correspondingAppId = measurementIdToAppId2[measurementId];
+    try {
+      if (correspondingAppId) {
+        await initializationPromisesMap2[correspondingAppId];
+      } else {
+        const dynamicConfigResults = await promiseAllSettled(dynamicConfigPromisesList2);
+        const foundConfig = dynamicConfigResults.find((config) => config.measurementId === measurementId);
+        if (foundConfig) {
+          await initializationPromisesMap2[foundConfig.appId];
+        }
+      }
+    } catch (e) {
+      logger2.error(e);
+    }
+    gtagCore("config", measurementId, gtagParams);
+  }
+  async function gtagOnEvent(gtagCore, initializationPromisesMap2, dynamicConfigPromisesList2, measurementId, gtagParams) {
+    try {
+      let initializationPromisesToWaitFor = [];
+      if (gtagParams && gtagParams["send_to"]) {
+        let gaSendToList = gtagParams["send_to"];
+        if (!Array.isArray(gaSendToList)) {
+          gaSendToList = [gaSendToList];
+        }
+        const dynamicConfigResults = await promiseAllSettled(dynamicConfigPromisesList2);
+        for (const sendToId of gaSendToList) {
+          const foundConfig = dynamicConfigResults.find((config) => config.measurementId === sendToId);
+          const initializationPromise = foundConfig && initializationPromisesMap2[foundConfig.appId];
+          if (initializationPromise) {
+            initializationPromisesToWaitFor.push(initializationPromise);
+          } else {
+            initializationPromisesToWaitFor = [];
+            break;
+          }
+        }
+      }
+      if (initializationPromisesToWaitFor.length === 0) {
+        initializationPromisesToWaitFor = Object.values(initializationPromisesMap2);
+      }
+      await Promise.all(initializationPromisesToWaitFor);
+      gtagCore("event", measurementId, gtagParams || {});
+    } catch (e) {
+      logger2.error(e);
+    }
+  }
+  function wrapGtag(gtagCore, initializationPromisesMap2, dynamicConfigPromisesList2, measurementIdToAppId2) {
+    async function gtagWrapper(command, ...args) {
+      try {
+        if (command === "event") {
+          const [measurementId, gtagParams] = args;
+          await gtagOnEvent(gtagCore, initializationPromisesMap2, dynamicConfigPromisesList2, measurementId, gtagParams);
+        } else if (command === "config") {
+          const [measurementId, gtagParams] = args;
+          await gtagOnConfig(gtagCore, initializationPromisesMap2, dynamicConfigPromisesList2, measurementIdToAppId2, measurementId, gtagParams);
+        } else if (command === "consent") {
+          const [consentAction, gtagParams] = args;
+          gtagCore("consent", consentAction, gtagParams);
+        } else if (command === "get") {
+          const [measurementId, fieldName, callback] = args;
+          gtagCore("get", measurementId, fieldName, callback);
+        } else if (command === "set") {
+          const [customParams] = args;
+          gtagCore("set", customParams);
+        } else {
+          gtagCore(command, ...args);
+        }
+      } catch (e) {
+        logger2.error(e);
+      }
+    }
+    return gtagWrapper;
+  }
+  function wrapOrCreateGtag(initializationPromisesMap2, dynamicConfigPromisesList2, measurementIdToAppId2, dataLayerName2, gtagFunctionName) {
+    let gtagCore = function(..._args) {
+      window[dataLayerName2].push(arguments);
+    };
+    if (window[gtagFunctionName] && typeof window[gtagFunctionName] === "function") {
+      gtagCore = window[gtagFunctionName];
+    }
+    window[gtagFunctionName] = wrapGtag(gtagCore, initializationPromisesMap2, dynamicConfigPromisesList2, measurementIdToAppId2);
+    return {
+      gtagCore,
+      wrappedGtag: window[gtagFunctionName]
+    };
+  }
+  function findGtagScriptOnPage(dataLayerName2) {
+    const scriptTags = window.document.getElementsByTagName("script");
+    for (const tag of Object.values(scriptTags)) {
+      if (tag.src && tag.src.includes(GTAG_URL) && tag.src.includes(dataLayerName2)) {
+        return tag;
+      }
+    }
+    return null;
+  }
+  function getHeaders2(apiKey) {
+    return new Headers({
+      Accept: "application/json",
+      "x-goog-api-key": apiKey
+    });
+  }
+  async function fetchDynamicConfig(appFields) {
+    var _a;
+    const { appId, apiKey } = appFields;
+    const request = {
+      method: "GET",
+      headers: getHeaders2(apiKey)
+    };
+    const appUrl = DYNAMIC_CONFIG_URL.replace("{app-id}", appId);
+    const response = await fetch(appUrl, request);
+    if (response.status !== 200 && response.status !== 304) {
+      let errorMessage = "";
+      try {
+        const jsonResponse = await response.json();
+        if ((_a = jsonResponse.error) === null || _a === void 0 ? void 0 : _a.message) {
+          errorMessage = jsonResponse.error.message;
+        }
+      } catch (_ignored) {
+      }
+      throw ERROR_FACTORY3.create("config-fetch-failed", {
+        httpStatus: response.status,
+        responseMessage: errorMessage
+      });
+    }
+    return response.json();
+  }
+  async function fetchDynamicConfigWithRetry(app, retryData = defaultRetryData, timeoutMillis) {
+    const { appId, apiKey, measurementId } = app.options;
+    if (!appId) {
+      throw ERROR_FACTORY3.create(
+        "no-app-id"
+        /* AnalyticsError.NO_APP_ID */
+      );
+    }
+    if (!apiKey) {
+      if (measurementId) {
+        return {
+          measurementId,
+          appId
+        };
+      }
+      throw ERROR_FACTORY3.create(
+        "no-api-key"
+        /* AnalyticsError.NO_API_KEY */
+      );
+    }
+    const throttleMetadata = retryData.getThrottleMetadata(appId) || {
+      backoffCount: 0,
+      throttleEndTimeMillis: Date.now()
+    };
+    const signal = new AnalyticsAbortSignal();
+    setTimeout(async () => {
+      signal.abort();
+    }, timeoutMillis !== void 0 ? timeoutMillis : FETCH_TIMEOUT_MILLIS);
+    return attemptFetchDynamicConfigWithRetry({ appId, apiKey, measurementId }, throttleMetadata, signal, retryData);
+  }
+  async function attemptFetchDynamicConfigWithRetry(appFields, { throttleEndTimeMillis, backoffCount }, signal, retryData = defaultRetryData) {
+    var _a;
+    const { appId, measurementId } = appFields;
+    try {
+      await setAbortableTimeout(signal, throttleEndTimeMillis);
+    } catch (e) {
+      if (measurementId) {
+        logger2.warn(`Timed out fetching this Firebase app's measurement ID from the server. Falling back to the measurement ID ${measurementId} provided in the "measurementId" field in the local Firebase config. [${e === null || e === void 0 ? void 0 : e.message}]`);
+        return { appId, measurementId };
+      }
+      throw e;
+    }
+    try {
+      const response = await fetchDynamicConfig(appFields);
+      retryData.deleteThrottleMetadata(appId);
+      return response;
+    } catch (e) {
+      const error = e;
+      if (!isRetriableError(error)) {
+        retryData.deleteThrottleMetadata(appId);
+        if (measurementId) {
+          logger2.warn(`Failed to fetch this Firebase app's measurement ID from the server. Falling back to the measurement ID ${measurementId} provided in the "measurementId" field in the local Firebase config. [${error === null || error === void 0 ? void 0 : error.message}]`);
+          return { appId, measurementId };
+        } else {
+          throw e;
+        }
+      }
+      const backoffMillis = Number((_a = error === null || error === void 0 ? void 0 : error.customData) === null || _a === void 0 ? void 0 : _a.httpStatus) === 503 ? calculateBackoffMillis(backoffCount, retryData.intervalMillis, LONG_RETRY_FACTOR) : calculateBackoffMillis(backoffCount, retryData.intervalMillis);
+      const throttleMetadata = {
+        throttleEndTimeMillis: Date.now() + backoffMillis,
+        backoffCount: backoffCount + 1
+      };
+      retryData.setThrottleMetadata(appId, throttleMetadata);
+      logger2.debug(`Calling attemptFetch again in ${backoffMillis} millis`);
+      return attemptFetchDynamicConfigWithRetry(appFields, throttleMetadata, signal, retryData);
+    }
+  }
+  function setAbortableTimeout(signal, throttleEndTimeMillis) {
+    return new Promise((resolve, reject) => {
+      const backoffMillis = Math.max(throttleEndTimeMillis - Date.now(), 0);
+      const timeout = setTimeout(resolve, backoffMillis);
+      signal.addEventListener(() => {
+        clearTimeout(timeout);
+        reject(ERROR_FACTORY3.create("fetch-throttle", {
+          throttleEndTimeMillis
+        }));
+      });
+    });
+  }
+  function isRetriableError(e) {
+    if (!(e instanceof FirebaseError) || !e.customData) {
+      return false;
+    }
+    const httpStatus = Number(e.customData["httpStatus"]);
+    return httpStatus === 429 || httpStatus === 500 || httpStatus === 503 || httpStatus === 504;
+  }
+  async function logEvent$1(gtagFunction, initializationPromise, eventName, eventParams, options) {
+    if (options && options.global) {
+      gtagFunction("event", eventName, eventParams);
+      return;
+    } else {
+      const measurementId = await initializationPromise;
+      const params = Object.assign(Object.assign({}, eventParams), { "send_to": measurementId });
+      gtagFunction("event", eventName, params);
+    }
+  }
+  async function setUserId$1(gtagFunction, initializationPromise, id, options) {
+    if (options && options.global) {
+      gtagFunction("set", { "user_id": id });
+      return Promise.resolve();
+    } else {
+      const measurementId = await initializationPromise;
+      gtagFunction("config", measurementId, {
+        update: true,
+        "user_id": id
+      });
+    }
+  }
+  async function setUserProperties$1(gtagFunction, initializationPromise, properties, options) {
+    if (options && options.global) {
+      const flatProperties = {};
+      for (const key of Object.keys(properties)) {
+        flatProperties[`user_properties.${key}`] = properties[key];
+      }
+      gtagFunction("set", flatProperties);
+      return Promise.resolve();
+    } else {
+      const measurementId = await initializationPromise;
+      gtagFunction("config", measurementId, {
+        update: true,
+        "user_properties": properties
+      });
+    }
+  }
+  async function setAnalyticsCollectionEnabled$1(initializationPromise, enabled) {
+    const measurementId = await initializationPromise;
+    window[`ga-disable-${measurementId}`] = !enabled;
+  }
+  function _setConsentDefaultForInit(consentSettings) {
+    defaultConsentSettingsForInit = consentSettings;
+  }
+  function _setDefaultEventParametersForInit(customParams) {
+    defaultEventParametersForInit = customParams;
+  }
+  async function validateIndexedDB() {
+    if (!isIndexedDBAvailable()) {
+      logger2.warn(ERROR_FACTORY3.create("indexeddb-unavailable", {
+        errorInfo: "IndexedDB is not available in this environment."
+      }).message);
+      return false;
+    } else {
+      try {
+        await validateIndexedDBOpenable();
+      } catch (e) {
+        logger2.warn(ERROR_FACTORY3.create("indexeddb-unavailable", {
+          errorInfo: e === null || e === void 0 ? void 0 : e.toString()
+        }).message);
+        return false;
+      }
+    }
+    return true;
+  }
+  async function _initializeAnalytics(app, dynamicConfigPromisesList2, measurementIdToAppId2, installations, gtagCore, dataLayerName2, options) {
+    var _a;
+    const dynamicConfigPromise = fetchDynamicConfigWithRetry(app);
+    dynamicConfigPromise.then((config) => {
+      measurementIdToAppId2[config.measurementId] = config.appId;
+      if (app.options.measurementId && config.measurementId !== app.options.measurementId) {
+        logger2.warn(`The measurement ID in the local Firebase config (${app.options.measurementId}) does not match the measurement ID fetched from the server (${config.measurementId}). To ensure analytics events are always sent to the correct Analytics property, update the measurement ID field in the local config or remove it from the local config.`);
+      }
+    }).catch((e) => logger2.error(e));
+    dynamicConfigPromisesList2.push(dynamicConfigPromise);
+    const fidPromise = validateIndexedDB().then((envIsValid) => {
+      if (envIsValid) {
+        return installations.getId();
+      } else {
+        return void 0;
+      }
+    });
+    const [dynamicConfig, fid] = await Promise.all([
+      dynamicConfigPromise,
+      fidPromise
+    ]);
+    if (!findGtagScriptOnPage(dataLayerName2)) {
+      insertScriptTag(dataLayerName2, dynamicConfig.measurementId);
+    }
+    if (defaultConsentSettingsForInit) {
+      gtagCore("consent", "default", defaultConsentSettingsForInit);
+      _setConsentDefaultForInit(void 0);
+    }
+    gtagCore("js", /* @__PURE__ */ new Date());
+    const configProperties = (_a = options === null || options === void 0 ? void 0 : options.config) !== null && _a !== void 0 ? _a : {};
+    configProperties[ORIGIN_KEY] = "firebase";
+    configProperties.update = true;
+    if (fid != null) {
+      configProperties[GA_FID_KEY] = fid;
+    }
+    gtagCore("config", dynamicConfig.measurementId, configProperties);
+    if (defaultEventParametersForInit) {
+      gtagCore("set", defaultEventParametersForInit);
+      _setDefaultEventParametersForInit(void 0);
+    }
+    return dynamicConfig.measurementId;
+  }
+  function warnOnBrowserContextMismatch() {
+    const mismatchedEnvMessages = [];
+    if (isBrowserExtension()) {
+      mismatchedEnvMessages.push("This is a browser extension environment.");
+    }
+    if (!areCookiesEnabled()) {
+      mismatchedEnvMessages.push("Cookies are not available.");
+    }
+    if (mismatchedEnvMessages.length > 0) {
+      const details = mismatchedEnvMessages.map((message, index) => `(${index + 1}) ${message}`).join(" ");
+      const err = ERROR_FACTORY3.create("invalid-analytics-context", {
+        errorInfo: details
+      });
+      logger2.warn(err.message);
+    }
+  }
+  function factory(app, installations, options) {
+    warnOnBrowserContextMismatch();
+    const appId = app.options.appId;
+    if (!appId) {
+      throw ERROR_FACTORY3.create(
+        "no-app-id"
+        /* AnalyticsError.NO_APP_ID */
+      );
+    }
+    if (!app.options.apiKey) {
+      if (app.options.measurementId) {
+        logger2.warn(`The "apiKey" field is empty in the local Firebase config. This is needed to fetch the latest measurement ID for this Firebase app. Falling back to the measurement ID ${app.options.measurementId} provided in the "measurementId" field in the local Firebase config.`);
+      } else {
+        throw ERROR_FACTORY3.create(
+          "no-api-key"
+          /* AnalyticsError.NO_API_KEY */
+        );
+      }
+    }
+    if (initializationPromisesMap[appId] != null) {
+      throw ERROR_FACTORY3.create("already-exists", {
+        id: appId
+      });
+    }
+    if (!globalInitDone) {
+      getOrCreateDataLayer(dataLayerName);
+      const { wrappedGtag, gtagCore } = wrapOrCreateGtag(initializationPromisesMap, dynamicConfigPromisesList, measurementIdToAppId, dataLayerName, gtagName);
+      wrappedGtagFunction = wrappedGtag;
+      gtagCoreFunction = gtagCore;
+      globalInitDone = true;
+    }
+    initializationPromisesMap[appId] = _initializeAnalytics(app, dynamicConfigPromisesList, measurementIdToAppId, installations, gtagCoreFunction, dataLayerName, options);
+    const analyticsInstance = new AnalyticsService(app);
+    return analyticsInstance;
+  }
+  function getAnalytics(app = getApp()) {
+    app = getModularInstance(app);
+    const analyticsProvider = _getProvider(app, ANALYTICS_TYPE);
+    if (analyticsProvider.isInitialized()) {
+      return analyticsProvider.getImmediate();
+    }
+    return initializeAnalytics(app);
+  }
+  function initializeAnalytics(app, options = {}) {
+    const analyticsProvider = _getProvider(app, ANALYTICS_TYPE);
+    if (analyticsProvider.isInitialized()) {
+      const existingInstance = analyticsProvider.getImmediate();
+      if (deepEqual(options, analyticsProvider.getOptions())) {
+        return existingInstance;
+      } else {
+        throw ERROR_FACTORY3.create(
+          "already-initialized"
+          /* AnalyticsError.ALREADY_INITIALIZED */
+        );
+      }
+    }
+    const analyticsInstance = analyticsProvider.initialize({ options });
+    return analyticsInstance;
+  }
+  function setUserId(analyticsInstance, id, options) {
+    analyticsInstance = getModularInstance(analyticsInstance);
+    setUserId$1(wrappedGtagFunction, initializationPromisesMap[analyticsInstance.app.options.appId], id, options).catch((e) => logger2.error(e));
+  }
+  function setUserProperties(analyticsInstance, properties, options) {
+    analyticsInstance = getModularInstance(analyticsInstance);
+    setUserProperties$1(wrappedGtagFunction, initializationPromisesMap[analyticsInstance.app.options.appId], properties, options).catch((e) => logger2.error(e));
+  }
+  function setAnalyticsCollectionEnabled(analyticsInstance, enabled) {
+    analyticsInstance = getModularInstance(analyticsInstance);
+    setAnalyticsCollectionEnabled$1(initializationPromisesMap[analyticsInstance.app.options.appId], enabled).catch((e) => logger2.error(e));
+  }
+  function logEvent(analyticsInstance, eventName, eventParams, options) {
+    analyticsInstance = getModularInstance(analyticsInstance);
+    logEvent$1(wrappedGtagFunction, initializationPromisesMap[analyticsInstance.app.options.appId], eventName, eventParams, options).catch((e) => logger2.error(e));
+  }
+  function setConsent(consentSettings) {
+    if (wrappedGtagFunction) {
+      wrappedGtagFunction("consent", "update", consentSettings);
+    } else {
+      _setConsentDefaultForInit(consentSettings);
+    }
+  }
+  function registerAnalytics() {
+    _registerComponent(new Component(
+      ANALYTICS_TYPE,
+      (container, { options: analyticsOptions }) => {
+        const app = container.getProvider("app").getImmediate();
+        const installations = container.getProvider("installations-internal").getImmediate();
+        return factory(app, installations, analyticsOptions);
+      },
+      "PUBLIC"
+      /* ComponentType.PUBLIC */
+    ));
+    _registerComponent(new Component(
+      "analytics-internal",
+      internalFactory2,
+      "PRIVATE"
+      /* ComponentType.PRIVATE */
+    ));
+    registerVersion(name3, version2);
+    registerVersion(name3, version2, "esm2017");
+    function internalFactory2(container) {
+      try {
+        const analytics = container.getProvider(ANALYTICS_TYPE).getImmediate();
+        return {
+          logEvent: (eventName, eventParams, options) => logEvent(analytics, eventName, eventParams, options)
+        };
+      } catch (e) {
+        throw ERROR_FACTORY3.create("interop-component-reg-failed", {
+          reason: e
+        });
+      }
+    }
+  }
+  var ANALYTICS_TYPE, GA_FID_KEY, ORIGIN_KEY, FETCH_TIMEOUT_MILLIS, DYNAMIC_CONFIG_URL, GTAG_URL, logger2, ERRORS2, ERROR_FACTORY3, LONG_RETRY_FACTOR, BASE_INTERVAL_MILLIS, RetryData, defaultRetryData, AnalyticsAbortSignal, defaultEventParametersForInit, defaultConsentSettingsForInit, AnalyticsService, initializationPromisesMap, dynamicConfigPromisesList, measurementIdToAppId, dataLayerName, gtagName, gtagCoreFunction, wrappedGtagFunction, globalInitDone, name3, version2;
+  var init_index_esm20176 = __esm({
+    "node_modules/@firebase/analytics/dist/esm/index.esm2017.js"() {
+      init_index_esm20174();
+      init_index_esm20173();
+      init_index_esm2017();
+      init_index_esm20172();
+      init_index_esm20175();
+      ANALYTICS_TYPE = "analytics";
+      GA_FID_KEY = "firebase_id";
+      ORIGIN_KEY = "origin";
+      FETCH_TIMEOUT_MILLIS = 60 * 1e3;
+      DYNAMIC_CONFIG_URL = "https://firebase.googleapis.com/v1alpha/projects/-/apps/{app-id}/webConfig";
+      GTAG_URL = "https://www.googletagmanager.com/gtag/js";
+      logger2 = new Logger("@firebase/analytics");
+      ERRORS2 = {
+        [
+          "already-exists"
+          /* AnalyticsError.ALREADY_EXISTS */
+        ]: "A Firebase Analytics instance with the appId {$id}  already exists. Only one Firebase Analytics instance can be created for each appId.",
+        [
+          "already-initialized"
+          /* AnalyticsError.ALREADY_INITIALIZED */
+        ]: "initializeAnalytics() cannot be called again with different options than those it was initially called with. It can be called again with the same options to return the existing instance, or getAnalytics() can be used to get a reference to the already-initialized instance.",
+        [
+          "already-initialized-settings"
+          /* AnalyticsError.ALREADY_INITIALIZED_SETTINGS */
+        ]: "Firebase Analytics has already been initialized.settings() must be called before initializing any Analytics instanceor it will have no effect.",
+        [
+          "interop-component-reg-failed"
+          /* AnalyticsError.INTEROP_COMPONENT_REG_FAILED */
+        ]: "Firebase Analytics Interop Component failed to instantiate: {$reason}",
+        [
+          "invalid-analytics-context"
+          /* AnalyticsError.INVALID_ANALYTICS_CONTEXT */
+        ]: "Firebase Analytics is not supported in this environment. Wrap initialization of analytics in analytics.isSupported() to prevent initialization in unsupported environments. Details: {$errorInfo}",
+        [
+          "indexeddb-unavailable"
+          /* AnalyticsError.INDEXEDDB_UNAVAILABLE */
+        ]: "IndexedDB unavailable or restricted in this environment. Wrap initialization of analytics in analytics.isSupported() to prevent initialization in unsupported environments. Details: {$errorInfo}",
+        [
+          "fetch-throttle"
+          /* AnalyticsError.FETCH_THROTTLE */
+        ]: "The config fetch request timed out while in an exponential backoff state. Unix timestamp in milliseconds when fetch request throttling ends: {$throttleEndTimeMillis}.",
+        [
+          "config-fetch-failed"
+          /* AnalyticsError.CONFIG_FETCH_FAILED */
+        ]: "Dynamic config fetch failed: [{$httpStatus}] {$responseMessage}",
+        [
+          "no-api-key"
+          /* AnalyticsError.NO_API_KEY */
+        ]: 'The "apiKey" field is empty in the local Firebase config. Firebase Analytics requires this field tocontain a valid API key.',
+        [
+          "no-app-id"
+          /* AnalyticsError.NO_APP_ID */
+        ]: 'The "appId" field is empty in the local Firebase config. Firebase Analytics requires this field tocontain a valid app ID.',
+        [
+          "no-client-id"
+          /* AnalyticsError.NO_CLIENT_ID */
+        ]: 'The "client_id" field is empty.',
+        [
+          "invalid-gtag-resource"
+          /* AnalyticsError.INVALID_GTAG_RESOURCE */
+        ]: "Trusted Types detected an invalid gtag resource: {$gtagURL}."
+      };
+      ERROR_FACTORY3 = new ErrorFactory("analytics", "Analytics", ERRORS2);
+      LONG_RETRY_FACTOR = 30;
+      BASE_INTERVAL_MILLIS = 1e3;
+      RetryData = class {
+        constructor(throttleMetadata = {}, intervalMillis = BASE_INTERVAL_MILLIS) {
+          this.throttleMetadata = throttleMetadata;
+          this.intervalMillis = intervalMillis;
+        }
+        getThrottleMetadata(appId) {
+          return this.throttleMetadata[appId];
+        }
+        setThrottleMetadata(appId, metadata) {
+          this.throttleMetadata[appId] = metadata;
+        }
+        deleteThrottleMetadata(appId) {
+          delete this.throttleMetadata[appId];
+        }
+      };
+      defaultRetryData = new RetryData();
+      AnalyticsAbortSignal = class {
+        constructor() {
+          this.listeners = [];
+        }
+        addEventListener(listener) {
+          this.listeners.push(listener);
+        }
+        abort() {
+          this.listeners.forEach((listener) => listener());
+        }
+      };
+      AnalyticsService = class {
+        constructor(app) {
+          this.app = app;
+        }
+        _delete() {
+          delete initializationPromisesMap[this.app.options.appId];
+          return Promise.resolve();
+        }
+      };
+      initializationPromisesMap = {};
+      dynamicConfigPromisesList = [];
+      measurementIdToAppId = {};
+      dataLayerName = "dataLayer";
+      gtagName = "gtag";
+      globalInitDone = false;
+      name3 = "@firebase/analytics";
+      version2 = "0.10.17";
+      registerAnalytics();
+    }
+  });
+
+  // node_modules/firebase/analytics/dist/esm/index.esm.js
+  var init_index_esm = __esm({
+    "node_modules/firebase/analytics/dist/esm/index.esm.js"() {
+      init_index_esm20176();
+    }
+  });
+
+  // node_modules/@capacitor-firebase/analytics/dist/esm/web.js
+  var web_exports3 = {};
+  __export(web_exports3, {
+    FirebaseAnalyticsWeb: () => FirebaseAnalyticsWeb
+  });
+  var FirebaseAnalyticsWeb;
+  var init_web3 = __esm({
+    "node_modules/@capacitor-firebase/analytics/dist/esm/web.js"() {
+      init_dist();
+      init_index_esm();
+      init_definitions();
+      FirebaseAnalyticsWeb = class extends WebPlugin {
+        async getAppInstanceId() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async setConsent(options) {
+          const status = options.status === ConsentStatus.Granted ? "granted" : "denied";
+          const consentSettings = {};
+          switch (options.type) {
+            case ConsentType.AdPersonalization:
+              consentSettings.ad_personalization = status;
+              break;
+            case ConsentType.AdStorage:
+              consentSettings.ad_storage = status;
+              break;
+            case ConsentType.AdUserData:
+              consentSettings.ad_user_data = status;
+              break;
+            case ConsentType.AnalyticsStorage:
+              consentSettings.analytics_storage = status;
+              break;
+            case ConsentType.FunctionalityStorage:
+              consentSettings.functionality_storage = status;
+              break;
+            case ConsentType.PersonalizationStorage:
+              consentSettings.personalization_storage = status;
+              break;
+          }
+          setConsent(consentSettings);
+        }
+        async setUserId(options) {
+          const analytics = getAnalytics();
+          setUserId(analytics, options.userId);
+        }
+        async setUserProperty(options) {
+          const analytics = getAnalytics();
+          setUserProperties(analytics, {
+            [options.key]: options.value
+          });
+        }
+        async setCurrentScreen(options) {
+          const analytics = getAnalytics();
+          logEvent(analytics, "screen_view", {
+            firebase_screen: options.screenName || void 0,
+            firebase_screen_class: options.screenClassOverride || void 0
+          });
+        }
+        async logEvent(options) {
+          const analytics = getAnalytics();
+          logEvent(analytics, options.name, options.params);
+        }
+        async setSessionTimeoutDuration(_options) {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async setEnabled(_options) {
+          const analytics = getAnalytics();
+          setAnalyticsCollectionEnabled(analytics, _options.enabled);
+        }
+        async isEnabled() {
+          const enabled = window["ga-disable-analyticsId"] === true;
+          return {
+            enabled
+          };
+        }
+        async resetAnalyticsData() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+      };
+    }
+  });
+
+  // node_modules/@capacitor-community/admob/dist/esm/index.js
+  init_dist();
+
+  // node_modules/@capacitor-community/admob/dist/esm/definitions.js
+  var MaxAdContentRating;
+  (function(MaxAdContentRating2) {
+    MaxAdContentRating2["General"] = "General";
+    MaxAdContentRating2["ParentalGuidance"] = "ParentalGuidance";
+    MaxAdContentRating2["Teen"] = "Teen";
+    MaxAdContentRating2["MatureAudience"] = "MatureAudience";
+  })(MaxAdContentRating || (MaxAdContentRating = {}));
+
+  // node_modules/@capacitor-community/admob/dist/esm/banner/banner-ad-plugin-events.enum.js
+  var BannerAdPluginEvents;
+  (function(BannerAdPluginEvents2) {
+    BannerAdPluginEvents2["SizeChanged"] = "bannerAdSizeChanged";
+    BannerAdPluginEvents2["Loaded"] = "bannerAdLoaded";
+    BannerAdPluginEvents2["FailedToLoad"] = "bannerAdFailedToLoad";
+    BannerAdPluginEvents2["Opened"] = "bannerAdOpened";
+    BannerAdPluginEvents2["Closed"] = "bannerAdClosed";
+    BannerAdPluginEvents2["AdImpression"] = "bannerAdImpression";
+  })(BannerAdPluginEvents || (BannerAdPluginEvents = {}));
+
+  // node_modules/@capacitor-community/admob/dist/esm/banner/banner-ad-position.enum.js
+  var BannerAdPosition;
+  (function(BannerAdPosition2) {
+    BannerAdPosition2["TOP_CENTER"] = "TOP_CENTER";
+    BannerAdPosition2["CENTER"] = "CENTER";
+    BannerAdPosition2["BOTTOM_CENTER"] = "BOTTOM_CENTER";
+  })(BannerAdPosition || (BannerAdPosition = {}));
+
+  // node_modules/@capacitor-community/admob/dist/esm/banner/banner-ad-size.enum.js
+  var BannerAdSize;
+  (function(BannerAdSize2) {
+    BannerAdSize2["BANNER"] = "BANNER";
+    BannerAdSize2["FULL_BANNER"] = "FULL_BANNER";
+    BannerAdSize2["LARGE_BANNER"] = "LARGE_BANNER";
+    BannerAdSize2["MEDIUM_RECTANGLE"] = "MEDIUM_RECTANGLE";
+    BannerAdSize2["LEADERBOARD"] = "LEADERBOARD";
+    BannerAdSize2["ADAPTIVE_BANNER"] = "ADAPTIVE_BANNER";
+    BannerAdSize2["SMART_BANNER"] = "SMART_BANNER";
+  })(BannerAdSize || (BannerAdSize = {}));
+
+  // node_modules/@capacitor-community/admob/dist/esm/interstitial/interstitial-ad-plugin-events.enum.js
+  var InterstitialAdPluginEvents;
+  (function(InterstitialAdPluginEvents2) {
+    InterstitialAdPluginEvents2["Loaded"] = "interstitialAdLoaded";
+    InterstitialAdPluginEvents2["FailedToLoad"] = "interstitialAdFailedToLoad";
+    InterstitialAdPluginEvents2["Showed"] = "interstitialAdShowed";
+    InterstitialAdPluginEvents2["FailedToShow"] = "interstitialAdFailedToShow";
+    InterstitialAdPluginEvents2["Dismissed"] = "interstitialAdDismissed";
+  })(InterstitialAdPluginEvents || (InterstitialAdPluginEvents = {}));
+
+  // node_modules/@capacitor-community/admob/dist/esm/reward-interstitial/reward-interstitial-ad-plugin-events.enum.js
+  var RewardInterstitialAdPluginEvents;
+  (function(RewardInterstitialAdPluginEvents2) {
+    RewardInterstitialAdPluginEvents2["Loaded"] = "onRewardedInterstitialAdLoaded";
+    RewardInterstitialAdPluginEvents2["FailedToLoad"] = "onRewardedInterstitialAdFailedToLoad";
+    RewardInterstitialAdPluginEvents2["Showed"] = "onRewardedInterstitialAdShowed";
+    RewardInterstitialAdPluginEvents2["FailedToShow"] = "onRewardedInterstitialAdFailedToShow";
+    RewardInterstitialAdPluginEvents2["Dismissed"] = "onRewardedInterstitialAdDismissed";
+    RewardInterstitialAdPluginEvents2["Rewarded"] = "onRewardedInterstitialAdReward";
+  })(RewardInterstitialAdPluginEvents || (RewardInterstitialAdPluginEvents = {}));
+
+  // node_modules/@capacitor-community/admob/dist/esm/reward/reward-ad-plugin-events.enum.js
+  var RewardAdPluginEvents;
+  (function(RewardAdPluginEvents2) {
+    RewardAdPluginEvents2["Loaded"] = "onRewardedVideoAdLoaded";
+    RewardAdPluginEvents2["FailedToLoad"] = "onRewardedVideoAdFailedToLoad";
+    RewardAdPluginEvents2["Showed"] = "onRewardedVideoAdShowed";
+    RewardAdPluginEvents2["FailedToShow"] = "onRewardedVideoAdFailedToShow";
+    RewardAdPluginEvents2["Dismissed"] = "onRewardedVideoAdDismissed";
+    RewardAdPluginEvents2["Rewarded"] = "onRewardedVideoAdReward";
+  })(RewardAdPluginEvents || (RewardAdPluginEvents = {}));
+
+  // node_modules/@capacitor-community/admob/dist/esm/consent/index.js
+  init_consent_status_enum();
+
+  // node_modules/@capacitor-community/admob/dist/esm/consent/consent-debug-geography.enum.js
+  var AdmobConsentDebugGeography;
+  (function(AdmobConsentDebugGeography2) {
+    AdmobConsentDebugGeography2[AdmobConsentDebugGeography2["DISABLED"] = 0] = "DISABLED";
+    AdmobConsentDebugGeography2[AdmobConsentDebugGeography2["EEA"] = 1] = "EEA";
+    AdmobConsentDebugGeography2[AdmobConsentDebugGeography2["NOT_EEA"] = 2] = "NOT_EEA";
+  })(AdmobConsentDebugGeography || (AdmobConsentDebugGeography = {}));
+
+  // node_modules/@capacitor-community/admob/dist/esm/index.js
+  var AdMob = registerPlugin("AdMob", {
+    web: () => Promise.resolve().then(() => (init_web(), web_exports)).then((m) => new m.AdMobWeb())
+  });
+
+  // node_modules/@capacitor/preferences/dist/esm/index.js
+  init_dist();
+  var Preferences = registerPlugin("Preferences", {
+    web: () => Promise.resolve().then(() => (init_web2(), web_exports2)).then((m) => new m.PreferencesWeb())
+  });
+
+  // node_modules/@capacitor-firebase/analytics/dist/esm/index.js
+  init_dist();
+  init_definitions();
+  var FirebaseAnalytics = registerPlugin("FirebaseAnalytics", {
+    web: () => Promise.resolve().then(() => (init_web3(), web_exports3)).then((m) => new m.FirebaseAnalyticsWeb())
+  });
+
+  // src/bridge.ts
+  var BANNER_AD_ID = "ca-app-pub-4389055403972993/6403273070";
+  var INTERSTITIAL_AD_ID = "ca-app-pub-4389055403972993/6670866381";
+  var REWARDED_AD_ID = "ca-app-pub-4389055403972993/2272456375";
+  var REMOVE_ADS_PRODUCT_ID = "com.luckyclover.aceofaces.removeads";
+  var PREF_ADS_REMOVED = "ace1918_ads_removed_v1";
+  var INTERSTITIAL_MIN_GAP_MS = 9e4;
+  var adsRemoved = false;
+  var bannerVisible = false;
+  var purchaseTracked = false;
+  var lastInterstitialAt = 0;
+  var inNativeShell = false;
+  var pendingBuy = null;
+  async function initAdMob() {
+    await AdMob.initialize({
+      initializeForTesting: false
+      // REAL IDs live — test units still serve test ads by design
+    });
+    await safe(() => AdMob.requestTrackingAuthorization());
+    await safe(() => AdMob.prepareInterstitial({ adId: INTERSTITIAL_AD_ID }));
+    await safe(() => AdMob.prepareRewardVideoAd({ adId: REWARDED_AD_ID }));
+    await safe(showBanner);
+  }
+  async function showBanner() {
+    if (adsRemoved || bannerVisible) return;
+    try {
+      await AdMob.showBanner({
+        adId: BANNER_AD_ID,
+        adSize: BannerAdSize.ADAPTIVE_BANNER,
+        position: BannerAdPosition.BOTTOM_CENTER,
+        margin: 0
+      });
+      bannerVisible = true;
+      void trackEvent("ad_shown", { format: "banner" });
+    } catch {
+      bannerVisible = false;
+    }
+  }
+  async function hideBanner() {
+    if (!bannerVisible) return;
+    bannerVisible = false;
+    await safe(() => AdMob.removeBanner());
+  }
+  async function trackEvent(name4, params) {
+    if (!inNativeShell) return;
+    await safe(() => FirebaseAnalytics.logEvent({ name: name4, params: params ?? {} }));
+  }
+  async function showInterstitial() {
+    if (adsRemoved) return false;
+    if (Date.now() - lastInterstitialAt < INTERSTITIAL_MIN_GAP_MS) return false;
+    try {
+      await AdMob.showInterstitial();
+      lastInterstitialAt = Date.now();
+      safe(() => AdMob.prepareInterstitial({ adId: INTERSTITIAL_AD_ID }));
+      void trackEvent("ad_shown", { format: "interstitial" });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  async function showRewardedAd() {
+    if (adsRemoved) return false;
+    try {
+      const reward = await AdMob.showRewardVideoAd();
+      safe(() => AdMob.prepareRewardVideoAd({ adId: REWARDED_AD_ID }));
+      const earned = !!reward;
+      if (earned) {
+        void trackEvent("ad_shown", { format: "rewarded" });
+        void trackEvent("reward_earned", {});
+      }
+      return earned;
+    } catch {
+      return false;
+    }
+  }
+  function purchasePlugin() {
+    try {
+      return typeof CdvPurchase !== "undefined" ? CdvPurchase : null;
+    } catch {
+      return null;
+    }
+  }
+  async function setAdsRemoved(on) {
+    adsRemoved = on;
+    await Preferences.set({ key: PREF_ADS_REMOVED, value: on ? "1" : "0" });
+    if (on) await hideBanner();
+    else if (inNativeShell) await safe(showBanner);
+    if (on && !purchaseTracked) {
+      purchaseTracked = true;
+      void trackEvent("remove_ads_purchased", { price_usd: 2.99 });
+    }
+    if (pendingBuy) {
+      pendingBuy(on);
+      pendingBuy = null;
+    }
+  }
+  async function initIAP() {
+    const { value } = await Preferences.get({ key: PREF_ADS_REMOVED });
+    if (value === "1") {
+      adsRemoved = true;
+      purchaseTracked = true;
+    }
+    const Cdv = purchasePlugin();
+    if (!Cdv) return;
+    const { store, ProductType, Platform } = Cdv;
+    store.register([
+      {
+        id: REMOVE_ADS_PRODUCT_ID,
+        type: ProductType.NON_CONSUMABLE,
+        platform: Platform.APPLE_APPSTORE
+      }
+    ]);
+    store.when().approved((tx) => tx.verify()).verified((receipt) => receipt.finish()).finished((tx) => {
+      const ids = (tx.products || []).map(
+        (p) => typeof p === "string" ? p : p.id
+      );
+      if (ids.indexOf(REMOVE_ADS_PRODUCT_ID) >= 0) void setAdsRemoved(true);
+    }).cancelled(() => {
+      if (pendingBuy) {
+        pendingBuy(false);
+        pendingBuy = null;
+      }
+    }).owned((p) => {
+      const id = typeof p === "string" ? p : p.id;
+      if (id === REMOVE_ADS_PRODUCT_ID) {
+        purchaseTracked = true;
+        void setAdsRemoved(true);
+      }
+    });
+    await store.initialize([Platform.APPLE_APPSTORE]);
+  }
+  function buyRemoveAds() {
+    const Cdv = purchasePlugin();
+    if (!Cdv) return Promise.resolve(false);
+    if (adsRemoved) return Promise.resolve(true);
+    return new Promise((resolve) => {
+      pendingBuy = resolve;
+      setTimeout(() => {
+        if (pendingBuy) {
+          pendingBuy(false);
+          pendingBuy = null;
+        }
+      }, 12e4);
+      Cdv.store.order(REMOVE_ADS_PRODUCT_ID).catch(() => {
+        if (pendingBuy) {
+          pendingBuy(false);
+          pendingBuy = null;
+        }
+      });
+    });
+  }
+  async function restorePurchases() {
+    const Cdv = purchasePlugin();
+    if (!Cdv) return false;
+    try {
+      await Cdv.store.restore();
+      return adsRemoved;
+    } catch {
+      return false;
+    }
+  }
+  async function safe(fn) {
+    try {
+      await fn();
+    } catch {
+    }
+  }
+  async function boot() {
+    inNativeShell = typeof window.Capacitor !== "undefined" && !!window.Capacitor.isNativePlatform?.();
+    if (inNativeShell) {
+      await safe(initAdMob);
+      await waitForCordova(8e3);
+      await safe(initIAP);
+    }
+    window.GameBridge = {
+      isAdsRemoved: async () => adsRemoved,
+      showInterstitial: () => showInterstitial(),
+      showRewardedAd: () => showRewardedAd(),
+      buyRemoveAds: () => buyRemoveAds(),
+      restorePurchases: () => restorePurchases(),
+      // Reserved for a future game build: lets the game log analytics events
+      // it can see (e.g. sortie_start / sortie_complete) through the shell.
+      trackEvent: (name4, params) => trackEvent(name4, params)
+    };
+    if (inNativeShell) {
+      void trackEvent("shell_boot", {});
+    }
+    window.dispatchEvent(new Event("gamebridge:ready"));
+  }
+  function waitForCordova(timeoutMs) {
+    if (purchasePlugin()) return Promise.resolve();
+    return new Promise((resolve) => {
+      const done = () => resolve();
+      const timer = setTimeout(done, timeoutMs);
+      document.addEventListener(
+        "deviceready",
+        () => {
+          clearTimeout(timer);
+          done();
+        },
+        { once: true }
+      );
+    });
+  }
+  void boot();
+})();
 /*! Bundled license information:
 
 @capacitor/core/dist/index.js:

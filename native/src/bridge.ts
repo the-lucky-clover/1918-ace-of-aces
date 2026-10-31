@@ -31,7 +31,7 @@ import { FirebaseAnalytics } from '@capacitor-firebase/analytics';
 
 // ---------------------------------------------------------------------------
 // CONFIG — Steven's real AdMob IDs (2026-10-30). Interstitial / Rewarded are
-// still Google's official TEST IDs until he creates those ad units.
+// all three are REAL IDs (2026-10-30).
 // ---------------------------------------------------------------------------
 const BANNER_AD_ID = 'ca-app-pub-4389055403972993/6403273070'; // REAL — persistent bottom banner
 const INTERSTITIAL_AD_ID = 'ca-app-pub-4389055403972993/6670866381'; // REAL — between sorties
