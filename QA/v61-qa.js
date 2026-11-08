@@ -112,7 +112,7 @@ ok('v61 plates registered (stormA/stormB/flyZep/flyBomber/contact)',
 const watchBody = bodyOf('watchShadowCrossing');
 const triggerBody = bodyOf('checkShadowTrigger');
 ok('crossing watch: arms only on the upward crossing of the mark, mark unearned, entitled',
-  />=666/.test(watchBody) && /shadowLastLive<666/.test(watchBody) && /shadowMarkEarned\(\)/.test(watchBody) && /bonusEntitled\(\)/.test(watchBody));
+  />=777/.test(watchBody) && /shadowLastLive<777/.test(watchBody) && /shadowMarkEarned\(\)/.test(watchBody) && /progress\.shadowPure!==false/.test(watchBody) && /bonusEntitled\(\)/.test(watchBody));
 ok('trigger gate: QA sim can never fire it (!qaMode, like the continue offer), guests never self-trigger, entitlement re-checked at the door',
   /qaMode/.test(triggerBody) && /net\.role==='guest'/.test(triggerBody) && /bonusEntitled\(\)/.test(triggerBody));
 ok('trigger fires only on a clean combat frame (no boss, no death/calm sequence, combat phase)',
@@ -159,7 +159,7 @@ ok('clouds spawn only on the duel sky, capped at three, drawn from the photograp
 const flyKindBody = bodyOf('flyoverKindForSortie');
 ok('flyovers: airship and bomber on their sortie patterns; the black shape only in the approach band below the mark, mark unearned, entitled',
   /progress\.selected%4===1/.test(flyKindBody) && /progress\.selected%5===3/.test(flyKindBody) &&
-  /lk>=600&&lk<666/.test(flyKindBody) && /shadowMarkEarned\(\)/.test(flyKindBody));
+  /lk>=711&&lk<777/.test(flyKindBody) && /progress\.shadowPure!==false/.test(flyKindBody) && /shadowMarkEarned\(\)/.test(flyKindBody));
 ok('flyovers are drawn behind the fight and never on the duel or prestige sky',
   /drawTerrain\(\);if\(landingSeq\|\|takeoffSeq\)drawAirfield\(\);drawFlyovers\(\)/.test(html) &&
   /!prestigeActive&&!shadowActive/.test(bodyOf('updateFlyovers')));
@@ -179,8 +179,8 @@ ok('winning banks the hidden mark in the prestige record; a guest banks nothing 
 ok('co-op: the duel state rides the net snapshot both ways (host sky + storm field for the guest)',
   /shadow:shadowActive,storm:stormClouds/.test(html) && /shadowActive=!!m\.shadow;stormClouds=m\.storm\|\|\[\]/.test(html));
 ok('losing re-arms the watch just below the mark (he comes back next fight, never in a menu)',
-  /shadowLastLive=665/.test(bodyOf('onFatalCrashSettled')) &&
-  /shadowLastLive=665/.test(html.slice(html.indexOf('function finish(win){'), html.indexOf('function finish(win){') + 300)));
+  /shadowLastLive=776/.test(bodyOf('onFatalCrashSettled')) &&
+  /shadowLastLive=776/.test(html.slice(html.indexOf('function finish(win){'), html.indexOf('function finish(win){') + 300)));
 
 // --- exercises wired ---------------------------------------------------------------------------
 ok('v61 exercises exist (duel, flyovers, cut-in) + image waiter',
@@ -196,7 +196,7 @@ ok('AceQA exposes the v61 exercises and the campaign playtest gates on them',
 // --- NO text hints, NO naming ---------------------------------------------------------------------
 const sayStrings = (html.match(/say\('[^']*'\)/g) || []).concat(html.match(/showBanner\('[^']*'/g) || []);
 ok('no toast or banner anywhere names the secrets (no mark count, no locale, no shout in text channels)',
-  !sayStrings.some(s => /666|NOWHERE|CONTACT/.test(s)), sayStrings.filter(s => /666|NOWHERE|CONTACT/.test(s)).join(' | '));
+  !sayStrings.some(s => /777|NOWHERE|CONTACT/.test(s)), sayStrings.filter(s => /777|NOWHERE|CONTACT/.test(s)).join(' | '));
 // the homage's source stays unnamed: patterns are assembled from fragments
 // so the forbidden strings themselves never appear in this file either.
 const forbidden = ['Mor' + 'tal Kom' + 'bat', 'Kom' + 'bat', 'Shao' + ' Kahn', 'Toa' + 'sty', 'Dan ' + 'For' + 'den', 'Ed ' + 'Boon', 'Mid' + 'way Games'];
@@ -208,7 +208,7 @@ ok('v59/v60 intact: continue + prestige + entitlement, mirror at 5x, fuel consta
   /function exerciseV59Continue\(\)/.test(html) && /PRESTIGE_KEY='1918-prestige'/.test(html) &&
   /function bonusEntitled\(\)/.test(html) && /LAUNCH_FREE_GRANT=true/.test(html) &&
   /var hp=mirrorBaseHp\(\)\*5/.test(html) &&
-  /FUEL_MAX=100,FUEL_DRAIN=\.3,FUEL_HIT=25,FUEL_SLIVER=12,FUEL_DRUM_GAIN=40,FUEL_DRUM_PERIOD=16/.test(html) &&
+  /FUEL_MAX=100,FUEL_DRAIN=\.27,FUEL_HIT=25,FUEL_SLIVER=12,FUEL_DRUM_GAIN=40,FUEL_DRUM_PERIOD=16/.test(html) && /* v62: drain x0.9 (.3 -> .27) per the tune-down; the rest of the fuel law is unchanged */
   /function p38Access\(\)\{return p38Unlocked\(\)&&bonusEntitled\(\)\}/.test(html));
 ok('day-one flag intact (1918-day-one, sale end Nov 12)',
   /DAY_ONE_KEY='1918-day-one'/.test(html) && /SALE_END_MS=Date\.UTC\(2026,10,13,7,59,59\)/.test(html));

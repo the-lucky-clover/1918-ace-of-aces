@@ -783,8 +783,8 @@ if (peakMatch) {
   const mono = peak.every((v, i) => i === 0 || v >= peak[i - 1]);
   ok('BULLET_PEAK ramps with the sortie (never decreases)', mono, peak.join(','));
   ok('early sorties stay gentle (S1-S4 peak <= 10, the 1942 band)', peak.slice(0, 4).every(v => v <= 10), peak.slice(0, 4).join(','));
-  ok('late sorties are true bullet hell (S29-S32 peak >= 22)', peak.slice(28).every(v => v >= 22), peak.slice(28).join(','));
-  ok('S32 peak is 22 (above v42\'s 20, below the 30 the Cap\'n called too hard)', peak[31] === 22, 'got ' + peak[31]);
+  ok('late sorties are true bullet hell (S29-S32 peak >= 16; v62 supersedes v46\'s 22)', peak.slice(28).every(v => v >= 16), peak.slice(28).join(','));
+  ok('S32 peak is 16 (v62: the Cap\'n called even 22 too hard on his second playtest)', peak[31] === 16, 'got ' + peak[31]);
   console.log('  INFO  BULLET_PEAK S1=' + peak[0] + ' S16=' + peak[15] + ' S32=' + peak[31] + ' (1942 reference peak was 10-20)');
 }
 ok('bulletHellFireRate helper exists (faster fire late, capped at 6% faster)', /function bulletHellFireRate\(\)\{return 1-Math\.min\(\.06,progress\.selected\*\.002\)\}/.test(html));
@@ -804,7 +804,7 @@ ok('green inline volley matches its archetype (fan3, not fan2)', /else if\(e\.ar
 const sigBody = fnBody('bossSignature');
 ok('bossSignature found', !!sigBody);
 if (sigBody) {
-  ok('boss radial tuned down to 12 (was 16)', /Math\.min\(12,8\+boss\.stage\+level\*2\)/.test(sigBody));
+  ok('boss radial tuned down to 10 (v62; v46 had 12, was 16)', /Math\.min\(10,8\+boss\.stage\+level\*2\)/.test(sigBody));
   ok('boss radial is slower (132 + stage*5, was 145 + stage*7)', /132\+boss\.stage\*5/.test(sigBody));
   ok('boss radial keeps the safe gap on the pilot line', /radialPattern\(boss\.x,boss\.y\+20,count,time\*\.65,132\+boss\.stage\*5,\(Math\.atan2\(target\.y-boss\.y,target\.x-boss\.x\)\/6\.283\+1\)%1\)/.test(sigBody));
   ok('boss aimed burst tuned down to 7 (was 9)', /Math\.min\(7,5\+level\*2\),1\.18,185\+boss\.stage\*6,'heavy'/.test(sigBody));
