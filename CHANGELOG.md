@@ -1,3 +1,15 @@
+## v72 — The Zeppelin Comes Down to Yer Level
+- The great airships no longer cruise their own high road: each Zeppelin now flies at the pilot's own altitude, easin' to yer level an' holdin' there with a stately sway, so the fight be eye to eye.
+
+## v71 — The Card in Pixel Letters
+- The sortie card loses her paper: no background at all now, just the number an' locale in big pixel letters near the top o' the sky, fadin' in as ye roll an' fadin' out as ye climb away.
+- The camera keeps movin' with the ship through landin' an' takeoff both — the ground slows as ye come in to catch the deck, creeps while the tally's read, an' speeds up down the runway as ye take off again. The tank's refilled on the deck, as always.
+
+## v70 — The Flight Screen Swept Clean
+- The collage be swept off the battlefield: no more photo plates, strips or ghost-images pasted over the one true photograph — the ground be the photograph alone, as she should be.
+- The aerodrome be restored to the takeoff: a real forward field under the SPAD as she climbs, the runway at her true proportions, an' no painted words upon the grass.
+- The fuel gauge drops to the bottom o' the screen; the sortie card shows only when she has somethin' to say, with her number an' locale in big plain letterin'; the sortie line be shortened an' made readable; an' the shout-boxes be moved up top where they can't cover the pilot.
+
 ## v69 — The Old Photograph Sails Home
 - The backgrounds be reverted to the early photorealistic version: one true battlefield photograph, her own crops an' grades per sortie, the green modern aerial an' the seam-blend struck from the skies.
 - Thirty-three custom sortie backgrounds there be now, an' a thirty-fourth for the shadow self: Sortie 33 flies in the wild blue yonder under a taller sky, an' the shadow's realm be the same sea o' cloud gone dark an' slow.
