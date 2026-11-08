@@ -1,3 +1,8 @@
+## v76 — Tall Skies, Every One Lookin' Straight Down
+- Eight plates that leaned oblique got remade strict nadir — Montfaucon, Rembercourt, Reims, Laon, Vouziers, the Meuse heights, Exermont an' Cunel — so all thirty-two sorties now fly over true top-down photographs, rooftops an' ground only, no horizons, no vector, no drawn pixels.
+- Every plate grew taller — from twice her width to three times — extended with her own mirrored photographic ground. Nothin' stretched, not one pixel: the ground itself is longer.
+- The scroller now tiles copies 'til the whole screen is covered on any telephone, mirrorin' each pass so the joins vanish. No gap at the bottom, no stretch to fill it — ever.
+
 ## v75 — Thirty-Two Skies, an' a Windsock on the Field
 - Every sortie flies over her OWN ground now: thirty-two photorealistic plates, one bespoke photograph per sortie — fields, forests, rivers, ruined towns an' crater wastes — no crops o' one picture, no drawn pixels.
 - A windsock stands by the runway at the aerodrome, streamin' an' dippin' in the wind through takeoff an' landin'.
