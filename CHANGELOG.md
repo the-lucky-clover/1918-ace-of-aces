@@ -1,3 +1,8 @@
+## v69 — The Old Photograph Sails Home
+- The backgrounds be reverted to the early photorealistic version: one true battlefield photograph, her own crops an' grades per sortie, the green modern aerial an' the seam-blend struck from the skies.
+- Thirty-three custom sortie backgrounds there be now, an' a thirty-fourth for the shadow self: Sortie 33 flies in the wild blue yonder under a taller sky, an' the shadow's realm be the same sea o' cloud gone dark an' slow.
+- No readin' prompts appear in Sortie 33 nor in the shadow's sky — the banner stays silent in both.
+
 ## v68 — Dumbed Down Till The Robot Can Fly Her
 - Every difficulty be shifted down a full rank and then some: enemy fire slowed, their bullets slowed and thinned, bosses softened, the pilot's guns strengthened, and a hit costs 16 fuel instead o' 25 with a slower drain — tuned in rounds against the automated playtest till the machine pilot can beat the campaign.
 - Two-player be doubly dumbed, as ordered: flyin' co-op eases every one o' those screws a second turn.
