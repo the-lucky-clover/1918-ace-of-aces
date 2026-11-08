@@ -3,8 +3,8 @@
 Do these in order. One step, then the next. If any step looks different on
 your Mac, STOP and send me a screenshot of what you see — don't guess.
 
-Your bundle ID everywhere: `com.luckyclover.aceofaces`
-Your IAP product ID: `com.luckyclover.aceofaces.removeads` ($2.99, one-time
+Your bundle ID everywhere: `com.stevenpounds.1918`
+Your IAP product ID: `com.stevenpounds.1918.removeads` ($2.99, one-time
 purchase, non-consumable — **not** a subscription)
 
 ---
@@ -31,7 +31,7 @@ very top (blue icon). In the middle pane, click the **App** target, then the
 In the **Team** dropdown, choose your team (your name).
 
 **Step 6.** Confirm the **Bundle Identifier** field reads
-`com.luckyclover.aceofaces`. If it doesn't, type it in exactly.
+`com.stevenpounds.1918`. If it doesn't, type it in exactly.
 
 **Step 6b.** The ad libraries install via CocoaPods — do this once in Terminal:
 open **Terminal** (in Applications → Utilities). Type `cd`, press the Space bar,
@@ -67,7 +67,7 @@ and rebuild the bridge. Come back here when its Step 25 is done.
 
 **Step 9 — Google Analytics (your dashboard).** Follow
 **ANALYTICS_SETUP.md** Parts 1–3: create the Firebase project → register
-the iOS app (bundle ID `com.luckyclover.aceofaces`) → download
+the iOS app (bundle ID `com.stevenpounds.1918`) → download
 `GoogleService-Info.plist` → add it to the App target in Xcode.
 Come back here when its Step 13 is done.
 
@@ -98,7 +98,7 @@ A window called **Organizer** opens when it finishes.
 - **Name:** `1918`
   (If it says the name is taken, use `1918: Ace of Aces` and tell me.)
 - **Primary Language:** English (U.S.)
-- **Bundle ID:** open the dropdown, choose `com.luckyclover.aceofaces`
+- **Bundle ID:** open the dropdown, choose `com.stevenpounds.1918`
 - **SKU:** `ACEOFACES001` (your private code, Apple never shows it)
 - **User Access:** Full Access
 Click **Create**.
@@ -137,7 +137,7 @@ Monetization), then **+**.
 
 **Step 24.** Fill in:
 - **Reference Name:** `Remove Ads` (only you see this)
-- **Product ID:** `com.luckyclover.aceofaces.removeads` (must match EXACTLY)
+- **Product ID:** `com.stevenpounds.1918.removeads` (must match EXACTLY)
 Click **Create**.
 
 **Step 25.** On the product page: set **Price** to **$2.99** (that's Tier 3),

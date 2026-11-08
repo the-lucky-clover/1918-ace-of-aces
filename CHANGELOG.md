@@ -3,6 +3,243 @@
 > ⚓ **Ship's rule, by order of the Captain:** every entry in this here log be writ in **pirate speak**. No landlubber prose allowed. Them what writes plain shall swab the deck. Arrr.
 
 <!-- NEW ENTRIES GO BELOW THIS LINE (newest first) -->
+## v49 — 2026-11-07
+
+v49: the Cap'n struck the colours on the paid cargo, arrr — the Remove Ads doubloon be CANCELLED, struck from the ledger entire! No purchase, no button, no beggin' bowl: the game flies FREE with NO ADS from launch day through the twelfth o' November — the Cap'n stretched the free sailin' a day past Armistice, arrr. Any pilot what takes first wing in that window gets the day-one mark writ in the ship's log (localStorage '1918-day-one'), an' them marked pilots NEVER see an ad, ever — not after the window shuts, not after the v1.1 refit sails in with AdMob aboard. The rule be iron: ads show ONLY when a pilot bears NO day-one mark AND the sale window be over AND he flies solo — co-op NEVER carries ads, for no man, on no day. The AdMob rig stays lashed to the mast, gated by the new rule, so the v1.1 update need only hoist sail. An' the muster be simplified to Capcom's own plain truth: two great choices on the flight desk, "1 PLAYER" an' "2 PLAYERS", naught else — pick one an' fly. Arrr.
+
+
+## v48 — 2026-11-07
+
+v48: the great gasbag L-33 (LZ 76) sails in with her innards on show, arrr — no more a fat balloon what ye plink at the hull! The Cap'n ordered her proper: two armored machine-gun battlestations on her back, three gas cells hid in her belly, two gondolas slung below, an' three Maybach air props a-spinnin' on photographic discs. Shoot a gun nest silent an' her forward guns fall dumb; burn a fuel cell an' she takes a fireball to her own innards, eight parts in a hundred off her strength; knock a gondola away an' her props die with it; shoot the props off an' she lumbers slower an' slower, her control car shot away steerin' her drunk. An' she WEARS the battle now: fresh she flies clean as a new envelope, but every wound shows — torn fabric where a cell blew, scorch where a gondola burned, black patches creepin' across her hull as her strength fails, photographic fire an' smoke streamin' from the very holes ye made. No vector scorch, no drawn flames — only real photo plates, cut from the one true aerial an' the Staaken's own props. Her main hull strength stands as it was; the weak points be a gift to the sharp-eyed, not a shortcut. Arrr.
+
+
+## v47 — 2026-11-07
+
+v47: the Huns flew weird, arrr — they swivelled flat upon a pivot like paper cutouts spun on a pin, their bankin' poses mostly duds (some nigh on level, some wild at three-an'-twenty degrees, an' the Pfalz flyin' backwards!). So the Cap'n ordered true bankin': every Hun crate an' every ace now wears true photographic bank poses, cut from her own likeness at fourteen degrees a side, an' — better yet — she rolls into her turns on a smooth continuous bank, eased from the true turn rate, nose ever on her course, wings dipped into the wind like a proper pilot. Fighters roll the full fourteen; the aces roll twelve; the great Staaken giant leans a slow five; an' the Zeppelin, bein' an airship, rolls ne'er a degree. No bullets changed, no hulls changed, no speeds changed — the war flies exactly as before, only now the Huns fly like they mean it. Arrr.
+
+
+## v46 — 2026-11-07
+
+v46: the Cap'n hisself flew her on his iPhone an' called the sky too hot — "ITS TOO HARD", says he, an' the Cap'n be the only judge what matters. So we eased the storm back a notch, but she still blows a proper bullet hell: the bullet cap now tops out at two-an'-twenty instead o' thirty, the Huns shoot but six percent faster by the last sortie instead o' twelve, the boss radial spins twelve shells instead o' sixteen, an' the aimed an' forward fans throw seven instead o' nine. The Staaken's six guns an' the Zeppelin's broadside stand as they were — slow an' readable. The wingman buffer stays fat as ever — wing pickups at thirty in a hundred, fresh wings every four to seven seconds, an' two seconds o' cover for a new wingman — so a careful pilot can still keep a shield through the thick o' it. Still denser than the old twenty an' the 1942 band, still every gap dodgeable, still no bullet faster than yer SPAD. Arrr.
+
+
+## v45 — 2026-11-07
+
+v45: the Cap'n orders two repairs, arrr! First, the debrief: when a pilot falls, the KILLED IN ACTION report now opens above the fold — every screen starts at the top o' the page, the desk no longer forces a seven-hundred-pixel tall table on a phone, an' the retry buttons pin to the bottom o' the view while the report scrolls, so no dead pilot must hunt below the fold fer his retry. The route map an' keepsake step aside on short screens, where the tall desk would crowd the board. Second, the shadows: every aircraft now casts a proper high-altitude drop shadow on the photograph below — pilot, wingmen, an' every Hun crate, aces an' giants included — all cut from the same blurred photographic silhouette plate, the sun standin' upper-left so the shadow falls down-right, an' the higher the crate the further off, the smaller, the softer an' the lighter its shadow, so ye can read the altitude at a glance. A loop climb lifts the shadow with the plane. The giants keep a tighter shadow so they don't swallow the sky. No bullets changed, no hulls changed — the war flies exactly as before, only the light tells the truth now, Arrr!
+
+
+## v44 — 2026-11-07
+
+v44: the death o' a pilot be no more a quick fizzle, mateys — six
+fiery crash-an'-burn deaths now wait in the wings, an' the game draws
+one fresh each time a SPAD goes down, so no two deaths ever play the
+same. A SPIRAL OF FIRE spins down blazin' into a great blast; the
+WINGSHEAR FIREBALL tears her own wing an' tail clean off mid-air —
+true photographic plates cut from the SPAD herself — with twin
+fireballs bloomin' as she tumbles; the FLAT SPIN INFERNO comes down
+slow, wrapped head to tail in flame, an' hits like the devil's own
+bomb; the LAST GLIDE floats burnin' an' erupts twice upon touchdown;
+the DEATH ROLL weaves an' rolls into a wide fan o' wreckage; an' the
+TAILSPIN PLUNGE corkscrews straight down into the deepest crater o'
+them all. Every impact now bursts with the true photographic v37
+explosion frames — the same fire what swallows balloons an' bombers —
+an' the fall itself be longer, with a proper kick skyward first, so ye
+see the whole fiery end instead o' a blink. The DOWN board waits till
+the fireball blooms, then hands ye clean to the KILLED IN ACTION
+debrief, same as ever. No blood, no gore — machines an' fire only.
+Arrr.
+
+
+## v43 — 2026-11-07
+
+v43: the sky itself turns to lead, mateys — a true bullet hell, but a
+fair one, for the Cap'n swore the game must still be beatable. The
+bullet cap now climbs with the war: gentle as a spring breeze in the
+first sorties (eight, nine, ten — the old 1942 measure), then thicker
+an' thicker till the last sorties rain thirty live rounds at once, half
+again past the old peak. (The first cut aimed at forty, but the
+live-fire trials showed forty drowned the escort before any wingman
+could be won back, so the Cap'n hauled the peak down to thirty.) The
+Hun's fighters fire proper aimed fans now — reds an' dva's an' clii's
+an' junkers loose two-shot spreads, greens an' dvii's loose three —
+an' the aces shoot an eighth faster by the war's end. The bosses each
+fire their own readable pattern: a wide slow broadside from the
+Zeppelin's gondolas, six guns blazin' from the Staaken giant, an' every
+boss loosin' a sixteen-round ring with a safe lane left open on yer
+line, plus a nine-round aimed burst — all slowed down, mind, so no
+bullet outruns the pilot's own wings. An' to keep one-hit death
+survivable under all that iron, the wing pickups come oftener — near a
+third of the drops now, an' powerups fall faster from the sky, an' a
+fresh wingman joins with two seconds' cover so a fan already in the air
+don't kill him on arrival — so a careful pilot can keep a wingman on
+each side through the storm. The proof be half-won, an' honestly told:
+a steerin' pilot with a full wingman buffer flew all thirty-two
+sorties for real, under the game's own spawn cover only, an' lived to
+sixty seconds an' more on a third of 'em, past a hundred on the best —
+but the full campaign still stands unbeaten by the trial pilot, an' the
+Cap'n's own playtest remains the true proof. No foe's hide was
+thickened, no wave reshuffled, no sortie reordered — same war, thicker
+sky. Arrr.
+
+## v42 — 2026-11-07
+
+v42: the two great German strategic bombers finally fly true, mateys —
+the rigid-hull Zeppelin airship an' the Zeppelin-Staaken R.VI giant.
+The airship were already aboard in name — seven bosses, a fine
+photographic plate, an' a painter what never got called — so now the
+airship herself fills the sky, big an' slow, her gondolas bristlin'.
+An' the Staaken giant gets her own true likeness at last: no more
+borrowin' another bomber's coat, but a photographic plate cut from the
+real Gotha — her four Maybach engines moved to the nose, two tractor
+an' two pusher, her span stretched long as a church roof, her Iron
+Crosses plain to see. Both fly late in the war where history put 'em,
+both take a proper poundin' afore they fall, an' both die in honest
+photographic fire. No mechanic be touched — same sorties, same one-hit
+death, same Ghost waitin' at thirty-two. Arrr.
+
+## v41 — 2026-11-07
+
+v41: the front itself comes alive below, mateys — road checkpoints with
+their rubble barriers an' ruined huts, POW camps fenced round with
+walled compounds, guard towers watchin' from their dark roofs, an' air
+raid siren posts standin' thin against the fields, all photographic,
+all top-down, all cut from the one true battlefield aerial. An' the war
+thunders on the horizon: artillery salvos trade volleys back an' forth,
+their muzzle flashes sparkin' first an' the bursts chasin' after, with
+smoke puffs lingerin' where the shells fell; distant machine guns
+flicker their tracers in short angry bursts; an' when dusk falls on the
+night sorties, searchlights sweep the black sky — true photographic
+beams swingin' slow on their pivots — while flares hang bright an'
+drift down gentle through the dark. They scroll with the ground at the
+same speed as the trenches, so ye fly over a livin' front. No mechanic
+be touched — same sorties, same one-hit death, same Ghost waitin' at
+thirty-two. Arrr.
+
+## v40 — 2026-11-07
+
+v40: the land below gets its rivers an' roads an' villages, mateys — the
+Rhine herself winds through the ground now, dark an' wide, cut from a true
+top-down aerial of Village-Neuf in France, with a road bridge spannin' her
+banks, an' a muddy water channel from the one battlefield photograph for
+the wet ditches near the front. Dirt roads cross the ruined village
+crossroads, village streets run between the houses, an' the villages
+themselves rise from the earth — house clusters with red rooftops, a ruined
+house, a tavern block, two long-naved churches by the town square, two
+schoolhouses with their sports grounds, an' a stadium oval with its
+running track, all photographic, all top-down, all feathered soft into the
+terrain. They scroll with the ground at the same speed as the trenches, so
+ye fly over real rivers an' real roads an' real rooftops. No mechanic be
+touched — same sorties, same one-hit death, same Ghost waitin' at
+thirty-two. Arrr.
+
+
+## v39 — 2026-11-07
+
+v39: the ground itself joins the war, mateys — the battlefield below be no
+longer bare farmland but a proper Western Front, scarred an' churned. Three
+zigzag trench lines, cut from the one true aerial photograph, crawl across
+the ground as ye fly, an' shell holes pock the earth — single water-filled
+craters an' whole crater fields churned by the guns, all scrollin' with the
+terrain at the same speed as the fires. The comic-book cover what greeted
+ye at the splash be struck from the mast an' replaced with a true
+photographic aerial of the battlefield — trenches an' craters an' a ruined
+village, dark-graded for the title. An' the last o' the code-drawn trickery
+walks the plank: the skirmish flashes, the minimap dots, the snow washes,
+the terrain haze, the weather grades, the sunbeam, the storm flash, the
+wounded-enemy smoke an' the boss muzzle flashes an' tell rings an' damage
+flames — all now drawn from photographic raster plates, no arc nor ellipse
+nor gradient nor fillRect left to shame the eye. The dead vector horse an'
+his rider, what never once rode into battle, be thrown overboard. No
+mechanic be touched — same sorties, same one-hit death, same Ghost waitin'
+at thirty-two. Arrr.
+
+
+## v38 — 2026-11-07
+
+v38: the aircraft themselves get a proper refit, mateys — the player's SPAD
+now flies as the true photograph, camo an' roundels an' the white 1 an' the
+ribbed fabric plain to see, for the old flat grey silhouette walks the
+plank. Her banked poses turn from the same true photograph, an' her wounded
+shape smoulders with real smoke an' embers. The second SPAD fares the same,
+an' her banked poses no longer drag a black box behind them. But the grand
+prize be below: forty German crates what sailed the skies inside black
+squares — Fokkers an' Albatros an' Gothas an' the whole Hun flock — now fly
+clean, their black-box seas struck transparent, an' every enemy an' boss
+wears a photographic fabric grain cut from the SPAD's own wing, so the
+canvas breathes instead of lyin' flat. The Ghost himself, too pale a wraith
+to spy, now burns red enough to fear. An' the dead-ahead chateau what looked
+like a child's Lincoln Logs be rebuilt as a proper country estate — a wide,
+sunlit photographic plate of the grand house with its grounds an' roads an'
+gardens, pale stone, not dark logs. No mechanic be touched — same sorties,
+same one-hit death, same Ghost waitin' at thirty-two. Arrr.
+
+
+## v37 — 2026-11-07
+
+v37: every kill now goes up like a proper magazine blast, mateys — eight
+photographic frames cut from the v34 fire an' flash sheets an' the v36 smoke
+an' ember plates, all born o' the one true aerial photograph. A white-hot
+flash first, then the orange fireball blooms an' grows, then dark smoke
+rolls an' embers fall an' fade — no drawn flame, no vector star, no
+cartoon puff anywhere. Small fry pop small, Gothas an' heavies burst big,
+an' when the Ghost himself falls at thirty-two the sky burns biggest of
+all — yet never so big as to hide a bullet or yer own SPAD, for the blasts
+fly beneath the guns an' the pilots. Eight at most at once, an' every dead
+foe leaves a brief dark smoke column risin' where she fell. The oil an'
+sparks for a mere hit stand untouched — the fireball be for the kill alone.
+No mechanic be touched — same sorties, same one-hit death, same Ghost
+waitin' at thirty-two. Arrr.
+
+
+
+## v36 — 2026-11-07
+
+v36: the battlefield below now breathes, mateys — ground fires burn upon the
+scenery with warm glow an' smoulder, their smoke risin' in soft grey columns,
+wrecks smoulderin' long after the crash, an' great soft clouds driftin' slow at
+high altitude, barely there, fadin' to nothin' at their edges. Every wisp an'
+flame be cut from the one true photograph — cropped, blurred, an' feathered,
+never a drawn shape nor a hard edge anywhere. The fires an' clouds shift with
+each sortie's weather — fog an' mist brew thicker smoke, the high sorties fly
+clearer skies, an' the Ghost's own finale burns brightest of all. No mechanic
+be touched — same sorties, same one-hit death, same Ghost waitin' at
+thirty-two. Arrr.
+
+
+## v35 — 2026-11-07
+
+v35: by the Captain's own word, the deck be swept of unasked clutter. The death board now reads KILLED IN ACTION but once in its header — the second tellin' walks the plank. The turn-yer-phone-sideways nag be struck entire; the ship sails portrait only, no rotatin' orders given nor asked. The loop be back-tap only — double-tap the back o' the device, an' no other hand; the playfield double-tap loop be cut, the on-screen loop button be gone (there never were one aboard, an' the QA crow's-nest now swears it), an' the loop count rides bare in the lower right like a proper '42 tally, a plain number with no button chrome, showin' only, never summonin'. Triple-tap the deck still calls a halt, an' a tap on the top o' the screen now halts her too. The SPAD now hugs the finger tighter, flyin' nearer the touch with no tether line betwixt hand an' wing — no cord, no leash, no string at all. An' when the guns first bark on a hold, the deck gives one short buzz under yer palm, once only, never a rattle while she fires. Nothin' else aboard be touched — same sorties, same Ghost waitin' at thirty-two. Arrr.
+
+## v34 — 2026-11-07
+
+v34: thirty-two sorties, each with its own true photograph o' the ground below — low fields, middle skies, an' high heaven with the haze thick upon it, an' a fast climb dissolve when the height changes. The SPAD now casts a soft shadow upon the earth, risin' an' shrinkin' with the climb. The lettered POWs spin like brass coins in the sun, the score wheels roll like an odometer, an' the tally counts its spoils proper. The co-op be device-to-device only — no more two pilots on one deck — paired over Bluetooth or the same Wi-Fi, host flies 1P an' the joiner 2P in a sand-an'-olive SPAD marked with the number 2, no friendly fire an' no mid-air bumpin'. The remove-ads strongbox unlocks the co-op, an' if either pilot holds it, no ads trouble either. The finger moves the plane an' the guns spit while ye hold on — let go an' they fall silent; tap the back twice for a loop, thrice for a halt; the bomb be a prize ye fly into, never a button. All vector scrimshaw be struck — every ground gun, chateau, balloon, an' burst now flies as a raster sprite sheet cut from true photographs. The engine hums, the guns bark, an' the deck buzzes under yer fingers. One-hit death stands, the wingmen still take the bullet, an' the Ghost waits at sortie thirty-two. Arrr.
+
+A gore-free refit be done upon v34 after the push: the red blood spurts be struck from the deck — where a hit once sprayed red, now dark oil sprays an' hot sparks fly, cut from the same photograph cloth. No mechanic be touched — one-hit death, wingmen, bosses, an' the pacing all stand as they were. Arrr.
+
+## Bundle ID — 2026-11-07 (no version bump)
+
+The wrapper's flag be struck an' re-painted — the app now sails under com.stevenpounds.1918, an' the remove-ads strongbox answers to com.stevenpounds.1918.removeads. The game itself stays v33; no new version, only a new name upon the same ship. The App Store Connect record, the remove-ads product, an' the AdMob register must all be made anew under the new colours. Arrr.
+
+
+## v33 — 2026-11-03
+
+v33: by the Captain's own word the wingmen now take the bullet — a lethal shot what would send the pilot to the deep instead shatters a wingman, one brave shadow per hit, and the pilot falls in one hit only when no wingman flies beside. Arrr.
+
+
+## v32 — 2026-11-03
+
+v32: the Wingman Link remote line be cut — the Google STUN beacons (stun.l.google.com, stun1.l.google.com) and the whole invite-code trade be struck from the manifest, so the public link may fly again. Same-device two-pilot flight stands, and the campaign save still rides in a local file. The field radio falls silent for distant wingmen — for now, arrr.
+
+
+## v31 — 2026-11-03
+
+v31: by the Captain's order the SPAD dies in ONE hit — a single bullet, shell, or kiss o' the ground sends ye to the deep, as doctrine always swore; no more six-hit hide. An' the foreign strongbox what barred the public link walks the plank: no outside store, the campaign keeps its spoils in memory for the session, an' the link flies free again. Arrr.
+
+
+## v30 — 2026-11-02
+
+v30: the Capcom '42 charts be mirrored — thirty-two sorties now fly the 1942 beat: red V-formations an' ten-ship columns, lettered POWs driftin' down (green guns, grey wings, white blast, yellow loops, red points, orange hush, black bombs), Gotha heavies climbin' from below worth more with every kill, majors risin' from the deep for a proper duel an' dyin' in fireballs, then the tally on the aerodrome (shoot-down share an' a thousand per spare loop) an' a fresh takeoff into the next fight — an' when the Ghost falls at eleven, ten million in armistice gold. Arrr.
+
 
 ## v29 — 2026-10-19
 

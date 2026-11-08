@@ -1,12 +1,11 @@
 # UMP 3 patch — AdMob plugin 6.2.0 + GoogleUserMessagingPlatform 3.1.0
 
+> **Automatic now (2026-11-07):** `native/scripts/apply-patches.js` runs as the `postinstall` hook (`"postinstall": "node scripts/apply-patches.js"` in package.json) and re-applies both patches after every `npm install`. You no longer need to do this by hand. The manual steps below are kept for reference only.
+
 `npx cap sync ios` resolves GoogleUserMessagingPlatform **3.1.0** (Google-Mobile-Ads-SDK
 11.3.0 only requires `>= 1.1`). UMP 3.0 renamed its Swift API (dropped the `UMP`
 prefix, `sharedInstance` -> `shared`). The AdMob plugin 6.2.0 was written against
 UMP 2.x, so Xcode fails to build `ConsentExecutor.swift` until it is patched.
-
-This patch lives in `node_modules` and is **wiped by a fresh `npm install`**.
-Re-apply it after any fresh install, before pressing Run in Xcode.
 
 ## File
 

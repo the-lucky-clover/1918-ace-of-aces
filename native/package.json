@@ -17,6 +17,7 @@
   "name": "ace-of-aces-1918",
   "scripts": {
     "open:ios": "npx cap open ios",
+    "postinstall": "node scripts/apply-patches.js",
     "sync": "npx cap sync"
   },
   "version": "1.0.0"

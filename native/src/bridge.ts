@@ -36,7 +36,7 @@ import { FirebaseAnalytics } from '@capacitor-firebase/analytics';
 const BANNER_AD_ID = 'ca-app-pub-4389055403972993/6403273070'; // REAL — persistent bottom banner
 const INTERSTITIAL_AD_ID = 'ca-app-pub-4389055403972993/6670866381'; // REAL — between sorties
 const REWARDED_AD_ID = 'ca-app-pub-4389055403972993/2272456375'; // REAL — continue-after-death
-const REMOVE_ADS_PRODUCT_ID = 'com.luckyclover.aceofaces.removeads'; // $2.99 non-consumable
+const REMOVE_ADS_PRODUCT_ID = 'com.stevenpounds.1918.removeads'; // $2.99 non-consumable
 const PREF_ADS_REMOVED = 'ace1918_ads_removed_v1';
 const INTERSTITIAL_MIN_GAP_MS = 90_000; // honest frequency cap
 

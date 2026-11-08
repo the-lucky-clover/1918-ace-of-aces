@@ -45,7 +45,7 @@ whole point of this guide) and click **Continue**, then **Create project**.
 **Step 7.** **Apple bundle ID** — type exactly:
 
 ```
-com.luckyclover.aceofaces
+com.stevenpounds.1918
 ```
 
 One wrong letter and analytics silently goes nowhere. Nickname: `1918`

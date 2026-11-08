@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.luckyclover.aceofaces',
+  appId: 'com.stevenpounds.1918',
   appName: '1918',
   webDir: 'www',
   // The game is 9:16 portrait, mobile-first.

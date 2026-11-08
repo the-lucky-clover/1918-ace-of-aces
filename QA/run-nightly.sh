@@ -38,6 +38,13 @@ record() { names+=("$1"); results+=("$2"); }
 # (The "resources still in use at exit" / ObjectDB leak lines are benign.)
 godot_check() {
     local name="$1"; shift
+    # 2026-10-19: Godot web pipeline canceled by Steven ("Godot sucks") —
+    # live build is the pre-Godot JS version. Skip the slow headless checks
+    # by default; set SKIP_GODOT=0 to re-enable.
+    if [ "${SKIP_GODOT:-1}" = "1" ]; then
+        record "$name" "SKIP — Godot pipeline canceled 2026-10-19"
+        return 0
+    fi
     : > "$OUT"
     if "$@" >"$OUT" 2>&1; then
         if grep -qiE 'script error|parse error|failed to (load|open|instance)' "$OUT"; then
@@ -725,17 +732,23 @@ done
 # merge fragments into QA/reports/skepticism-<date>.md
 # (v23: archetype-aware stats, per-fault proof table, trends, bug autofile;
 #  exits 1 on CRITICAL anomalies or missing detector proof)
-if python3 "$PROJECT/tools/merge_skeptic.py" "$SKEP_DIR" "$DATE" >"$OUT" 2>&1; then
+# 2026-10-19: Godot pipeline canceled — bot runs can't execute; skip.
+if [ "${SKIP_GODOT:-1}" = "1" ]; then
+    record "qa-skepticism-report" "SKIP — Godot pipeline canceled 2026-10-19"
+    record "qa-seedfault-proof" "SKIP — Godot pipeline canceled 2026-10-19"
+elif python3 "$PROJECT/tools/merge_skeptic.py" "$SKEP_DIR" "$DATE" >"$OUT" 2>&1; then
     record "qa-skepticism-report" "PASS — $(grep -o 'SKEPTIC:.*' "$OUT" | head -1)"
 else
     record "qa-skepticism-report" "FAIL — $(grep -o 'SKEPTIC:.*' "$OUT" | head -1)"
 fi
 # v23: the merge gates detector proof — record its tally here so the
 # long-standing qa-seedfault-proof stage keeps its name and meaning.
+if [ "${SKIP_GODOT:-1}" != "1" ]; then
 if grep -q 'proof 8/8' "$OUT" 2>/dev/null; then
     record "qa-seedfault-proof" "PASS — 8/8 detectors proved"
 else
     record "qa-seedfault-proof" "FAIL — $(grep -o 'proof [0-9]*/8' "$OUT" | head -1)"
+fi
 fi
 # --- v23: terrain hygiene — the 32 minimap identities under the iron rule ---
 if python3 "$ROOT/QA/skeptic/check_terrain.py" "$PROJECT/scripts" >"$OUT" 2>&1; then
@@ -803,7 +816,7 @@ fi
 
 # --- write the report ---
 VER="$(tr -d '[:space:]' < VERSION)"
-pass=0; fail=0
+pass=0; fail=0; skip=0
 {
     echo "# Nightly QA report — $DATE"
     echo ""
@@ -814,15 +827,18 @@ pass=0; fail=0
         if [[ "${results[$i]}" == PASS* ]]; then
             echo "- [x] ${names[$i]} — ${results[$i]}"
             pass=$((pass + 1))
+        elif [[ "${results[$i]}" == SKIP* ]]; then
+            echo "- [~] ${names[$i]} — ${results[$i]}"
+            skip=$((skip + 1))
         else
             echo "- [ ] ${names[$i]} — ${results[$i]}"
             fail=$((fail + 1))
         fi
     done
     echo ""
-    echo "**$pass passed, $fail failed**"
+    echo "**$pass passed, $fail failed, $skip skipped**"
 } > "$REPORT"
 
 rm -f "$OUT"
-echo "Report: QA/reports/$DATE.md — $pass passed, $fail failed"
+echo "Report: QA/reports/$DATE.md — $pass passed, $fail failed, $skip skipped"
 [ "$fail" -eq 0 ]
