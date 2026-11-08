@@ -1,3 +1,8 @@
+## v75 — Thirty-Two Skies, an' a Windsock on the Field
+- Every sortie flies over her OWN ground now: thirty-two photorealistic plates, one bespoke photograph per sortie — fields, forests, rivers, ruined towns an' crater wastes — no crops o' one picture, no drawn pixels.
+- A windsock stands by the runway at the aerodrome, streamin' an' dippin' in the wind through takeoff an' landin'.
+- The ship herself minds her altitude in the begin cycle: small at the field's own scale as she rolls, growin' to full size as she climbs, her shadow walkin' away beneath her; an' shrinkin' back down as she settles to land.
+
 ## v74 — No More Black Screen
 - The launch be paper-white from the first instant — no black void — an' the boot bar fills an' shimmers on her own while the squadron loads, takin' true orders from the load count once it reports.
 - The web fonts no longer hold the first paint hostage: they swap in when they arrive, an' the game shows herself at once, with or without a signal.
