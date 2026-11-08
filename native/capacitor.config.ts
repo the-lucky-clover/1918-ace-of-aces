@@ -4,6 +4,7 @@ const config: CapacitorConfig = {
   appId: 'com.stevenpounds.1918',
   appName: '1918',
   webDir: 'www',
+  backgroundColor: '#faf8f1',
   // The game is 9:16 portrait, mobile-first.
   ios: {
     contentInset: 'always',

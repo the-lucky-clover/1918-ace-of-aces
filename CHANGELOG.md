@@ -1,3 +1,12 @@
+## v74 — No More Black Screen
+- The launch be paper-white from the first instant — no black void — an' the boot bar fills an' shimmers on her own while the squadron loads, takin' true orders from the load count once it reports.
+- The web fonts no longer hold the first paint hostage: they swap in when they arrive, an' the game shows herself at once, with or without a signal.
+
+## v73 — True Photograph, Honest Power-Ups, a Real Aerodrome
+- The battlefield keeps her true proportions — no more stretchin' the photograph tall; she scrolls at her natural shape.
+- Power markers take a proper hit now: shoot one an' she cycles, fly over one an' she's yers. Fuel drums be collect-only — shot passes through 'em harmless.
+- The aerodrome be a real forward field at last: hangars, tents, parked kites an' a long dirt runway — the old 'aerodrome' an' 'runway' plates were crater-field an' ruins photos wearin' false names, an' they be struck.
+
 ## v72 — The Zeppelin Comes Down to Yer Level
 - The great airships no longer cruise their own high road: each Zeppelin now flies at the pilot's own altitude, easin' to yer level an' holdin' there with a stately sway, so the fight be eye to eye.
 
