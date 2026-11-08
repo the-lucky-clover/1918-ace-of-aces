@@ -1,3 +1,10 @@
+## v77 — The Ground Stops Shootin' Back
+- The terrain sprites no longer attack: Archie guns, railway batteries, artillery an' trench guns hold their fire — they're targets, not hunters. The POW formation flies unarmed too, a bonus to be collected, not a fight.
+- Shadows mind their size: never broader than the plane castin' 'em, shrinkin' as she climbs.
+- The black smoke breathes soft now — no hard edges on the trail.
+- The flight screen breathes easier: the sortie line only shows at takeoff an' landin', not through the fight.
+- Leavin' the field is a journey now: the aerodrome's edge melts away, then the base perimeter slides below — guard towers, the checkpoint gate — then chateaus an' vineyards, then the trench-scarred provin' grounds where nary a tree stands. Photographs all the way, dissolvin' one into the next.
+
 ## v76 — Tall Skies, Every One Lookin' Straight Down
 - Eight plates that leaned oblique got remade strict nadir — Montfaucon, Rembercourt, Reims, Laon, Vouziers, the Meuse heights, Exermont an' Cunel — so all thirty-two sorties now fly over true top-down photographs, rooftops an' ground only, no horizons, no vector, no drawn pixels.
 - Every plate grew taller — from twice her width to three times — extended with her own mirrored photographic ground. Nothin' stretched, not one pixel: the ground itself is longer.
