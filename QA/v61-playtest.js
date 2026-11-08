@@ -407,6 +407,8 @@ if (!sandbox.window.AceQA) { console.error('window.AceQA not exposed after load'
     check('AceQA.airborne() (altitude map, shadow model, altitude size, no glued shadow, bank poses, damaged fallback, true scale intact)', ab.pass === true && ab.altMap === true && ab.shadowModel === true && ab.damagedFallback === true && ab.scaleIntact === true, JSON.stringify(ab));
     const tv = AceQA.trenchVariety();
     check('AceQA.trenchVariety() (10 plates load + draw, 2 lines + 1 field, seeded, distinct, day-one intact)', tv.pass === true && tv.plates === 10 && tv.loaded === 10 && tv.drawn === 10 && tv.lines === 2 && tv.fields === 1, JSON.stringify(tv));
+    const bf = AceQA.battlefieldV63();
+    check('AceQA.battlefieldV63() (13 photographic v63 plates load, density grows 3/4/5 spots across the campaign, plates draw)', bf.pass === true && bf.platesLoad && bf.countsOk && bf.drawn, JSON.stringify(bf));
     const sz = AceQA.spawnZeppelin();
     check('AceQA.spawnZeppelin() spawns a zeppelin boss', sz.boss && sz.boss.kind === 'zeppelin', JSON.stringify(sz.boss));
     const ss = AceQA.spawnStaaken();
